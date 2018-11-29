@@ -1,0 +1,13 @@
+{
+    "name": "phanda/framework",
+    "description": "Phanda is a fast, modern PHP framework.",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Storm Burpee",
+            "email": "storm@solarreviews.com"
+        }
+    ],
+    "require": {}
+}
