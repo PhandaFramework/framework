@@ -31,7 +31,7 @@ class Response extends SymfonyResponse
      * @param mixed $content
      * @return string
      */
-    protected function morphContentToJSON($content)
+    protected function convertContentToJSON($content)
     {
         if ($content instanceof Jsonable) {
             return $content->toJson();
