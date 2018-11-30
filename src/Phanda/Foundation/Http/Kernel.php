@@ -38,7 +38,7 @@ class Kernel implements HttpKernel
      */
     public function handle($request)
     {
-
+        // TODO: Send request through router
     }
 
     /**
