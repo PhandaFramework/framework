@@ -16,6 +16,26 @@ class Response extends SymfonyResponse
 
     /**
      * @param mixed $content
+     * @return $this
+     */
+    public function setContent($content)
+    {
+        $this->original = $content;
+
+        if ($this->shouldContentBeJSON($content)) {
+            $this->addHeader('Content-Type', 'application/json');
+            $content = $this->convertContentToJSON($content);
+        } elseif ($content instanceof Renderable) {
+            $content = $content->render();
+        }
+
+        parent::setContent($content);
+
+        return $this;
+    }
+
+    /**
+     * @param mixed $content
      * @return bool
      */
     protected function shouldContentBeJSON($content)

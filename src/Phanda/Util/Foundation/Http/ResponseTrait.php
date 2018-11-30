@@ -79,6 +79,19 @@ trait ResponseTrait
     }
 
     /**
+     * @param string $key
+     * @param string|array $values
+     * @param bool $replaceExisting
+     * @return $this
+     */
+    public function addHeader($key, $values, $replaceExisting = true)
+    {
+        $this->headers->set($key, $values, $replaceExisting);
+
+        return $this;
+    }
+
+    /**
      * @param Cookie|mixed $cookie
      * @return $this
      */
