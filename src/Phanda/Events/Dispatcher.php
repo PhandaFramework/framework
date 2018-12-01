@@ -4,6 +4,7 @@ namespace Phanda\Events;
 
 use Phanda\Contracts\Events\Dispatcher as DispatcherContract;
 use Phanda\Contracts\Events\Subscriber;
+use Phanda\Support\PhandArr;
 
 class Dispatcher implements DispatcherContract
 {
@@ -17,7 +18,32 @@ class Dispatcher implements DispatcherContract
      */
     public function dispatch($eventName, $payload = [])
     {
-        // TODO: Implement dispatch() method.
+        [$event, $payload] = $this->parseEventAndPayload($eventName, $payload);
+
+        $listeners = $this->listeners($eventName);
+
+        $responses = [];
+
+        foreach($listeners as $listener) {
+            $response = $listener($event, $payload);
+
+            if($response === false) {
+                break;
+            }
+
+            $responses[] = $response;
+        }
+
+        return $responses;
+    }
+
+    protected function parseEventAndPayload($event, $payload)
+    {
+        if(is_object($event)) {
+            [$payload, $event] = [[$event], get_class($event)];
+        }
+
+        return [$event, PhandArr::MakeArray($payload)];
     }
 
     /**
