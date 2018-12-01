@@ -6,8 +6,6 @@ namespace Phanda\Foundation\Http;
 use Phanda\Contracts\Foundation\Application;
 use Phanda\Contracts\Http\Kernel as HttpKernel;
 use Phanda\Contracts\Routing\Router;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class Kernel implements HttpKernel
 {
@@ -38,7 +36,21 @@ class Kernel implements HttpKernel
      */
     public function handle($request)
     {
-        // TODO: Send request through router
+        try {
+            $request->enableHttpMethodParameterOverride();
+
+            $response = $this->sendRequestToRouter($request);
+        } catch(\Exception $e) {
+            $this->saveException($e);
+
+            $response = $this->renderException($request, $e);
+        } catch(\Throwable $e) {
+            $this->saveException($e);
+
+            $response = $this->renderException($request, $e);
+        }
+
+        return $response;
     }
 
     /**
@@ -47,6 +59,33 @@ class Kernel implements HttpKernel
      * @return void
      */
     public function terminate($request, $response)
+    {
+        // TODO: Implement terminate() method.
+    }
+
+    /**
+     * @param Request $request
+     * @return Response
+     */
+    protected function sendRequestToRouter(Request $request)
+    {
+
+    }
+
+    /**
+     * @param \Exception $e
+     */
+    protected function saveException(\Exception $e)
+    {
+
+    }
+
+    /**
+     * @param Request $request
+     * @param \Exception $e
+     * @return Response
+     */
+    protected function renderException(Request $request, \Exception $e)
     {
 
     }

@@ -3,9 +3,8 @@
 
 namespace Phanda\Contracts\Http;
 
-
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Phanda\Foundation\Http\Request;
+use Phanda\Foundation\Http\Response;
 
 interface Kernel
 {
