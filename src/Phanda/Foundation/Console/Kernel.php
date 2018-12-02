@@ -4,9 +4,19 @@
 namespace Phanda\Foundation\Console;
 
 use Closure;
+use Phanda\Console\Application as Kungfu;
+use Phanda\Console\ClosureCommand;
+use Phanda\Console\ConsoleCommand;
 use Phanda\Contracts\Console\Kernel as ConsoleKernel;
 use Phanda\Contracts\Events\Dispatcher;
 use Phanda\Contracts\Foundation\Application;
+use Phanda\Support\PhandArr;
+use Phanda\Support\PhandaStr;
+use ReflectionClass;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 
 class Kernel implements ConsoleKernel
 {
@@ -37,7 +47,7 @@ class Kernel implements ConsoleKernel
 
     public function __construct(Application $phanda, Dispatcher $eventDispatcher)
     {
-        if (! defined('KUNGFU_BINARY')) {
+        if (!defined('KUNGFU_BINARY')) {
             define('KUNGFU_BINARY', 'kungfu');
         }
 
@@ -58,12 +68,12 @@ class Kernel implements ConsoleKernel
             $this->bootstrap();
             return $this->getKungfu()->run($input, $output);
         } catch (\Exception $e) {
-            $this->reportException($e);
-            $this->outputException($e);
+            $this->saveException($e);
+            $this->outputException($output, $e);
             return 1;
         } catch (\Throwable $e) {
-            $this->reportException($e);
-            $this->outputException($e);
+            $this->saveException($e);
+            $this->outputException($output, $e);
             return 1;
         }
     }
@@ -78,16 +88,57 @@ class Kernel implements ConsoleKernel
 
     public function command($signature, Closure $callback)
     {
+        $command = new ClosureCommand($signature, $callback);
 
-    }
+        // TODO: Bind to the application start
 
-    protected function loadCommandsInDir($path)
-    {
-
+        return $command;
     }
 
     /**
-     * Run an Artisan console command by name.
+     * @param array|string $paths
+     *
+     * @throws \ReflectionException
+     */
+    protected function loadCommandsInDir($paths)
+    {
+        $paths = array_unique(PhandArr::makeArray($paths));
+
+        $paths = array_filter($paths, function ($path) {
+            return is_dir($path);
+        });
+
+        if (empty($paths)) {
+            return;
+        }
+
+        $namespace = $this->phanda->getNamespace();
+
+        foreach ((new Finder)->in($paths)->files() as $command) {
+            /** @var SplFileInfo $command */
+            $command = $namespace . str_replace(
+                    ['/', '.php'],
+                    ['\\', ''],
+                    PhandaStr::after($command->getPathname(), app_path() . DIRECTORY_SEPARATOR)
+                );
+
+            if (is_subclass_of($command, ConsoleCommand::class) &&
+                !(new ReflectionClass($command))->isAbstract()) {
+                // TODO: Resolve command callback on kungfu
+            }
+        }
+    }
+
+    /**
+     * @param Command $command
+     */
+    public function registerCommand($command)
+    {
+        $this->getKungfu()->add($command);
+    }
+
+    /**
+     * Run an Kungfu console command by name.
      *
      * @param  string $command
      * @param  array $parameters
@@ -96,7 +147,8 @@ class Kernel implements ConsoleKernel
      */
     public function call($command, array $parameters = [], $outputBuffer = null)
     {
-        // TODO: Implement call() method.
+        $this->bootstrap();
+        return $this->getKungfu()->call($command, $parameters, $outputBuffer);
     }
 
     /**
@@ -106,7 +158,8 @@ class Kernel implements ConsoleKernel
      */
     public function all()
     {
-        // TODO: Implement all() method.
+        $this->bootstrap();
+        return $this->getKungfu()->all();
     }
 
     /**
@@ -116,7 +169,8 @@ class Kernel implements ConsoleKernel
      */
     public function output()
     {
-        // TODO: Implement output() method.
+        $this->bootstrap();
+        return $this->getKungfu()->output();
     }
 
     /**
@@ -127,5 +181,54 @@ class Kernel implements ConsoleKernel
     public function stop($input, $status)
     {
         $this->phanda->stop();
+    }
+
+    /**
+     * @return Kungfu
+     */
+    protected function getKungFu()
+    {
+        if(is_null($this->kungfu)) {
+            return $this->kungfu = (new Kungfu($this->phanda, $this->eventDispatcher, $this->phanda->version()))
+                ->resolveCommands();
+        }
+
+        return $this->kungfu;
+    }
+
+    /**
+     * @param Kungfu $kungfu
+     */
+    public function setKungfu($kungfu)
+    {
+        $this->kungfu = $kungfu;
+    }
+
+    /**
+     * Bootstraps the commands
+     */
+    protected function bootstrap()
+    {
+        if(!$this->commandsLoaded) {
+            $this->commands();
+            $this->commandsLoaded = true;
+        }
+    }
+
+    /**
+     * @param \Exception $e
+     */
+    protected function saveException(\Exception $e)
+    {
+
+    }
+
+    /**
+     * @param OutputInterface $output
+     * @param \Exception $e
+     */
+    protected function outputException(OutputInterface $output, \Exception $e)
+    {
+
     }
 }

@@ -20,6 +20,16 @@ class PhandaStr
     }
 
     /**
+     * @param string $subject
+     * @param string $search
+     * @return string
+     */
+    public static function after($subject, $search)
+    {
+        return $search === '' ? $subject : array_reverse(explode($search, $subject, 2))[0];
+    }
+
+    /**
      * @param string|array $needles
      * @param string $haystack
      * @return bool

@@ -67,4 +67,16 @@ interface Application extends Container
      */
     public function stop();
 
+    /**
+     * Gets the application namespace.
+     *
+     * @return string
+     */
+    public function getNamespace();
+
+    /**
+     * @return bool
+     */
+    public function hasBeenBootstrapped();
+
 }
