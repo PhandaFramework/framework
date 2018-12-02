@@ -4,8 +4,6 @@ namespace Phanda\Container;
 
 use Closure;
 use Phanda\Contracts\Container\Container as ContainerContract;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 
 class Container implements ContainerContract
 {
@@ -59,7 +57,7 @@ class Container implements ContainerContract
     /**
      * @var array
      */
-    protected $reboundCallbacks = [];
+    protected $reattachedCallbacks = [];
 
     /**
      * @var array
@@ -102,7 +100,9 @@ class Container implements ContainerContract
      */
     public function alias($abstract, $alias)
     {
-        // TODO: Implement alias() method.
+        $this->aliases[$alias] = $abstract;
+
+        $this->abstractAliases[$abstract][] = $alias;
     }
 
     /**
@@ -351,8 +351,35 @@ class Container implements ContainerContract
             isset($this->instances[$abstract]);
     }
 
+    /**
+     * @param string $abstract
+     */
     protected function reattached($abstract)
     {
+        $instance = $this->create($abstract);
 
+        foreach($this->getReattachedCallbacks($abstract) as $callback) {
+            $callback($this, $instance);
+        }
+    }
+
+    /**
+     * @param string $abstract
+     * @return array
+     */
+    protected function getReattachedCallbacks($abstract)
+    {
+        if (isset($this->reattachedCallbacks[$abstract])) {
+            return $this->reattachedCallbacks[$abstract];
+        }
+
+        return [];
+    }
+
+    public function wrapFunction(Closure $callback, array $parameters = [])
+    {
+        return function () use ($callback, $parameters) {
+            return $this->call($callback, $parameters);
+        };
     }
 }
