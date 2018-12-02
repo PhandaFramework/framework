@@ -114,6 +114,10 @@ class Container implements ContainerContract
         return isset($this->aliases[$abstract]);
     }
 
+    /**
+     * @param $abstract
+     * @return mixed
+     */
     public function getAlias($abstract)
     {
 
@@ -156,6 +160,11 @@ class Container implements ContainerContract
 
     }
 
+    /**
+     * @param string $abstract
+     * @param \Closure|string|null $concrete
+     * @return Closure
+     */
     protected function getClosure($abstract, $concrete)
     {
         return function ($container, $parameters = []) use ($abstract, $concrete) {
@@ -168,16 +177,28 @@ class Container implements ContainerContract
         };
     }
 
+    /**
+     * @param string $method
+     * @return bool
+     */
     public function hasMethodAttachment($method)
     {
         return isset($this->methodAttachments[$method]);
     }
 
+    /**
+     * @param string|array $method
+     * @param Closure $callback
+     */
     public function attachMethod($method, $callback)
     {
         $this->methodAttachments[$this->parseMethodAttachment($method)] = $callback;
     }
 
+    /**
+     * @param string|array $method
+     * @return string
+     */
     public function parseMethodAttachment($method)
     {
         if(is_array($method)) {
@@ -187,9 +208,24 @@ class Container implements ContainerContract
         return $method;
     }
 
+    /**
+     * @param string $method
+     * @param mixed $instance
+     * @return mixed
+     */
     public function callMethodAttachment($method, $instance)
     {
         return $this->methodAttachments[$method]($instance, $this);
+    }
+
+    /**
+     * @param string $concrete
+     * @param string $abstract
+     * @param Closure|string $implementation
+     */
+    public function addContextualAttachment($concrete, $abstract, $implementation)
+    {
+        $this->contextualAttachments[$concrete][$this->getAlias($abstract)] = $implementation;
     }
 
     /**
@@ -199,7 +235,7 @@ class Container implements ContainerContract
      */
     public function singleton($abstract, $concrete = null)
     {
-        // TODO: Implement singleton() method.
+        $this->attach($abstract, $concrete, true);
     }
 
     /**
@@ -211,7 +247,19 @@ class Container implements ContainerContract
      */
     public function modify($abstract, Closure $closure)
     {
-        // TODO: Implement modify() method.
+        $abstract = $this->getAlias($abstract);
+
+        if(isset($this->instances[$abstract])) {
+            $this->instances[$abstract] = $closure($this->instances[$abstract], $this);
+
+            $this->reattached($abstract);
+        } else {
+            $this->modifiers[$abstract][] = $closure;
+
+            if($this->isResolved($abstract)) {
+                $this->reattached($abstract);
+            }
+        }
     }
 
     /**
