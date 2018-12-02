@@ -79,6 +79,11 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     /**
      * @var string
      */
+    protected $bootstrapPath;
+
+    /**
+     * @var string
+     */
     protected $configPath;
 
     /**
@@ -159,6 +164,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
         $this->instance('path', $this->path());
         $this->instance('path.app', $this->appPath());
         $this->instance('path.assets', $this->assetsPath());
+        $this->instance('path.bootstrap', $this->bootstrapPath());
         $this->instance('path.base', $this->basePath());
         $this->instance('path.config', $this->configPath());
         $this->instance('path.public', $this->publicPath());
@@ -203,6 +209,16 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     {
         return $this->assetsPath . ($path ? DIRECTORY_SEPARATOR . $path : $path) ?:
             $this->basePath . DIRECTORY_SEPARATOR . 'assets' . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+    }
+
+    /**
+     * @param string $path
+     * @return string
+     */
+    public function bootstrapPath($path = '')
+    {
+        return $this->bootstrapPath . ($path ? DIRECTORY_SEPARATOR . $path : $path) ?:
+            $this->basePath . DIRECTORY_SEPARATOR . 'bootstrap' . ($path ? DIRECTORY_SEPARATOR . $path : $path);
     }
 
     /**
@@ -254,6 +270,17 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     {
         $this->assetsPath = $path;
         $this->instance('path.assets', $path);
+        return $this;
+    }
+
+    /**
+     * @param string $path
+     * @return $this
+     */
+    public function setBootstrapPath($path)
+    {
+        $this->bootstrapPath = $path;
+        $this->instance('path.bootstrap', $path);
         return $this;
     }
 
@@ -576,15 +603,15 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
 
     public function getNamespace()
     {
-        if(!is_null($this->namespace)) {
+        if (!is_null($this->namespace)) {
             return $this->namespace;
         }
 
         $composer = json_decode(file_get_contents(base_path('composer.json')), true);
 
-        foreach ((array) data_get($composer, 'autoload.psr-4') as $namespace => $path) {
-            foreach ((array) $path as $pathChoice) {
-                if (realpath(app_path()) == realpath(base_path().'/'.$pathChoice)) {
+        foreach ((array)data_get($composer, 'autoload.psr-4') as $namespace => $path) {
+            foreach ((array)$path as $pathChoice) {
+                if (realpath(app_path()) == realpath(base_path() . '/' . $pathChoice)) {
                     return $this->namespace = $namespace;
                 }
             }
