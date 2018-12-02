@@ -269,7 +269,37 @@ class Container implements ContainerContract
      */
     public function instance($abstract, $instance)
     {
-        // TODO: Implement instance() method.
+        $this->clearAbstractAliases($abstract);
+
+        $isAttached = $this->isAttached($abstract);
+
+        unset($this->aliases[$abstract]);
+
+        $this->instances[$abstract] = $instance;
+
+        if($isAttached) {
+            $this->reattached($abstract);
+        }
+
+        return $instance;
+    }
+
+    /**
+     * @param string $abstract
+     */
+    protected function clearAbstractAliases($abstract)
+    {
+        if(!isset($this->aliases[$abstract])) {
+            return;
+        }
+
+        foreach($this->abstractAliases as $abstract => $aliases) {
+            foreach($aliases as $index => $alias) {
+                if($alias == $abstract) {
+                    unset($this->abstractAliases[$abstract][$index]);
+                }
+            }
+        }
     }
 
     /**
