@@ -109,14 +109,21 @@ class Container implements ContainerContract
      * @param $abstract
      * @return bool
      */
-    protected function isAlias($abstract)
+    public function isAlias($abstract)
+    {
+        return isset($this->aliases[$abstract]);
+    }
+
+    public function getAlias($abstract)
     {
 
     }
 
-    protected function getAlias($abstract)
+    public function isSharedAttachment($abstract)
     {
-
+        return isset($this->instances[$abstract]) ||
+            isset($this->attachments[$abstract]['shared']) &&
+            $this->attachments[$abstract]['shared'] === true;
     }
 
     /**
@@ -127,7 +134,62 @@ class Container implements ContainerContract
      */
     public function attach($abstract, $concrete = null, $shared = false)
     {
-        // TODO: Implement attach() method.
+        $this->clearOldInstances($abstract);
+
+        if ($concrete === null) {
+            $concrete = $abstract;
+        }
+
+        if (!$concrete instanceof Closure) {
+            $concrete = $this->getClosure($abstract, $concrete);
+        }
+
+        $this->attachments[$abstract] = compact('concrete', 'shared');
+
+        if ($this->isResolved($abstract)) {
+            $this->reattached($abstract);
+        }
+    }
+
+    protected function clearOldInstances($abstract)
+    {
+
+    }
+
+    protected function getClosure($abstract, $concrete)
+    {
+        return function ($container, $parameters = []) use ($abstract, $concrete) {
+            /** @var Container $container */
+            if ($abstract == $concrete) {
+                return $container->build($concrete);
+            }
+
+            return $container->create($concrete, $parameters);
+        };
+    }
+
+    public function hasMethodAttachment($method)
+    {
+        return isset($this->methodAttachments[$method]);
+    }
+
+    public function attachMethod($method, $callback)
+    {
+        $this->methodAttachments[$this->parseMethodAttachment($method)] = $callback;
+    }
+
+    public function parseMethodAttachment($method)
+    {
+        if(is_array($method)) {
+            return $method[0] . '@' . $method[1];
+        }
+
+        return $method;
+    }
+
+    public function callMethodAttachment($method, $instance)
+    {
+        return $this->methodAttachments[$method]($instance, $this);
     }
 
     /**
@@ -181,6 +243,11 @@ class Container implements ContainerContract
         // TODO: Implement create() method.
     }
 
+    public function build($concrete)
+    {
+
+    }
+
     /**
      * @param callable|string $callback
      * @param array $parameters
@@ -198,11 +265,16 @@ class Container implements ContainerContract
      */
     public function isResolved($abstract)
     {
-        if($this->isAlias($abstract)) {
+        if ($this->isAlias($abstract)) {
             $abstract = $this->getAlias($abstract);
         }
 
         return isset($this->resolved[$abstract]) ||
             isset($this->instances[$abstract]);
+    }
+
+    protected function reattached($abstract)
+    {
+
     }
 }
