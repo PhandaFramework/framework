@@ -2,15 +2,30 @@
 
 namespace Phanda\Events;
 
+use Phanda\Container\Container;
+use Phanda\Contracts\Container\Container as ContainerContract;
 use Phanda\Contracts\Events\Dispatcher as DispatcherContract;
 use Phanda\Contracts\Events\Subscriber;
-use Phanda\Support\PhandArr;
 use Phanda\Support\PhandaStr;
 
 class Dispatcher implements DispatcherContract
 {
+    /**
+     * @var ContainerContract
+     */
+    protected $container;
 
     protected $listeners = [];
+
+    /**
+     * Dispatcher constructor.
+     *
+     * @param ContainerContract $container
+     */
+    public function __construct($container = null)
+    {
+        $this->container = $container ?: new Container;
+    }
 
     /**
      * @param string $eventName
