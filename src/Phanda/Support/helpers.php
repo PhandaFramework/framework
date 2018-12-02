@@ -2,19 +2,6 @@
 
 use Phanda\Support\PhandArr;
 
-if (!function_exists('value')) {
-    /**
-     * Return the default value of the given value.
-     *
-     * @param  mixed $value
-     * @return mixed
-     */
-    function value($value)
-    {
-        return $value instanceof Closure ? $value() : $value;
-    }
-}
-
 if (!function_exists('data_get')) {
     /**
      * Get an item from an array or object using "dot" notation.
@@ -59,3 +46,32 @@ if (!function_exists('data_get')) {
         return $target;
     }
 }
+
+if (! function_exists('modify')) {
+    /**
+     * Call the given Closure with the given value then return the value.
+     *
+     * @param  mixed  $value
+     * @param  callable|null  $callback
+     * @return mixed
+     */
+    function modify($value, $callback)
+    {
+        $callback($value);
+        return $value;
+    }
+}
+
+if (!function_exists('value')) {
+    /**
+     * Return the default value of the given value.
+     *
+     * @param  mixed $value
+     * @return mixed
+     */
+    function value($value)
+    {
+        return $value instanceof Closure ? $value() : $value;
+    }
+}
+

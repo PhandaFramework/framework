@@ -35,4 +35,18 @@ class PhandaStr
         return false;
     }
 
+    /**
+     * @param $value
+     * @param string|null $encoding
+     * @return int
+     */
+    public static function length($value, $encoding = null)
+    {
+        if ($encoding) {
+            return mb_strlen($value, $encoding);
+        }
+
+        return mb_strlen($value);
+    }
+
 }
