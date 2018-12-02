@@ -101,7 +101,16 @@ class Dispatcher implements DispatcherContract
      */
     public function removeSubscriber(Subscriber $subscriber)
     {
-        // TODO: Implement removeSubscriber() method.
+        foreach($subscriber->getSubscribedEvents() as $eventName => $params)
+        {
+            if(is_array($params) && is_array($params[0])) {
+                foreach($params as $listener) {
+                    $this->removeListener($eventName, array($subscriber, $listener[0]));
+                }
+            } else {
+                $this->removeListener($eventName, array($subscriber, is_string($params) ? $params : $params[0]));
+            }
+        }
     }
 
     /**
