@@ -4,14 +4,16 @@
 namespace Phanda\Contracts\Events;
 
 
+use Phanda\Events\Event;
+
 interface Dispatcher
 {
     /**
      * @param string $eventName
-     * @param mixed $payload
-     * @return array|null
+     * @param Event|null $event
+     * @return Event
      */
-    public function dispatch($eventName, $payload = []);
+    public function dispatch($eventName, Event $event = null);
 
     /**
      * @param string $eventName

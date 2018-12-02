@@ -13,37 +13,39 @@ class Dispatcher implements DispatcherContract
 
     /**
      * @param string $eventName
-     * @param mixed $payload
-     * @return array|null
+     * @param Event|null $event
+     * @return Event
      */
-    public function dispatch($eventName, $payload = [])
+    public function dispatch($eventName, Event $event = null)
     {
-        [$event, $payload] = $this->parseEventAndPayload($eventName, $payload);
+        if($event === null) {
+            $event = new Event();
+        }
 
         $listeners = $this->listeners($eventName);
 
-        $responses = [];
+        if($listeners) {
+            $this->executeDispatch($listeners, $eventName, $event);
+        }
 
-        foreach($listeners as $listener) {
-            $response = $listener($event, $payload);
+        return $event;
+    }
 
-            if($response === false) {
+    /**
+     * @param callable[] $listeners
+     * @param string $eventName
+     * @param Event $event
+     */
+    protected function executeDispatch($listeners, $eventName, Event $event)
+    {
+        foreach($listeners as $listener)
+        {
+            if($event->isPropagationStopped()) {
                 break;
             }
 
-            $responses[] = $response;
+            $listener($event, $eventName, $this);
         }
-
-        return $responses;
-    }
-
-    protected function parseEventAndPayload($event, $payload)
-    {
-        if(is_object($event)) {
-            [$payload, $event] = [[$event], get_class($event)];
-        }
-
-        return [$event, PhandArr::MakeArray($payload)];
     }
 
     /**
@@ -77,7 +79,13 @@ class Dispatcher implements DispatcherContract
      */
     public function removeListener($eventName, $listener)
     {
-        // TODO: Implement removeListener() method.
+        if(empty($this->listeners[$eventName])) {
+            return;
+        }
+
+        if(is_array($listener) && isset($listener[0]) && $listener[0] instanceof \Closure) {
+            $listener[0] = $listener[0]();
+        }
     }
 
     /**
@@ -85,7 +93,7 @@ class Dispatcher implements DispatcherContract
      */
     public function removeListeners($eventName)
     {
-        // TODO: Implement removeListeners() method.
+        unset($this->listeners[$eventName]);
     }
 
     /**
@@ -102,7 +110,12 @@ class Dispatcher implements DispatcherContract
      */
     public function listeners($eventName = null)
     {
-        // TODO: Implement listeners() method.
+        if($eventName !== null) {
+            $listeners = $this->listeners[$eventName] ?? [];
+            return $listeners;
+        }
+
+        return $this->listeners;
     }
 
     /**
@@ -111,7 +124,17 @@ class Dispatcher implements DispatcherContract
      */
     public function hasListeners($eventName = null)
     {
-        // TODO: Implement hasListeners() method.
+        if($eventName !== null) {
+            return !empty($this->listeners[$eventName]);
+        }
+
+        foreach($this->listeners as $eventListener) {
+            if($eventListener) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
