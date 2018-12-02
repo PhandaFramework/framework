@@ -16,7 +16,7 @@ interface Application extends Container
     /**
      * @return string
      */
-    public function appPath();
+    public function basePath();
 
     /**
      * @return string
@@ -49,6 +49,11 @@ interface Application extends Container
      * @return void
      */
     public function started($callback);
+
+    /**
+     * @return bool
+     */
+    public function hasStarted();
 
     /**
      * @param string|AbstractServiceProvider $provider

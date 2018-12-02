@@ -162,8 +162,6 @@ class Container implements ContainerContract
      * @param \Closure|string|null $concrete
      * @param bool $shared
      * @return void
-     * @throws \ReflectionException
-     * @throws ResolvingAttachmentException
      */
     public function attach($abstract, $concrete = null, $shared = false)
     {
@@ -264,8 +262,6 @@ class Container implements ContainerContract
      * @param string $abstract
      * @param \Closure|string|null $concrete
      * @return void
-     * @throws \ReflectionException
-     * @throws ResolvingAttachmentException
      */
     public function singleton($abstract, $concrete = null)
     {
@@ -276,10 +272,6 @@ class Container implements ContainerContract
      * @param string $abstract
      * @param Closure $closure
      * @return void
-     *
-     * @throws \InvalidArgumentException
-     * @throws \ReflectionException
-     * @throws ResolvingAttachmentException
      */
     public function modify($abstract, Closure $closure)
     {
@@ -302,8 +294,6 @@ class Container implements ContainerContract
      * @param string $abstract
      * @param mixed $instance
      * @return mixed
-     * @throws \ReflectionException
-     * @throws ResolvingAttachmentException
      */
     public function instance($abstract, $instance)
     {
@@ -355,8 +345,6 @@ class Container implements ContainerContract
      * @param string $abstract
      * @param array $parameters
      * @return mixed
-     * @throws \ReflectionException
-     * @throws ResolvingAttachmentException
      */
     public function create($abstract, array $parameters = [])
     {
@@ -366,7 +354,6 @@ class Container implements ContainerContract
     /**
      * @param string $concrete
      * @return mixed
-     * @throws \ReflectionException
      * @throws ResolvingAttachmentException
      */
     public function build($concrete)
@@ -427,8 +414,6 @@ class Container implements ContainerContract
 
     /**
      * @param string $abstract
-     * @throws \ReflectionException
-     * @throws ResolvingAttachmentException
      */
     protected function reattached($abstract)
     {
@@ -468,8 +453,6 @@ class Container implements ContainerContract
      * @param string $abstract
      * @param array $parameters
      * @return mixed
-     * @throws \ReflectionException
-     * @throws ResolvingAttachmentException
      */
     protected function resolve($abstract, $parameters = [])
     {
@@ -570,7 +553,6 @@ class Container implements ContainerContract
      * @param array $dependencies
      * @return array
      * @throws ResolvingAttachmentException
-     * @throws \ReflectionException
      */
     protected function resolveDependencies(array $dependencies)
     {
@@ -641,9 +623,7 @@ class Container implements ContainerContract
     /**
      * @param ReflectionParameter $parameter
      * @return mixed
-     *
      * @throws ResolvingAttachmentException
-     * @throws \ReflectionException
      */
     protected function resolveClass(ReflectionParameter $parameter)
     {
