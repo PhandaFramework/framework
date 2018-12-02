@@ -5,6 +5,7 @@ namespace Phanda\Events;
 use Phanda\Contracts\Events\Dispatcher as DispatcherContract;
 use Phanda\Contracts\Events\Subscriber;
 use Phanda\Support\PhandArr;
+use Phanda\Support\PhandaStr;
 
 class Dispatcher implements DispatcherContract
 {
@@ -18,13 +19,13 @@ class Dispatcher implements DispatcherContract
      */
     public function dispatch($eventName, Event $event = null)
     {
-        if($event === null) {
+        if ($event === null) {
             $event = new Event();
         }
 
         $listeners = $this->listeners($eventName);
 
-        if($listeners) {
+        if ($listeners) {
             $this->executeDispatch($listeners, $eventName, $event);
         }
 
@@ -38,9 +39,8 @@ class Dispatcher implements DispatcherContract
      */
     protected function executeDispatch($listeners, $eventName, Event $event)
     {
-        foreach($listeners as $listener)
-        {
-            if($event->isPropagationStopped()) {
+        foreach ($listeners as $listener) {
+            if ($event->isPropagationStopped()) {
                 break;
             }
 
@@ -62,11 +62,11 @@ class Dispatcher implements DispatcherContract
      */
     public function addSubscriber(Subscriber $subscriber)
     {
-        foreach($subscriber->getSubscribedEvents() as $eventName => $params) {
-            if(is_string($params)) {
+        foreach ($subscriber->getSubscribedEvents() as $eventName => $params) {
+            if (is_string($params)) {
                 $this->addListener($eventName, [$subscriber, $params]);
             } else {
-                foreach($params as $listener) {
+                foreach ($params as $listener) {
                     $this->addListener($eventName, [$subscriber, $listener[0]]);
                 }
             }
@@ -79,11 +79,11 @@ class Dispatcher implements DispatcherContract
      */
     public function removeListener($eventName, $listener)
     {
-        if(empty($this->listeners[$eventName])) {
+        if (empty($this->listeners[$eventName])) {
             return;
         }
 
-        if(is_array($listener) && isset($listener[0]) && $listener[0] instanceof \Closure) {
+        if (is_array($listener) && isset($listener[0]) && $listener[0] instanceof \Closure) {
             $listener[0] = $listener[0]();
         }
     }
@@ -101,10 +101,9 @@ class Dispatcher implements DispatcherContract
      */
     public function removeSubscriber(Subscriber $subscriber)
     {
-        foreach($subscriber->getSubscribedEvents() as $eventName => $params)
-        {
-            if(is_array($params) && is_array($params[0])) {
-                foreach($params as $listener) {
+        foreach ($subscriber->getSubscribedEvents() as $eventName => $params) {
+            if (is_array($params) && is_array($params[0])) {
+                foreach ($params as $listener) {
                     $this->removeListener($eventName, array($subscriber, $listener[0]));
                 }
             } else {
@@ -119,7 +118,7 @@ class Dispatcher implements DispatcherContract
      */
     public function listeners($eventName = null)
     {
-        if($eventName !== null) {
+        if ($eventName !== null) {
             $listeners = $this->listeners[$eventName] ?? [];
             return $listeners;
         }
@@ -133,12 +132,12 @@ class Dispatcher implements DispatcherContract
      */
     public function hasListeners($eventName = null)
     {
-        if($eventName !== null) {
+        if ($eventName !== null) {
             return !empty($this->listeners[$eventName]);
         }
 
-        foreach($this->listeners as $eventListener) {
-            if($eventListener) {
+        foreach ($this->listeners as $eventListener) {
+            if ($eventListener) {
                 return true;
             }
         }
@@ -148,11 +147,17 @@ class Dispatcher implements DispatcherContract
 
     /**
      * @param string $eventName
-     * @param mixed $payload
+     * @param Event|null $event
      */
-    public function queue($eventName, $payload = [])
+    public function queue($eventName, Event $event = null)
     {
-        // TODO: Implement queue() method.
+        if ($event === null) {
+            $event = new Event();
+        }
+
+        $this->addListener($eventName . "_queued", function () use ($eventName, $event) {
+            $this->dispatch($eventName, $event);
+        });
     }
 
     /**
@@ -160,6 +165,10 @@ class Dispatcher implements DispatcherContract
      */
     public function removeQueued()
     {
-        // TODO: Implement removeQueued() method.
+        foreach ($this->listeners as $key => $listener) {
+            if (PhandaStr::endsIn("_queued", $key)) {
+                $this->removeListeners($key);
+            }
+        }
     }
 }

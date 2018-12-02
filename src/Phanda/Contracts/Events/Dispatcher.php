@@ -56,9 +56,9 @@ interface Dispatcher
 
     /**
      * @param string $eventName
-     * @param mixed $payload
+     * @param Event|null $event
      */
-    public function queue($eventName, $payload = []);
+    public function queue($eventName, Event $event = null);
 
     /**
      * Removes all queued events
