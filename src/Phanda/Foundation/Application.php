@@ -510,6 +510,11 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
         $this->loadedProviders[get_class($provider)] = true;
     }
 
+    /**
+     * @param string $abstract
+     * @param array $parameters
+     * @return mixed
+     */
     public function create($abstract, array $parameters = [])
     {
         $abstract = $this->getAlias($abstract);
@@ -558,12 +563,19 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
         throw new HttpException($code, $message, null, $headers);
     }
 
+    /**
+     * @param callable $callback
+     * @return $this
+     */
     public function stopping(callable $callback)
     {
         $this->stoppingCallbacks[] = $callback;
         return $this;
     }
 
+    /**
+     * Stops the application
+     */
     public function stop()
     {
         foreach ($this->stoppingCallbacks as $stopping) {
@@ -571,11 +583,17 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
         }
     }
 
+    /**
+     * @return array
+     */
     public function getLoadedProviders()
     {
         return $this->loadedProviders;
     }
 
+    /**
+     * Registers core phanda aliases
+     */
     public function registerPhandaAliases()
     {
         foreach ([
@@ -589,6 +607,9 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
         }
     }
 
+    /**
+     * Resets the application, and internal variables
+     */
     public function reset()
     {
         parent::reset();
@@ -601,6 +622,11 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
         $this->serviceProviders = [];
     }
 
+    /**
+     * Gets the application namespace.
+     *
+     * @return string
+     */
     public function getNamespace()
     {
         if (!is_null($this->namespace)) {

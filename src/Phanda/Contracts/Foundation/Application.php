@@ -62,4 +62,9 @@ interface Application extends Container
      */
     public function register($provider, $force = false);
 
+    /**
+     * Stops the application
+     */
+    public function stop();
+
 }

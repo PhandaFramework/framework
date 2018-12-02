@@ -7,8 +7,44 @@ namespace Phanda\Contracts\Console;
 interface Kernel
 {
 
-    public function handle();
+    /**
+     * Handle an incoming console command.
+     *
+     * @param  \Symfony\Component\Console\Input\InputInterface  $input
+     * @param  \Symfony\Component\Console\Output\OutputInterface|null  $output
+     * @return int
+     */
+    public function handle($input, $output = null);
 
-    public function terminate();
+    /**
+     * Run an Artisan console command by name.
+     *
+     * @param  string  $command
+     * @param  array  $parameters
+     * @param  \Symfony\Component\Console\Output\OutputInterface|null  $outputBuffer
+     * @return int
+     */
+    public function call($command, array $parameters = [], $outputBuffer = null);
+
+    /**
+     * Get all of the commands registered with the console.
+     *
+     * @return array
+     */
+    public function all();
+
+    /**
+     * Get the output for the last run command.
+     *
+     * @return string
+     */
+    public function output();
+
+    /**
+     * @param $input
+     * @param $status
+     * @return mixed
+     */
+    public function stop($input, $status);
 
 }
