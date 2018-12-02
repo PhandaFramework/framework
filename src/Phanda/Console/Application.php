@@ -139,7 +139,8 @@ class Application extends SymfonyApplication implements ConsoleApplicationContra
         }
     }
 
-    public static function clearBootstrapCallbacks() {
+    public static function clearBootstrapCallbacks()
+    {
         static::$bootstrapCallbacks = [];
     }
 
@@ -159,7 +160,7 @@ class Application extends SymfonyApplication implements ConsoleApplicationContra
             $command = $this->phanda->create($command)->getName();
         }
 
-        if (! $this->has($command)) {
+        if (!$this->has($command)) {
             throw new CommandNotFoundException(sprintf('The command "%s" does not exist.', $command));
         }
 

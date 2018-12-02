@@ -90,7 +90,10 @@ class Kernel implements ConsoleKernel
     {
         $command = new ClosureCommand($signature, $callback);
 
-        // TODO: Bind to the application start
+        Kungfu::starting(function ($kungfu) use ($command) {
+            /** @var Kungfu $kungfu */
+            $kungfu->add($command);
+        });
 
         return $command;
     }
@@ -124,7 +127,10 @@ class Kernel implements ConsoleKernel
 
             if (is_subclass_of($command, ConsoleCommand::class) &&
                 !(new ReflectionClass($command))->isAbstract()) {
-                // TODO: Resolve command callback on kungfu
+                Kungfu::starting(function ($kungfu) use ($command) {
+                    /** @var Kungfu $kungfu */
+                    $kungfu->resolve($command);
+                });
             }
         }
     }
@@ -144,6 +150,8 @@ class Kernel implements ConsoleKernel
      * @param  array $parameters
      * @param  \Symfony\Component\Console\Output\OutputInterface|null $outputBuffer
      * @return int
+     *
+     * @throws \Exception
      */
     public function call($command, array $parameters = [], $outputBuffer = null)
     {
@@ -176,7 +184,6 @@ class Kernel implements ConsoleKernel
     /**
      * @param $input
      * @param $status
-     * @return mixed
      */
     public function stop($input, $status)
     {
@@ -188,9 +195,9 @@ class Kernel implements ConsoleKernel
      */
     protected function getKungFu()
     {
-        if(is_null($this->kungfu)) {
+        if (is_null($this->kungfu)) {
             return $this->kungfu = (new Kungfu($this->phanda, $this->eventDispatcher, $this->phanda->version()))
-                ->resolveCommands();
+                ->resolveCommands($this->commands);
         }
 
         return $this->kungfu;
@@ -209,7 +216,7 @@ class Kernel implements ConsoleKernel
      */
     protected function bootstrap()
     {
-        if(!$this->commandsLoaded) {
+        if (!$this->commandsLoaded) {
             $this->commands();
             $this->commandsLoaded = true;
         }
