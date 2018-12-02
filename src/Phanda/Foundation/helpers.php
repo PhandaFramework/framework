@@ -33,6 +33,19 @@ if (!function_exists('phanda')) {
     }
 }
 
+if (!function_exists('app_path')) {
+    /**
+     * Get the path to the base of the install.
+     *
+     * @param  string $path
+     * @return string
+     */
+    function app_path($path = '')
+    {
+        return phanda()->appPath() . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+    }
+}
+
 if (!function_exists('base_path')) {
     /**
      * Get the path to the base of the install.
@@ -46,15 +59,15 @@ if (!function_exists('base_path')) {
     }
 }
 
-if (!function_exists('app_path')) {
+if (!function_exists('public_path')) {
     /**
-     * Get the path to the base of the install.
+     * Get the path to the public serving path.
      *
      * @param  string $path
      * @return string
      */
-    function app_path($path = '')
+    function public_path($path = '')
     {
-        return phanda()->appPath() . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+        return phanda()->publicPath() . ($path ? DIRECTORY_SEPARATOR . $path : $path);
     }
 }
