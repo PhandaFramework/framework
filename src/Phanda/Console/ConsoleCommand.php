@@ -222,6 +222,9 @@ class ConsoleCommand extends SymfonyCommand
         return $this->getInputArgument();
     }
 
+    /**
+     * @return array
+     */
     public function getArguments()
     {
         return [];
