@@ -85,4 +85,10 @@ interface Application extends Container
      */
     public function bootstrapWith($bootstrappers);
 
+    /**
+     * @param string $provider
+     * @return AbstractServiceProvider
+     */
+    public function resolveProvider($provider);
+
 }
