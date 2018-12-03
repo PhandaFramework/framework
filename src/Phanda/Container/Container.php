@@ -10,7 +10,7 @@ use Phanda\Exceptions\Container\ResolvingAttachmentException;
 use ReflectionClass;
 use ReflectionParameter;
 
-class Container implements ContainerContract
+class Container implements ContainerContract, \ArrayAccess
 {
     /**
      * Current registered global container
@@ -775,5 +775,44 @@ class Container implements ContainerContract
     public function __set($key, $value)
     {
         $this[$key] = $value;
+    }
+
+    /**
+     * @param mixed $offset
+     * @return boolean
+     */
+    public function offsetExists($offset)
+    {
+        return $this->isAttached($offset);
+    }
+
+    /**
+     * @param mixed $offset
+     * @return mixed
+     */
+    public function offsetGet($offset)
+    {
+        return $this->create($offset);
+    }
+
+    /**
+     * @param mixed $offset
+     * @param mixed $value
+     * @return void
+     */
+    public function offsetSet($offset, $value)
+    {
+        $this->attach($offset, $value instanceof Closure ? $value : function () use ($value) {
+            return $value;
+        });
+    }
+
+    /**
+     * @param mixed $offset
+     * @return void
+     */
+    public function offsetUnset($offset)
+    {
+        unset($this->attachments[$offset], $this->instances[$offset], $this->resolved[$offset]);
     }
 }

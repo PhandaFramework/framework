@@ -254,9 +254,10 @@ class Kernel implements ConsoleKernel
     /**
      * @param \Exception $e
      */
-    protected function saveException(\Exception $e)
+    protected function saveException($e)
     {
-
+        echo $e;
+        die(-1);
     }
 
     /**
