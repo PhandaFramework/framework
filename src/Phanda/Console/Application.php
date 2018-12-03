@@ -8,6 +8,11 @@ use Phanda\Console\Events\CommandStartingEvent;
 use Phanda\Console\Events\KungfuStartingEvent;
 use Phanda\Contracts\Container\Container;
 use Phanda\Contracts\Events\Dispatcher;
+use Phanda\Contracts\Foundation\Bootstrap\Bootstrap;
+use Phanda\Foundation\Bootstrap\BootstrapConfig;
+use Phanda\Foundation\Bootstrap\BootstrapEnvironment;
+use Phanda\Foundation\Bootstrap\BootstrapPhanda;
+use Phanda\Foundation\Bootstrap\BootstrapProviders;
 use Phanda\Support\ProcessUtils;
 use Symfony\Component\Console\Application as SymfonyApplication;
 use Phanda\Contracts\Console\Application as ConsoleApplicationContract;
@@ -34,6 +39,16 @@ class Application extends SymfonyApplication implements ConsoleApplicationContra
      * @var BufferedOutput
      */
     protected $lastOutput;
+
+    /**
+     * @var Bootstrap[]
+     */
+    protected $bootstrapers = [
+        BootstrapEnvironment::class,
+        BootstrapConfig::class,
+        BootstrapProviders::class,
+        BootstrapPhanda::class
+    ];
 
     /**
      * @var array

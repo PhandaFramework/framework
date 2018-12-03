@@ -341,7 +341,12 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
      */
     public function getPathToEnvironmentFile()
     {
-        return $this->basePath() . DIRECTORY_SEPARATOR . $this->getEnvironmentFile();
+        return $this->basePath();
+    }
+
+    public function getEnvironmentFileFullPath()
+    {
+        return $this->getPathToEnvironmentFile() . DIRECTORY_SEPARATOR . $this->getEnvironmentFile();
     }
 
     /**
