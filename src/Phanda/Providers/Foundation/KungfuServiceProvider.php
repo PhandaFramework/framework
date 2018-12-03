@@ -16,7 +16,7 @@ class KungfuServiceProvider extends AbstractServiceProvider
     ];
 
     protected $devCommands = [
-        'Serve' => 'commands.serve'
+        'Serve' => 'command.serve'
     ];
 
     public function register()

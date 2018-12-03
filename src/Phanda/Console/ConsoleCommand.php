@@ -90,8 +90,6 @@ class ConsoleCommand extends SymfonyCommand
         if (!isset($this->signature)) {
             $this->specifyParameters();
         }
-
-        parent::__construct();
     }
 
     /**
@@ -207,7 +205,7 @@ class ConsoleCommand extends SymfonyCommand
      * @param string|null $key
      * @return array|null|string
      */
-    public function getArgument($key = null)
+    public function getInputArgument($key = null)
     {
         if (is_null($key)) {
             return $this->input->getArguments();
@@ -219,9 +217,14 @@ class ConsoleCommand extends SymfonyCommand
     /**
      * @return array
      */
+    public function getInputArguments()
+    {
+        return $this->getInputArgument();
+    }
+
     public function getArguments()
     {
-        return $this->getArgument();
+        return [];
     }
 
     /**
