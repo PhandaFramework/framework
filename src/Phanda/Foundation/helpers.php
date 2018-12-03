@@ -71,3 +71,27 @@ if (!function_exists('public_path')) {
         return phanda()->publicPath() . ($path ? DIRECTORY_SEPARATOR . $path : $path);
     }
 }
+
+if (! function_exists('config')) {
+    /**
+     * @param null|string|array $key
+     * @param mixed $default
+     * @return \Phanda\Configuration\Repository|null
+     */
+    function config($key = null, $default = null)
+    {
+        /** @var \Phanda\Configuration\Repository $config */
+        $config = phanda('config');
+
+        if (is_null($key)) {
+            return $config;
+        }
+
+        if (is_array($key)) {
+            $config->set($key);
+            return null;
+        }
+
+        return $config->get($key, $default);
+    }
+}

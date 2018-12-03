@@ -3,6 +3,7 @@
 namespace Phanda\Foundation;
 
 use Closure;
+use Phanda\Configuration\Repository as ConfigurationRepository;
 use Phanda\Container\Container;
 use Phanda\Contracts\Foundation\Application as ApplicationContract;
 use Phanda\Contracts\Http\Kernel as HttpKernelContract;
@@ -11,6 +12,7 @@ use Phanda\Foundation\Http\Request;
 use Phanda\Foundation\Http\Response;
 use Phanda\Providers\AbstractServiceProvider;
 use Phanda\Providers\Events\EventServiceProvider;
+use Phanda\Providers\ServiceProviderRepository;
 use Phanda\Support\Foundation\DiscoverEnvironment;
 use Phanda\Support\PhandArr;
 use Psr\Container\ContainerInterface;
@@ -148,6 +150,19 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     protected function registerPhandaServiceProviders()
     {
         $this->register(new EventServiceProvider($this));
+    }
+
+    /**
+     * Loads all providers in the phanda configuration file.
+     * Defers the providers if needed.
+     */
+    public function registerProvidersInConfiguration()
+    {
+        /** @var array $providers */
+        $providers = config('phanda.providers');
+        $providerRepository = new ServiceProviderRepository($this);
+
+        $providerRepository->loadProviders($providers);
     }
 
     /**
@@ -623,6 +638,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     {
         foreach ([
                      'app' => [Application::class, Container::class, ApplicationContract::class, ContainerInterface::class],
+                     'config' => [ConfigurationRepository::class],
                      'events' => [Dispatcher::class, \Phanda\Contracts\Events\Dispatcher::class],
                      'request' => [Request::class, SymfonyRequest::class]
                  ] as $key => $aliases) {
