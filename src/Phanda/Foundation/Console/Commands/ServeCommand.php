@@ -34,7 +34,7 @@ class ServeCommand extends ConsoleCommand
             ProcessUtils::escapeArgument((new PhpExecutableFinder)->find(false)),
             $this->host(),
             $this->port(),
-            ProcessUtils::escapeArgument(base_path('server.php'))
+            ProcessUtils::escapeArgument(base_path('console/server.php'))
         );
     }
 

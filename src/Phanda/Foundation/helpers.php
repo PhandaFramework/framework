@@ -59,6 +59,19 @@ if (!function_exists('base_path')) {
     }
 }
 
+if (!function_exists('bootstrap_path')) {
+    /**
+     * Get the path to the bootstrap of the install.
+     *
+     * @param  string $path
+     * @return string
+     */
+    function bootstrap_path($path = '')
+    {
+        return phanda()->bootstrapPath() . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+    }
+}
+
 if (!function_exists('public_path')) {
     /**
      * Get the path to the public serving path.
