@@ -256,6 +256,7 @@ class Kernel implements ConsoleKernel
      */
     protected function saveException(\Exception $e)
     {
+
     }
 
     /**

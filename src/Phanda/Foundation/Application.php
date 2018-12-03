@@ -182,7 +182,9 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
         $this->hasBootstrapped = true;
 
         foreach ($bootstrappers as $bootstrap) {
-            $this->create($bootstrap)->bootstrap();
+            /** @var Bootstrap $boostrapper */
+            $boostrapper = $this->create($bootstrap);
+            $boostrapper->bootstrap($this);
         }
     }
 
