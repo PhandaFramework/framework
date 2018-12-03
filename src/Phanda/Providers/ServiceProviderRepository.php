@@ -26,11 +26,10 @@ class ServiceProviderRepository
     public function loadProviders(array $providers)
     {
         foreach($providers as $provider) {
-            if($provider->isDeferred()) {
-                // TODO: Implement deferred service providers
-            } else {
-                $this->phanda->register($provider);
-            }
+            echo $provider;
+
+            // TODO: Implement deferred service providers
+            $this->phanda->register($provider);
         }
     }
 

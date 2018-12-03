@@ -13,6 +13,6 @@ class BootstrapProviders implements Bootstrap
      */
     public function bootstrap(Application $phanda)
     {
-
+        $phanda->registerProvidersInConfiguration();
     }
 }
