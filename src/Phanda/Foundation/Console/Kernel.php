@@ -10,6 +10,11 @@ use Phanda\Console\ConsoleCommand;
 use Phanda\Contracts\Console\Kernel as ConsoleKernel;
 use Phanda\Contracts\Events\Dispatcher;
 use Phanda\Contracts\Foundation\Application;
+use Phanda\Contracts\Foundation\Bootstrap\Bootstrap;
+use Phanda\Foundation\Bootstrap\BootstrapConfig;
+use Phanda\Foundation\Bootstrap\BootstrapEnvironment;
+use Phanda\Foundation\Bootstrap\BootstrapPhanda;
+use Phanda\Foundation\Bootstrap\BootstrapProviders;
 use Phanda\Support\PhandArr;
 use Phanda\Support\PhandaStr;
 use ReflectionClass;
@@ -39,6 +44,16 @@ class Kernel implements ConsoleKernel
      * @var array
      */
     protected $commands = [];
+
+    /**
+     * @var Bootstrap[]
+     */
+    protected $consoleBootstrappers = [
+        BootstrapEnvironment::class,
+        BootstrapConfig::class,
+        BootstrapProviders::class,
+        BootstrapPhanda::class
+    ];
 
     /**
      * @var bool
@@ -216,10 +231,24 @@ class Kernel implements ConsoleKernel
      */
     protected function bootstrap()
     {
+        if(!$this->phanda->hasBeenBootstrapped()) {
+            $this->phanda->bootstrapWith($this->bootstrappers());
+        }
+
         if (!$this->commandsLoaded) {
             $this->commands();
             $this->commandsLoaded = true;
         }
+    }
+
+    /**
+     * Get the bootstrap classes for the application.
+     *
+     * @return array
+     */
+    protected function bootstrappers()
+    {
+        return $this->consoleBootstrappers;
     }
 
     /**

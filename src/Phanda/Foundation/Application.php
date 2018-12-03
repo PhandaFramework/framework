@@ -6,6 +6,7 @@ use Closure;
 use Phanda\Configuration\Repository as ConfigurationRepository;
 use Phanda\Container\Container;
 use Phanda\Contracts\Foundation\Application as ApplicationContract;
+use Phanda\Contracts\Foundation\Bootstrap\Bootstrap;
 use Phanda\Contracts\Http\Kernel as HttpKernelContract;
 use Phanda\Events\Dispatcher;
 use Phanda\Foundation\Http\Request;
@@ -171,6 +172,18 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     public function hasBeenBootstrapped()
     {
         return $this->hasBootstrapped;
+    }
+
+    /**
+     * @param Bootstrap[] $bootstrappers
+     */
+    public function bootstrapWith($bootstrappers)
+    {
+        $this->hasBootstrapped = true;
+
+        foreach ($bootstrappers as $bootstrap) {
+            $this->create($bootstrap)->bootstrap();
+        }
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace Phanda\Contracts\Foundation;
 
 use Phanda\Contracts\Container\Container;
+use Phanda\Contracts\Foundation\Bootstrap\Bootstrap;
 use Phanda\Providers\AbstractServiceProvider;
 
 interface Application extends Container
@@ -78,5 +79,10 @@ interface Application extends Container
      * @return bool
      */
     public function hasBeenBootstrapped();
+
+    /**
+     * @param Bootstrap[] $bootstrappers
+     */
+    public function bootstrapWith($bootstrappers);
 
 }

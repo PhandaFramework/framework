@@ -43,12 +43,7 @@ class Application extends SymfonyApplication implements ConsoleApplicationContra
     /**
      * @var Bootstrap[]
      */
-    protected $bootstrapers = [
-        BootstrapEnvironment::class,
-        BootstrapConfig::class,
-        BootstrapProviders::class,
-        BootstrapPhanda::class
-    ];
+    protected $bootstrapers = [];
 
     /**
      * @var array
