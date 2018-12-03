@@ -2,6 +2,7 @@
 
 namespace Phanda\Foundation;
 
+use Closure;
 use Phanda\Container\Container;
 use Phanda\Contracts\Foundation\Application as ApplicationContract;
 use Phanda\Contracts\Http\Kernel as HttpKernelContract;
@@ -10,6 +11,7 @@ use Phanda\Foundation\Http\Request;
 use Phanda\Foundation\Http\Response;
 use Phanda\Providers\AbstractServiceProvider;
 use Phanda\Providers\Events\EventServiceProvider;
+use Phanda\Support\Foundation\DiscoverEnvironment;
 use Phanda\Support\PhandArr;
 use Psr\Container\ContainerInterface;
 use RuntimeException;
@@ -344,6 +346,9 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
         return $this->basePath();
     }
 
+    /**
+     * @return string
+     */
     public function getEnvironmentFileFullPath()
     {
         return $this->getPathToEnvironmentFile() . DIRECTORY_SEPARATOR . $this->getEnvironmentFile();
@@ -364,12 +369,27 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
      */
     public function environment()
     {
-        return $this['env'];
+        return $this['environment'];
     }
 
+    /**
+     * @param $environment
+     * @return bool
+     */
     public function checkEnvironment($environment)
     {
-        return $this['env'] === $environment;
+        return $this['environment'] === $environment;
+    }
+
+    /**
+     * @param Closure $callback
+     * @return string
+     */
+    public function discoverEnvironment(Closure $callback)
+    {
+        $args = $_SERVER['argv'] ?? null;
+
+        return $this['environment'] = (new DiscoverEnvironment())->discover($callback, $args);
     }
 
     /**
