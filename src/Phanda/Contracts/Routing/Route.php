@@ -58,7 +58,7 @@ interface Route
     public function getConditionals();
 
     /**
-     * @param string $name
+     * @param  array|string $name
      * @param  string  $expression
      * @return mixed
      */
@@ -233,5 +233,12 @@ interface Route
      * @return $this
      */
     public function setContainer(Container $container);
+
+    /**
+     * @param Request $request
+     * @param bool $includingMethod
+     * @return bool
+     */
+    public function matchesRequest(Request $request, $includingMethod = true);
 
 }

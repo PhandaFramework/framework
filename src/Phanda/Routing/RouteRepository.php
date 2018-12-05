@@ -3,7 +3,11 @@
 namespace Phanda\Routing;
 
 use Phanda\Contracts\Support\Repository;
+use Phanda\Foundation\Http\Request;
+use Phanda\Foundation\Http\Response;
 use Phanda\Support\PhandArr;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Traversable;
 
 class RouteRepository implements Repository, \Countable, \IteratorAggregate
@@ -32,6 +36,24 @@ class RouteRepository implements Repository, \Countable, \IteratorAggregate
     }
 
     /**
+     * Gets all routes by the method
+     *
+     * @param string|null $method
+     * @return \Phanda\Contracts\Routing\Route[]
+     */
+    public function getByMethod($method = null)
+    {
+        if (is_null($method)) {
+            return $this->all();
+        }
+
+        return PhandArr::filter($this->routes, function ($route) use ($method) {
+            /** @var Route $route */
+            return strtoupper($route->getMethodName()) == strtoupper($method);
+        });
+    }
+
+    /**
      * @return \Phanda\Contracts\Routing\Route[]
      */
     public function all()
@@ -41,7 +63,7 @@ class RouteRepository implements Repository, \Countable, \IteratorAggregate
 
     /**
      * @param  array|string $key
-     * @param  mixed $value
+     * @param  \Phanda\Contracts\Routing\Route|null $value
      * @return void
      */
     public function set($key, $value = null)
@@ -91,5 +113,83 @@ class RouteRepository implements Repository, \Countable, \IteratorAggregate
     public function count()
     {
         return count($this->routes);
+    }
+
+    /**
+     * @param Request $request
+     * @return Route
+     *
+     * @throws NotFoundHttpException
+     */
+    public function matchRequest(Request $request)
+    {
+        $routes = $this->getByMethod($request->getMethod());
+        $route = $this->matchRoutesAgainstRequest($routes, $request);
+        if(!is_null($route)) {
+            return $route->bindToRequest($request);
+        }
+
+        $others = $this->checkForAlternateVerbs($request);
+        if (count($others) > 0) {
+            return $this->getRouteForMethods($request, $others);
+        }
+
+        throw new NotFoundHttpException();
+    }
+
+    /**
+     * @param Route[] $routes
+     * @param Request $request
+     * @param bool $includingMethod
+     * @return Route|null
+     */
+    protected function matchRoutesAgainstRequest(array $routes, Request $request, $includingMethod = true)
+    {
+        return PhandArr::first($routes, function($route) use ($request, $includingMethod) {
+           /** @var Route $route */
+           return $route->matchesRequest($request, $includingMethod);
+        });
+    }
+
+    /**
+     * @param Request $request
+     * @return array
+     */
+    protected function checkForAlternateVerbs(Request $request)
+    {
+        $methods = array_diff(Router::VERBS, [$request->getMethod()]);
+        $others = [];
+
+        foreach ($methods as $method) {
+            if (! is_null($this->matchRoutesAgainstRequest($this->get($method), $request, false))) {
+                $others[] = $method;
+            }
+        }
+
+        return $others;
+    }
+
+    /**
+     * @param Request $request
+     * @param array $methods
+     * @return Route
+     */
+    protected function getRouteForMethods(Request $request, array $methods)
+    {
+        if ($request->getMethod() === 'OPTIONS') {
+            return (new Route('OPTIONS', $request->path(), function () use ($methods) {
+                return new Response('', 200, ['Allow' => implode(',', $methods)]);
+            }))->bindToRequest($request);
+        }
+
+        $this->methodNotAllowed($methods);
+    }
+
+    /**
+     * @param array $others
+     */
+    protected function methodNotAllowed(array $others)
+    {
+        throw new MethodNotAllowedHttpException($others);
     }
 }

@@ -3,6 +3,7 @@
 
 namespace Phanda\Foundation\Http;
 
+use Closure;
 use Phanda\Contracts\Support\Arrayable;
 use Phanda\Util\Foundation\Http\RequestContentTypes;
 use Phanda\Util\Foundation\Http\RequestInput;
@@ -12,6 +13,11 @@ class Request extends SymfonyRequest implements Arrayable, \ArrayAccess
 {
     use RequestContentTypes,
         RequestInput;
+
+    /**
+     * @var Closure
+     */
+    protected $routeResolver;
 
     /**
      * @return array
@@ -103,7 +109,8 @@ class Request extends SymfonyRequest implements Arrayable, \ArrayAccess
         return parent::duplicate($query, $request, $attributes, $cookies, $this->filterFiles($files), $server);
     }
 
-    /**@param  mixed  $files
+    /**
+     * @param  mixed  $files
      * @return mixed
      */
     protected function filterFiles($files)
@@ -121,6 +128,8 @@ class Request extends SymfonyRequest implements Arrayable, \ArrayAccess
                 unset($files[$key]);
             }
         }
+
+        return;
     }
 
     /**
@@ -155,6 +164,18 @@ class Request extends SymfonyRequest implements Arrayable, \ArrayAccess
     public function decodedPath()
     {
         return rawurldecode($this->path());
+    }
+
+    /**
+     * Set the route resolver callback.
+     *
+     * @param  \Closure  $callback
+     * @return $this
+     */
+    public function setRouteResolver(Closure $callback)
+    {
+        $this->routeResolver = $callback;
+        return $this;
     }
 
 }

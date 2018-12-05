@@ -7,6 +7,9 @@ use Phanda\Contracts\Foundation\Application;
 use Phanda\Contracts\Routing\Route;
 use Phanda\Contracts\Routing\Router as RouterContract;
 use Phanda\Foundation\Http\Request;
+use Phanda\Routing\Events\PreparingResponse;
+use Phanda\Support\Routing\RouteGroupMerger;
+use Phanda\Routing\Route as PhandaRoute;
 
 class Router implements RouterContract
 {
@@ -45,6 +48,13 @@ class Router implements RouterContract
      * @var array
      */
     protected $groupStack = [];
+
+    /**
+     * The globally available parameter patterns.
+     *
+     * @var array
+     */
+    protected $patterns = [];
 
     /**
      * Router constructor.
@@ -155,12 +165,79 @@ class Router implements RouterContract
      */
     public function addRoute($name, $methods, $uri, $action)
     {
-
+        $this->routes->set($name, $this->createRoute($name, $methods, $uri, $action));
     }
 
-    protected function createRoute()
+    /**
+     * @param $name
+     * @param $methods
+     * @param $uri
+     * @param $action
+     * @return Route
+     */
+    protected function createRoute($name, $methods, $uri, $action)
     {
+        if ($this->isActionInController($action)) {
+            $action = $this->convertActionToControllerAction($action);
+        }
 
+        $route = $this->newPhandaRoute(
+            $methods,
+            $uri,
+            $action
+        );
+
+        if ($this->hasGroupStack()) {
+            $this->mergeGroupAttributesIntoRoute($route);
+        }
+
+        $this->addWhereClausesToRoute($route);
+
+        return $route;
+    }
+
+    /**
+     * @param array $action
+     * @return bool
+     */
+    protected function isActionInController($action)
+    {
+        if (!$action instanceof \Closure) {
+            return is_string($action) || (isset($action['method']) && is_string($action['method']));
+        }
+
+        return false;
+    }
+
+    /**
+     * @param array|string $action
+     * @return array
+     */
+    protected function convertActionToControllerAction($action)
+    {
+        if (is_string($action)) {
+            $action = ['method' => $action];
+        }
+
+        if (!empty($this->groupStack)) {
+            $action['method'] = $this->prependGroupNamespace($action['method']);
+        }
+
+        $action['controller'] = $action['method'];
+        return $action;
+    }
+
+    /**
+     * Prepend the last group namespace onto the use clause.
+     *
+     * @param  string $class
+     * @return string
+     */
+    protected function prependGroupNamespace($class)
+    {
+        $group = end($this->groupStack);
+        return isset($group['namespace']) && strpos($class, '\\') !== 0
+            ? $group['namespace'] . '\\' . $class : $class;
     }
 
     /**
@@ -169,6 +246,179 @@ class Router implements RouterContract
      */
     public function groupRoutes(array $attributes, $routes)
     {
+        $this->updateGroupStack($attributes);
+        $this->loadRoutes($routes);
+        array_pop($this->groupStack);
+    }
 
+    /**
+     * Determine if the router currently has a group stack.
+     *
+     * @return bool
+     */
+    public function hasGroupStack()
+    {
+        return !empty($this->groupStack);
+    }
+
+    /**
+     * @param array $attributes
+     */
+    protected function updateGroupStack(array $attributes)
+    {
+        if (!empty($this->groupStack)) {
+            $attributes = $this->mergeGroupWithLast($attributes);
+        }
+
+        $this->groupStack[] = $attributes;
+    }
+
+    /**
+     * @param array $newGroup
+     * @return array
+     */
+    protected function mergeGroupWithLast($newGroup)
+    {
+        return RouteGroupMerger::merge($newGroup, end($this->groupStack));
+    }
+
+    /**
+     * @param \Closure|string $routes
+     */
+    protected function loadRoutes($routes)
+    {
+        if ($routes instanceof \Closure) {
+            $routes($this);
+        } else {
+            $router = $this;
+            require $routes;
+        }
+    }
+
+    /**
+     * @return string
+     */
+    protected function getLastGroupPrefix()
+    {
+        if (!empty($this->groupStack)) {
+            $last = end($this->groupStack);
+
+            return $last['prefix'] ?? '';
+        }
+
+        return '';
+    }
+
+    /**
+     * @param $methods
+     * @param $uri
+     * @param $action
+     * @return Route
+     */
+    protected function newPhandaRoute($methods, $uri, $action)
+    {
+        return (new PhandaRoute($uri, $methods, $action))
+            ->setRouter($this)
+            ->setContainer($this->phanda);
+    }
+
+    /**
+     * @param Route $route
+     * @return Route
+     */
+    protected function addWhereClausesToRoute(Route $route)
+    {
+        $route->condition(array_merge(
+            $this->patterns, $route->getAction()['where'] ?? []
+        ));
+
+        return $route;
+    }
+
+    /**
+     * Merge the group stack with the controller action.
+     *
+     * @param  Route $route
+     * @return void
+     */
+    protected function mergeGroupAttributesIntoRoute($route)
+    {
+        $route->setActionArray($this->mergeGroupWithLast($route->getAction()));
+    }
+
+    /**
+     * @param  string  $uri
+     * @return string
+     */
+    protected function setPrefix($uri)
+    {
+        return trim(trim($this->getLastGroupPrefix(), '/').'/'.trim($uri, '/'), '/') ?: '/';
+    }
+
+    /**
+     * @param Request $request
+     * @return mixed
+     */
+    public function dispatch(Request $request)
+    {
+        $this->currentRequest = $request;
+        return $this->dispatchToRoute($request);
+    }
+
+    /**
+     * @param Request $request
+     * @return mixed
+     */
+    public function dispatchToRoute(Request $request)
+    {
+        return $this->runRoute($request, $this->findRoute($request));
+    }
+
+    /**
+     * @param $request
+     * @return Route
+     */
+    protected function findRoute($request)
+    {
+        $this->currentRoute = $route = $this->routes->matchRequest($request);
+
+        $this->phanda->instance(Route::class, $route);
+
+        return $route;
+    }
+
+    protected function runRoute(Request $request, Route $route)
+    {
+        $request->setRouteResolver(function () use ($route) {
+            return $route;
+        });
+
+        $this->eventDispatcher->dispatch('preparingRouteResponse', new PreparingResponse($route, $request));
+
+        return $this->prepareResponse($request,
+            $this->runRouteWithinStack($route, $request)
+        );
+    }
+
+    public function prepareResponse($request, $response)
+    {
+        return static::toResponse($request, $response);
+    }
+
+    public static function toResponse($request, $response)
+    {
+
+    }
+
+    protected function runRouteWithinStack(Route $route, Request $request)
+    {
+        return (new Pipeline($this->phanda))
+            ->send($request)
+            ->through($middleware)
+            ->then(function ($request) use ($route) {
+                return $this->prepareResponse(
+                    $request, $route->run()
+                );
+            });
     }
 }

@@ -4,6 +4,8 @@
 namespace Phanda\Contracts\Routing;
 
 
+use Phanda\Foundation\Http\Request;
+
 interface Router
 {
 
@@ -85,5 +87,24 @@ interface Router
      * @param \Closure|string $routes
      */
     public function groupRoutes(array $attributes, $routes);
+
+    /**
+     * Determine if the router currently has a group stack.
+     *
+     * @return bool
+     */
+    public function hasGroupStack();
+
+    /**
+     * @param Request $request
+     * @return mixed
+     */
+    public function dispatch(Request $request);
+
+    /**
+     * @param Request $request
+     * @return mixed
+     */
+    public function dispatchToRoute(Request $request);
 
 }

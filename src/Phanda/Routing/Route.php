@@ -10,6 +10,10 @@ use Phanda\Contracts\Routing\Router;
 use Phanda\Exceptions\Foundation\Http\HttpResponseException;
 use Phanda\Foundation\Http\Request;
 use Phanda\Routing\Controller\AbstractController;
+use Phanda\Routing\Validators\ValidateAgainstHost;
+use Phanda\Routing\Validators\ValidateAgainstMethod;
+use Phanda\Routing\Validators\ValidateAgainstScheme;
+use Phanda\Routing\Validators\ValidateAgainstUri;
 use Phanda\Support\PhandArr;
 use Phanda\Support\PhandaStr;
 use Phanda\Support\Routing\RouteActionParser;
@@ -79,6 +83,13 @@ class Route implements RouteContract
      * @var Container
      */
     protected $container;
+
+    /**
+     * The validators used by the routes to match against requests.
+     *
+     * @var array
+     */
+    public static $validators;
 
     /**
      * Route constructor.
@@ -194,6 +205,50 @@ class Route implements RouteContract
         return $method(...array_values($this->resolveMethodDependencies(
             $this->getParametersWithoutNulls(), new ReflectionFunction($method)
         )));
+    }
+
+    /**
+     * @param Request $request
+     * @param bool $includingMethod
+     * @return bool
+     */
+    public function matchesRequest(Request $request, $includingMethod = true)
+    {
+        $this->getSymfonyCompiledRoute();
+
+        foreach ($this->getRequestValidators() as $validator) {
+            if (! $includingMethod && $validator instanceof ValidateAgainstMethod) {
+                continue;
+            }
+
+            if (! $validator->matches($this, $request)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Get the route validators for the instance.
+     *
+     * @return array
+     */
+    public static function getRequestValidators()
+    {
+        if (isset(static::$validators)) {
+            return static::$validators;
+        }
+
+        // To match the route, we will use a chain of responsibility pattern with the
+        // validator implementations. We will spin through each one making sure it
+        // passes and then we will know if the route as a whole matches request.
+        return static::$validators = [
+            new ValidateAgainstUri(),
+            new ValidateAgainstHost(),
+            new ValidateAgainstScheme(),
+            new ValidateAgainstMethod()
+        ];
     }
 
     /**
@@ -415,7 +470,7 @@ class Route implements RouteContract
     }
 
     /**
-     * @param string $name
+     * @param string|array $name
      * @param  string $expression
      * @return mixed
      */
@@ -600,12 +655,12 @@ class Route implements RouteContract
     /**
      * Add a prefix to the route URI.
      *
-     * @param  string  $prefix
+     * @param  string $prefix
      * @return $this
      */
     public function setPrefix($prefix)
     {
-        $uri = rtrim($prefix, '/').'/'.ltrim($this->uri, '/');
+        $uri = rtrim($prefix, '/') . '/' . ltrim($this->uri, '/');
         $this->uri = trim($uri, '/');
         return $this;
     }
@@ -633,7 +688,7 @@ class Route implements RouteContract
     /**
      * Dynamically access route parameters.
      *
-     * @param  string  $key
+     * @param  string $key
      * @return mixed
      */
     public function __get($key)
