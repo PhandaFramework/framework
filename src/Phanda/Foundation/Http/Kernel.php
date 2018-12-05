@@ -108,7 +108,6 @@ class Kernel implements HttpKernel
      */
     protected function renderException(Request $request, \Exception $e)
     {
-        dd(environment());
         /** @var ExceptionHandler $exceptionHandler */
         $exceptionHandler = $this->phanda[ExceptionHandler::class];
         return $exceptionHandler->render($request, $e);
