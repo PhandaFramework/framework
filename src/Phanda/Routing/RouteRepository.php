@@ -49,7 +49,7 @@ class RouteRepository implements Repository, \Countable, \IteratorAggregate
 
         return PhandArr::filter($this->routes, function ($route) use ($method) {
             /** @var Route $route */
-            return strtoupper($route->getMethodName()) == strtoupper($method);
+            return in_array($method, $route->getHttpMethods());
         });
     }
 
