@@ -7,60 +7,79 @@ use Dotenv\Exception\InvalidFileException;
 use Dotenv\Exception\InvalidPathException;
 use Phanda\Foundation\Application;
 use Phanda\Contracts\Foundation\Bootstrap\Bootstrap;
+use SplFileInfo;
 use Symfony\Component\Console\Input\ArgvInput;
+use Phanda\Environment\Repository as EnvironmentRepository;
+use Symfony\Component\Finder\Finder;
 
 class BootstrapEnvironment implements Bootstrap
 {
     /**
      * @param Application $phanda
      * @return void
+     *
+     * @throws \Exception
      */
     public function bootstrap(Application $phanda)
     {
-        $this->checkEnvironmentFile($phanda);
+        $environment = new EnvironmentRepository();
+        $phanda->instance('environment', $environment);
+        $this->loadEnvironment($phanda, $environment);
+    }
 
-        try {
-            (new Dotenv($phanda->getPathToEnvironmentFile(), $phanda->getEnvironmentFile()))->load();
-        } catch (InvalidPathException $e) {
-            echo 'The path to the environment file is invalid: ' . $e->getMessage();
-            die(1);
-        } catch (InvalidFileException $e) {
-            echo 'The environment file is invalid: ' . $e->getMessage();
-            die(1);
+    /**
+     * @param Application $phanda
+     * @param EnvironmentRepository $repository
+     *
+     * @throws \Exception
+     */
+    protected function loadEnvironment(Application $phanda, EnvironmentRepository $repository)
+    {
+        $files = $this->getEnvironmentFiles($phanda);
+
+        if(!isset($files[$phanda->getAppEnvironmentFile()])) {
+            throw new \Exception('Could not find application environment file.');
+        }
+
+        foreach($files as $key => $path) {
+            $dotEnv = (new Dotenv(dirname($path), basename($path)));
+            $repository->set($key, $dotEnv->load());
         }
     }
 
     /**
      * @param Application $phanda
+     * @return array
      */
-    protected function checkEnvironmentFile(Application $phanda)
+    protected function getEnvironmentFiles(Application $phanda)
     {
-        if ($phanda->inConsole() && ($input = new ArgvInput)->hasParameterOption('--env')) {
-            if ($this->setApplicationEnvironmentFile($phanda, $phanda->getEnvironmentFile() . '.' . $input->getParameterOption('--env'))) {
-                return;
-            }
+        $files = [];
+        $environmentPath = $phanda->environmentPath();
+
+        foreach(Finder::create()->files()->name('*.env')->in($environmentPath) as $file)
+        {
+            /** @var SplFileInfo $file */
+            $directory = $this->getNestedDirectory($file, $environmentPath);
+            $files[$directory . basename($file->getRealPath(), '.env')] = $file->getRealPath();
         }
 
-        if (!environment('APPLICATION_ENVIRONMENT')) {
-            return;
-        }
-
-        $this->setApplicationEnvironmentFile($phanda, $phanda->getEnvironmentFile() . '.' . environment('APP_ENV'));
+        ksort($files, SORT_NATURAL);
+        return $files;
     }
 
     /**
-     * @param Application $phanda
-     * @param $file
-     * @return bool
+     * @param SplFileInfo $file
+     * @param string $environmentPath
+     * @return string
      */
-    protected function setApplicationEnvironmentFile(Application $phanda, $file)
+    protected function getNestedDirectory(SplFileInfo $file, $environmentPath)
     {
-        if (file_exists($phanda->getPathToEnvironmentFile() . '/' . $file)) {
-            $phanda->setEnvironmentFile($file);
+        $directory = $file->getPath();
 
-            return true;
+        if ($nested = trim(str_replace($environmentPath, '', $directory), DIRECTORY_SEPARATOR)) {
+            $nested = str_replace(DIRECTORY_SEPARATOR, '.', $nested).'.';
         }
 
-        return false;
+        return $nested;
     }
 }

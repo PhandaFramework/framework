@@ -94,6 +94,11 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     /**
      * @var string
      */
+    protected $environmentPath;
+
+    /**
+     * @var string
+     */
     protected $publicPath;
 
     /**
@@ -104,7 +109,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     /**
      * @var string
      */
-    protected $environmentFile = 'app.env';
+    protected $appEnvironmentFile;
 
     /**
      * @var string
@@ -199,6 +204,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
         $this->instance('path.bootstrap', $this->bootstrapPath());
         $this->instance('path.base', $this->basePath());
         $this->instance('path.config', $this->configPath());
+        $this->instance('path.environment', $this->environmentPath());
         $this->instance('path.public', $this->publicPath());
         $this->instance('path.storage', $this->storagePath());
     }
@@ -212,15 +218,6 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     public function path($path = '')
     {
         return $this->appPath($path);
-    }
-
-    /**
-     * @param string $path
-     * @return string
-     */
-    public function basePath($path = '')
-    {
-        return $this->basePath . ($path ? DIRECTORY_SEPARATOR . $path : $path);
     }
 
     /**
@@ -247,6 +244,15 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
      * @param string $path
      * @return string
      */
+    public function basePath($path = '')
+    {
+        return $this->basePath . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+    }
+
+    /**
+     * @param string $path
+     * @return string
+     */
     public function bootstrapPath($path = '')
     {
         return $this->bootstrapPath . ($path ? DIRECTORY_SEPARATOR . $path : $path) ?:
@@ -261,6 +267,16 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     {
         return $this->configPath . ($path ? DIRECTORY_SEPARATOR . $path : $path) ?:
             $this->basePath . DIRECTORY_SEPARATOR . 'config' . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+    }
+
+    /**
+     * @param string $path
+     * @return string
+     */
+    public function environmentPath($path = '')
+    {
+        return $this->environmentPath . ($path ? DIRECTORY_SEPARATOR . $path : $path) ?:
+            $this->basePath . DIRECTORY_SEPARATOR . 'environment' . ($path ? DIRECTORY_SEPARATOR . $path : $path);
     }
 
     /**
@@ -342,6 +358,17 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
      * @param string $path
      * @return $this
      */
+    public function setEnvironmentPath($path)
+    {
+        $this->environmentPath = $path;
+        $this->instance('path.environment', $path);
+        return $this;
+    }
+
+    /**
+     * @param string $path
+     * @return $this
+     */
     public function setPublicPath($path)
     {
         $this->publicPath = $path;
@@ -363,34 +390,18 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     /**
      * @return string
      */
-    public function getEnvironmentFile()
+    public function getAppEnvironmentFile()
     {
-        return $this->environmentFile ?: 'app.env';
-    }
-
-    /**
-     * @return string
-     */
-    public function getPathToEnvironmentFile()
-    {
-        return $this->basePath();
-    }
-
-    /**
-     * @return string
-     */
-    public function getEnvironmentFileFullPath()
-    {
-        return $this->getPathToEnvironmentFile() . DIRECTORY_SEPARATOR . $this->getEnvironmentFile();
+        return $this->appEnvironmentFile ?: 'app';
     }
 
     /**
      * @param string $file
      * @return $this
      */
-    public function setEnvironmentFile($file)
+    public function setAppEnvironmentFile($file)
     {
-        $this->environmentFile = $file;
+        $this->appEnvironmentFile = $file;
         return $this;
     }
 
@@ -399,7 +410,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
      */
     public function environment()
     {
-        return $this['environment'];
+        return $this['app_environment'];
     }
 
     /**
@@ -408,7 +419,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
      */
     public function checkEnvironment($environment)
     {
-        return $this['environment'] === $environment;
+        return $this['app_environment'] === $environment;
     }
 
     /**
@@ -419,7 +430,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     {
         $args = $_SERVER['argv'] ?? null;
 
-        return $this['environment'] = (new DiscoverEnvironment())->discover($callback, $args);
+        return $this['app_environment'] = (new DiscoverEnvironment())->discover($callback, $args);
     }
 
     /**
