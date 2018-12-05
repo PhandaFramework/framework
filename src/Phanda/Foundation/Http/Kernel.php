@@ -42,10 +42,10 @@ class Kernel implements HttpKernel
      * @param Application $phanda
      * @param Router $router
      */
-    public function __construct(Application $phanda/*, Router $router*/)
+    public function __construct(Application $phanda, Router $router)
     {
         $this->phanda = $phanda;
-        /*$this->router = $router;*/
+        $this->router = $router;
     }
 
     /**
@@ -88,7 +88,6 @@ class Kernel implements HttpKernel
     protected function sendRequestToRouter(Request $request)
     {
         $this->bootstrap();
-        $router = $this->phanda->create(Router::class);
     }
 
     /**

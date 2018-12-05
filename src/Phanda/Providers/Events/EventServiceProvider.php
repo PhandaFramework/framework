@@ -11,7 +11,7 @@ class EventServiceProvider extends AbstractServiceProvider
 
     public function register()
     {
-        $this->app->singleton('events', function($app) {
+        $this->phanda->singleton('events', function($app) {
            return new Dispatcher($app);
         });
     }

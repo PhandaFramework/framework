@@ -4,6 +4,7 @@ namespace Phanda\Foundation;
 
 use Closure;
 use Phanda\Configuration\Repository as ConfigurationRepository;
+use Phanda\Contracts\Routing\Router;
 use Phanda\Environment\Repository as EnvironmentRepository;
 use Phanda\Container\Container;
 use Phanda\Contracts\Foundation\Application as ApplicationContract;
@@ -14,6 +15,7 @@ use Phanda\Foundation\Http\Request;
 use Phanda\Foundation\Http\Response;
 use Phanda\Providers\AbstractServiceProvider;
 use Phanda\Providers\Events\EventServiceProvider;
+use Phanda\Providers\Routing\RoutingServiceProvider;
 use Phanda\Providers\ServiceProviderRepository;
 use Phanda\Support\Foundation\DiscoverEnvironment;
 use Phanda\Support\PhandArr;
@@ -157,6 +159,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     protected function registerPhandaServiceProviders()
     {
         $this->register(new EventServiceProvider($this));
+        $this->register(new RoutingServiceProvider($this));
     }
 
     /**
@@ -668,7 +671,8 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
                      'config' => [ConfigurationRepository::class],
                      'environment' => [EnvironmentRepository::class],
                      'events' => [Dispatcher::class, \Phanda\Contracts\Events\Dispatcher::class],
-                     'request' => [Request::class, SymfonyRequest::class]
+                     'request' => [Request::class, SymfonyRequest::class],
+                     'router' => [Router::class]
                  ] as $key => $aliases) {
             foreach ($aliases as $alias) {
                 $this->alias($key, $alias);

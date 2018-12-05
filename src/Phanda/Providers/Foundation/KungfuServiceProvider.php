@@ -40,7 +40,7 @@ class KungfuServiceProvider extends AbstractServiceProvider
 
     protected function registerServeCommand()
     {
-        $this->app->singleton('command.serve', function () {
+        $this->phanda->singleton('command.serve', function () {
             return new ServeCommand;
         });
     }

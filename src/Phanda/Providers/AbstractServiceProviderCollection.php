@@ -28,7 +28,7 @@ abstract class AbstractServiceProviderCollection extends AbstractServiceProvider
         $this->instances = [];
 
         foreach ($this->providers as $provider) {
-            $this->instances[] = $this->app->register($provider);
+            $this->instances[] = $this->phanda->register($provider);
         }
     }
 
@@ -42,7 +42,7 @@ abstract class AbstractServiceProviderCollection extends AbstractServiceProvider
         $provides = [];
 
         foreach ($this->providers as $provider) {
-            $instance = $this->app->resolveProvider($provider);
+            $instance = $this->phanda->resolveProvider($provider);
 
             $provides = array_merge($provides, $instance->provides());
         }

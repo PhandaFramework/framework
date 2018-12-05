@@ -9,7 +9,7 @@ abstract class AbstractServiceProvider
     /**
      * @var Application
      */
-    protected $app;
+    protected $phanda;
 
     /**
      * @var bool
@@ -18,11 +18,11 @@ abstract class AbstractServiceProvider
 
     /**
      * AbstractServiceProvider constructor.
-     * @param Application $app
+     * @param Application $phanda
      */
-    public function __construct($app)
+    public function __construct($phanda)
     {
-        $this->app = $app;
+        $this->phanda = $phanda;
     }
 
     /**
