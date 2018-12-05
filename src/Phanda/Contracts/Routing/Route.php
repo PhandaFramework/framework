@@ -208,6 +208,21 @@ interface Route
     public function setActionArray(array $action);
 
     /**
+     * Get the prefix of the route instance.
+     *
+     * @return string
+     */
+    public function getPrefix();
+
+    /**
+     * Add a prefix to the route URI.
+     *
+     * @param  string  $prefix
+     * @return $this
+     */
+    public function setPrefix($prefix);
+
+    /**
      * @param Router $router
      * @return $this
      */

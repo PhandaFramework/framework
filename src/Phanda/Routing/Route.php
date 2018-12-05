@@ -96,6 +96,10 @@ class Route implements RouteContract
         if (in_array('GET', $this->methods) && !in_array('HEAD', $this->methods)) {
             $this->methods[] = 'HEAD';
         }
+
+        if (isset($this->action['prefix'])) {
+            $this->setPrefix($this->action['prefix']);
+        }
     }
 
     /**
@@ -516,7 +520,7 @@ class Route implements RouteContract
     {
         $action = is_string($action) ? $this->addGroupNamespaceToStringUses($action) : $action;
 
-        return $this->setAction(array_merge($this->action, $this->parseAction([
+        return $this->setActionArray(array_merge($this->action, $this->parseAction([
             'method' => $action,
             'controller' => $action,
         ])));
@@ -580,6 +584,29 @@ class Route implements RouteContract
     public function setActionArray(array $action)
     {
         $this->action = $action;
+        return $this;
+    }
+
+    /**
+     * Get the prefix of the route instance.
+     *
+     * @return string
+     */
+    public function getPrefix()
+    {
+        return $this->action['prefix'] ?? null;
+    }
+
+    /**
+     * Add a prefix to the route URI.
+     *
+     * @param  string  $prefix
+     * @return $this
+     */
+    public function setPrefix($prefix)
+    {
+        $uri = rtrim($prefix, '/').'/'.ltrim($this->uri, '/');
+        $this->uri = trim($uri, '/');
         return $this;
     }
 
