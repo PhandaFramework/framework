@@ -22,8 +22,6 @@ class BootstrapEnvironment implements Bootstrap
         $environment = new EnvironmentRepository();
         $phanda->instance('environment', $environment);
         $this->loadEnvironment($phanda, $environment);
-
-        dd($environment);
     }
 
     /**
