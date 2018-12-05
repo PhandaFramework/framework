@@ -2,14 +2,23 @@
 
 namespace Phanda\Routing;
 
+use ArrayObject;
+use JsonSerializable;
+use Phanda\Conduit\HttpConduit;
 use Phanda\Contracts\Events\Dispatcher;
 use Phanda\Contracts\Foundation\Application;
 use Phanda\Contracts\Routing\Route;
 use Phanda\Contracts\Routing\Router as RouterContract;
+use Phanda\Contracts\Support\Arrayable;
+use Phanda\Contracts\Support\Jsonable;
+use Phanda\Contracts\Support\Responsable;
 use Phanda\Foundation\Http\Request;
+use Phanda\Foundation\Http\Response;
+use Phanda\Http\JsonResponse;
 use Phanda\Routing\Events\PreparingResponse;
 use Phanda\Support\Routing\RouteGroupMerger;
 use Phanda\Routing\Route as PhandaRoute;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class Router implements RouterContract
 {
@@ -76,7 +85,7 @@ class Router implements RouterContract
      */
     public function get($name, $uri, $action)
     {
-        // TODO: Implement get() method.
+        return $this->addRoute($name, ['GET', 'HEAD'], $uri, $action);
     }
 
     /**
@@ -87,7 +96,7 @@ class Router implements RouterContract
      */
     public function post($name, $uri, $action)
     {
-        // TODO: Implement post() method.
+        return $this->addRoute($name, 'POST', $uri, $action);
     }
 
     /**
@@ -98,7 +107,7 @@ class Router implements RouterContract
      */
     public function put($name, $uri, $action)
     {
-        // TODO: Implement put() method.
+        return $this->addRoute($name, 'PUT', $uri, $action);
     }
 
     /**
@@ -109,7 +118,7 @@ class Router implements RouterContract
      */
     public function delete($name, $uri, $action)
     {
-        // TODO: Implement delete() method.
+        return $this->addRoute($name, 'DELETE', $uri, $action);
     }
 
     /**
@@ -120,7 +129,7 @@ class Router implements RouterContract
      */
     public function patch($name, $uri, $action)
     {
-        // TODO: Implement patch() method.
+        return $this->addRoute($name, 'PATCH', $uri, $action);
     }
 
     /**
@@ -131,30 +140,18 @@ class Router implements RouterContract
      */
     public function options($name, $uri, $action)
     {
-        // TODO: Implement options() method.
+        return $this->addRoute($name, 'OPTIONS', $uri, $action);
     }
 
     /**
      * @param string $name
-     * @param array|string $methods
      * @param string $uri
      * @param \Closure|array|string|callable $action
      * @return Route
      */
-    public function match($name, $methods, $uri, $action)
+    public function any($name, $uri, $action)
     {
-        // TODO: Implement match() method.
-    }
-
-    /**
-     * @param string $name
-     * @param array $attributes
-     * @param \Closure|string $routes
-     * @return void
-     */
-    public function group($name, array $attributes, $routes)
-    {
-        // TODO: Implement group() method.
+        return $this->addRoute($name, self::VERBS, $uri, $action);
     }
 
     /**
@@ -162,10 +159,12 @@ class Router implements RouterContract
      * @param array|string $methods
      * @param string $uri
      * @param \Closure|array|string|callable|null $action
+     * @return Route
      */
     public function addRoute($name, $methods, $uri, $action)
     {
-        $this->routes->set($name, $this->createRoute($name, $methods, $uri, $action));
+        $this->routes->set($name, $route = $this->createRoute($name, $methods, $uri, $action));
+        return $route;
     }
 
     /**
@@ -387,6 +386,11 @@ class Router implements RouterContract
         return $route;
     }
 
+    /**
+     * @param Request $request
+     * @param Route $route
+     * @return Response|JsonResponse
+     */
     protected function runRoute(Request $request, Route $route)
     {
         $request->setRouteResolver(function () use ($route) {
@@ -400,21 +404,54 @@ class Router implements RouterContract
         );
     }
 
+    /**
+     * @param $request
+     * @param $response
+     * @return Response|JsonResponse
+     */
     public function prepareResponse($request, $response)
     {
         return static::toResponse($request, $response);
     }
 
+    /**
+     * @param $request
+     * @param $response
+     * @return Response|JsonResponse
+     */
     public static function toResponse($request, $response)
     {
+        if ($response instanceof Responsable) {
+            $response = $response->toResponse($request);
+        }
 
+        if (! $response instanceof SymfonyResponse &&
+            ($response instanceof Arrayable ||
+                $response instanceof Jsonable ||
+                $response instanceof ArrayObject ||
+                $response instanceof JsonSerializable ||
+                is_array($response))) {
+            $response = new JsonResponse($response);
+        } elseif (! $response instanceof SymfonyResponse) {
+            $response = new Response($response);
+        }
+
+        if ($response->getStatusCode() === Response::HTTP_NOT_MODIFIED) {
+            $response->setNotModified();
+        }
+
+        return $response->prepare($request);
     }
 
+    /**
+     * @param Route $route
+     * @param Request $request
+     * @return mixed
+     */
     protected function runRouteWithinStack(Route $route, Request $request)
     {
-        return (new Pipeline($this->phanda))
+        return (new HttpConduit($this->phanda))
             ->send($request)
-            ->through($middleware)
             ->then(function ($request) use ($route) {
                 return $this->prepareResponse(
                     $request, $route->run()

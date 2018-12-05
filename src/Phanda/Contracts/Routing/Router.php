@@ -59,20 +59,11 @@ interface Router
 
     /**
      * @param string $name
-     * @param array|string $methods
      * @param string $uri
      * @param \Closure|array|string|callable $action
      * @return Route
      */
-    public function match($name, $methods, $uri, $action);
-
-    /**
-     * @param string $name
-     * @param array $attributes
-     * @param \Closure|string $routes
-     * @return void
-     */
-    public function group($name, array $attributes, $routes);
+    public function any($name, $uri, $action);
 
     /**
      * @param string $name
