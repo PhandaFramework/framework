@@ -4,12 +4,16 @@ namespace Phanda\Routing;
 
 use Phanda\Contracts\Container\Container;
 use Phanda\Contracts\Routing\Route as RouteContract;
-use Phanda\Http\AbstractController;
+use Phanda\Exceptions\Foundation\Http\HttpResponseException;
+use Phanda\Routing\Controller\AbstractController;
 use Phanda\Support\Routing\RouteActionParser;
+use Phanda\Util\Routing\ResolveRouteDependenciesTrait;
 use Symfony\Component\Routing\CompiledRoute;
 
 class Route implements RouteContract
 {
+    use ResolveRouteDependenciesTrait;
+
     /**
      * @var string
      */
@@ -72,10 +76,14 @@ class Route implements RouteContract
         $this->uri = $uri;
         $this->methods = (array)$methods;
         $this->action = $this->parseAction($action);
+
+        if (in_array('GET', $this->methods) && !in_array('HEAD', $this->methods)) {
+            $this->methods[] = 'HEAD';
+        }
     }
 
     /**
-     * @param  callable|array|null  $action
+     * @param  callable|array|null $action
      * @return array
      */
     protected function parseAction($action)
@@ -89,6 +97,34 @@ class Route implements RouteContract
      * @return mixed
      */
     public function run()
+    {
+        $this->container = $this->container ?: new \Phanda\Container\Container();
+
+        try {
+            if ($this->isActionOnController()) {
+                return $this->runControllerMethod();
+            }
+
+            return $this->runCallableMethod();
+        } catch (HttpResponseException $e) {
+            return $e->getMessage();
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isActionOnController()
+    {
+        return is_string($this->action['method']);
+    }
+
+    protected function runControllerMethod()
+    {
+
+    }
+
+    protected function runCallableMethod()
     {
 
     }
