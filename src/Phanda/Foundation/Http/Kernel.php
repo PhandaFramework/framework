@@ -3,6 +3,7 @@
 
 namespace Phanda\Foundation\Http;
 
+use Phanda\Conduit\HttpConduit;
 use Phanda\Contracts\Exceptions\ExceptionHandler;
 use Phanda\Contracts\Foundation\Application;
 use Phanda\Contracts\Foundation\Bootstrap\Bootstrap;
@@ -87,7 +88,24 @@ class Kernel implements HttpKernel
      */
     protected function sendRequestToRouter(Request $request)
     {
+        $this->phanda->instance('request', $request);
         $this->bootstrap();
+        return (new HttpConduit($this->phanda))
+            ->send($request)
+            ->then($this->dispatchToRouter());
+    }
+
+    /**
+     * Get the route dispatcher callback.
+     *
+     * @return \Closure
+     */
+    protected function dispatchToRouter()
+    {
+        return function ($request) {
+            $this->phanda->instance('request', $request);
+            return $this->router->dispatch($request);
+        };
     }
 
     /**

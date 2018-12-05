@@ -131,8 +131,8 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
         }
 
         $this->registerPhandaAttachments();
-        $this->registerPhandaServiceProviders();
         $this->registerPhandaAliases();
+        $this->registerPhandaServiceProviders();
     }
 
     /**
