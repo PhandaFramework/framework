@@ -69,16 +69,16 @@
         },
         {
             "name": "phanda-framework/dotenv",
-            "version": "0.1.1",
+            "version": "v0.1.2",
             "source": {
                 "type": "git",
                 "url": "https://gitlab.com/phanda/dotenv.git",
-                "reference": "79ede51964215f89ab5636b5d4f2580f7a965046"
+                "reference": "2b9b79e52d79270b80fea26b5bd23781b26d0603"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://gitlab.com/api/v4/projects/phanda%2Fdotenv/repository/archive.zip?sha=79ede51964215f89ab5636b5d4f2580f7a965046",
-                "reference": "79ede51964215f89ab5636b5d4f2580f7a965046",
+                "url": "https://gitlab.com/api/v4/projects/phanda%2Fdotenv/repository/archive.zip?sha=2b9b79e52d79270b80fea26b5bd23781b26d0603",
+                "reference": "2b9b79e52d79270b80fea26b5bd23781b26d0603",
                 "shasum": ""
             },
             "require": {
@@ -101,7 +101,7 @@
                 }
             ],
             "description": "A wrapper around vlucas/dotenv that provides additional functionality. Used in the Phanda framework to allow loading of multiple dotenv files.",
-            "time": "2018-12-05T04:30:20+00:00"
+            "time": "2018-12-05T06:26:47+00:00"
         },
         {
             "name": "psr/container",
