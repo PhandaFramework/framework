@@ -3,13 +3,21 @@
 namespace Phanda\Exceptions;
 
 use Exception;
+use Symfony\Component\Debug\Exception\FlattenException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Whoops\Run as Whoops;
 use Phanda\Contracts\Container\Container;
 use Phanda\Contracts\Exceptions\ExceptionHandler as ExceptionHandlerContract;
+use Phanda\Contracts\Support\Responsable;
+use Phanda\Exceptions\Foundation\Http\HttpResponseException;
+use Phanda\Exceptions\Handlers\WhoopsHandler;
 use Phanda\Foundation\Http\Request;
 use Phanda\Foundation\Http\Response;
 use Phanda\Support\PhandArr;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Application as BaseConsoleApplication;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Symfony\Component\Debug\ExceptionHandler as SymfonyExceptionHandler;
 
 class ExceptionHandler implements ExceptionHandlerContract
 {
@@ -43,7 +51,7 @@ class ExceptionHandler implements ExceptionHandlerContract
      */
     public function shouldntSave(Exception $e)
     {
-        return is_null(PhandArr::first($this->ignoredExceptions, function($type) use ($e) {
+        return is_null(PhandArr::first($this->ignoredExceptions, function ($type) use ($e) {
             return $e instanceof $type;
         }));
     }
@@ -54,11 +62,16 @@ class ExceptionHandler implements ExceptionHandlerContract
      */
     public function save(Exception $e)
     {
-        if($this->shouldntSave($e)) {
+        if ($this->shouldntSave($e)) {
             return;
         }
 
+        if (method_exists($e, 'save')) {
+            $e->save();
+        }
 
+        // TODO: Once a logger is implemented, log here.
+        return null;
     }
 
     /**
@@ -68,7 +81,15 @@ class ExceptionHandler implements ExceptionHandlerContract
      */
     public function render(Request $request, Exception $e)
     {
+        if ($e instanceof Responsable) {
+            $e->toResponse($request);
+        }
 
+        if ($e instanceof HttpResponseException) {
+            return $e->getResponse();
+        }
+
+        return $this->prepareResponse($request, $e);
     }
 
     /**
@@ -99,5 +120,120 @@ class ExceptionHandler implements ExceptionHandlerContract
     {
         $this->ignoredExceptions = array_merge($this->ignoredExceptions, $e);
         return $this;
+    }
+
+    protected function prepareResponse(Request $request, Exception $e)
+    {
+        if (!$this->isHttpException($e) && config('phanda.debug')) {
+            return $this->toPhandaResponse(
+                $this->convertExceptionToRenderableException($e),
+                $e
+            );
+        }
+
+        if (!$this->isHttpException($e)) {
+            $e = new HttpException(500, $e->getMessage());
+        }
+
+        return $this->toPhandaResponse(
+            $this->renderHttpException($e),
+            $e
+        );
+    }
+
+    /**
+     * Determine if the given exception is an HTTP exception.
+     *
+     * @param  \Exception $e
+     * @return bool
+     */
+    protected function isHttpException(Exception $e)
+    {
+        return $e instanceof HttpExceptionInterface;
+    }
+
+    /**
+     * @param Response $response
+     * @param Exception $e
+     * @return Response
+     */
+    protected function toPhandaResponse(Response $response, Exception $e)
+    {
+        return $response->setException($e);
+    }
+
+    /**
+     * @param Exception $e
+     * @return Response
+     */
+    protected function convertExceptionToRenderableException(Exception $e)
+    {
+        return Response::create(
+            $this->renderExceptionContent($e),
+            $this->isHttpException($e) ? $e->getStatusCode() : 500,
+            $this->isHttpException($e) ? $e->getHeaders() : []
+        );
+    }
+
+    /**
+     * @param Exception $e
+     * @return string
+     */
+    protected function renderExceptionContent(Exception $e)
+    {
+        try {
+            return config('phanda.debug') ?
+                $this->renderUsingWhoops($e) :
+                $this->renderUsingSymfony($e, config('phanda.debug'));
+        } catch (Exception $e) {
+            return $this->renderUsingSymfony($e, config('phanda.debug'));
+        }
+    }
+
+    /**
+     * @param Exception $e
+     * @param $debug
+     * @return string
+     */
+    protected function renderUsingSymfony(Exception $e, $debug)
+    {
+        return (new SymfonyExceptionHandler($debug))->getHtml(
+            FlattenException::create($e)
+        );
+    }
+
+    /**
+     * @param Exception $e
+     * @return string
+     */
+    protected function renderUsingWhoops(Exception $e)
+    {
+        /** @var Whoops $whoops */
+        $whoops = modify(new Whoops(), function ($whoops) {
+            /** @var Whoops $whoops */
+            $whoops->pushHandler($this->whoopsHandler());
+            $whoops->writeToOutput(false);
+            $whoops->allowQuit(false);
+        });
+
+        return $whoops->handleException($e);
+    }
+
+    /**
+     * @return \Whoops\Handler\PrettyPageHandler
+     */
+    protected function whoopsHandler()
+    {
+        return (new WhoopsHandler())->forDebug();
+    }
+
+    /**
+     * @param Exception $e
+     * @return Response
+     */
+    protected function renderHttpException(Exception $e)
+    {
+        //TODO: Implement custom error handlers
+        return $this->convertExceptionToRenderableException($e);
     }
 }
