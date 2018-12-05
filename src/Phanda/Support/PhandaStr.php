@@ -87,4 +87,35 @@ class PhandaStr
         return static::contains($callback, '@') ? explode('@', $callback, 2) : [$callback, $default];
     }
 
+    /**
+     * Determine if a given string matches a given pattern.
+     *
+     * @param  string|array  $pattern
+     * @param  string  $value
+     * @return bool
+     */
+    public static function matchesPattern($pattern, $value)
+    {
+        $patterns = PhandArr::wrap($pattern);
+
+        if (empty($patterns)) {
+            return false;
+        }
+
+        foreach ($patterns as $pattern) {
+            if ($pattern == $value) {
+                return true;
+            }
+
+            $pattern = preg_quote($pattern, '#');
+            $pattern = str_replace('\*', '.*', $pattern);
+
+            if (preg_match('#^'.$pattern.'\z#u', $value) === 1) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 }
