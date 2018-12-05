@@ -4,15 +4,20 @@
 namespace Phanda\Foundation\Http;
 
 use Phanda\Contracts\Foundation\Application;
+use Phanda\Contracts\Foundation\Bootstrap\Bootstrap;
 use Phanda\Contracts\Http\Kernel as HttpKernel;
 use Phanda\Contracts\Routing\Router;
+use Phanda\Foundation\Bootstrap\BootstrapConfig;
+use Phanda\Foundation\Bootstrap\BootstrapEnvironment;
+use Phanda\Foundation\Bootstrap\BootstrapPhanda;
+use Phanda\Foundation\Bootstrap\BootstrapProviders;
 
 class Kernel implements HttpKernel
 {
     /**
      * @var Application
      */
-    protected $app;
+    protected $phanda;
 
     /**
      * @var Router
@@ -20,13 +25,23 @@ class Kernel implements HttpKernel
     protected $router;
 
     /**
+     * @var Bootstrap[]
+     */
+    protected $httpBootstrappers = [
+        BootstrapEnvironment::class,
+        BootstrapConfig::class,
+        BootstrapProviders::class,
+        BootstrapPhanda::class
+    ];
+
+    /**
      * Kernel constructor.
-     * @param Application $app
+     * @param Application $phanda
      * @param Router $router
      */
-    public function __construct(Application $app, Router $router)
+    public function __construct(Application $phanda, Router $router)
     {
-        $this->app = $app;
+        $this->phanda = $phanda;
         $this->router = $router;
     }
 
@@ -60,7 +75,7 @@ class Kernel implements HttpKernel
      */
     public function terminate($request, $response)
     {
-        // TODO: Implement terminate() method.
+
     }
 
     /**
@@ -88,5 +103,25 @@ class Kernel implements HttpKernel
     protected function renderException(Request $request, \Exception $e)
     {
 
+    }
+
+    /**
+     * Bootstraps the HTTP Kernel
+     */
+    public function bootstrap()
+    {
+        if(!$this->phanda->hasBeenBootstrapped()) {
+            $this->phanda->bootstrapWith($this->bootstrappers());
+        }
+    }
+
+    /**
+     * Get the bootstrap classes for the application.
+     *
+     * @return array
+     */
+    protected function bootstrappers()
+    {
+        return $this->httpBootstrappers;
     }
 }

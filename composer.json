@@ -13,7 +13,7 @@
     "require": {
         "php": "^7.1.3",
         "ext-json": "*",
-        "phanda-framework/dotenv": "dev-master",
+        "phanda-framework/dotenv": "^0.1.1",
         "symfony/console": "^4.2",
         "symfony/dependency-injection": "^4.2",
         "symfony/event-dispatcher": "^4.2",

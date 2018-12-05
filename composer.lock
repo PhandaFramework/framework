@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "880599d7c9d6ae19c42bd8fe9bb2cb0d",
+    "content-hash": "396af18e5e8d7c35432a108f304373d2",
     "packages": [
         {
             "name": "phanda-framework/dotenv",
-            "version": "dev-master",
+            "version": "0.1.1",
             "source": {
                 "type": "git",
                 "url": "https://gitlab.com/phanda/dotenv.git",
-                "reference": "4548915f9af73eb1f0feae79d41f11bfb37e7d59"
+                "reference": "79ede51964215f89ab5636b5d4f2580f7a965046"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://gitlab.com/api/v4/projects/phanda%2Fdotenv/repository/archive.zip?sha=4548915f9af73eb1f0feae79d41f11bfb37e7d59",
-                "reference": "4548915f9af73eb1f0feae79d41f11bfb37e7d59",
+                "url": "https://gitlab.com/api/v4/projects/phanda%2Fdotenv/repository/archive.zip?sha=79ede51964215f89ab5636b5d4f2580f7a965046",
+                "reference": "79ede51964215f89ab5636b5d4f2580f7a965046",
                 "shasum": ""
             },
             "require": {
@@ -40,7 +40,7 @@
                 }
             ],
             "description": "A wrapper around vlucas/dotenv that provides additional functionality. Used in the Phanda framework to allow loading of multiple dotenv files.",
-            "time": "2018-12-05T03:51:15+00:00"
+            "time": "2018-12-05T04:30:20+00:00"
         },
         {
             "name": "psr/container",
@@ -1087,9 +1087,7 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "phanda-framework/dotenv": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
