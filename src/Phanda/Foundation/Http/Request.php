@@ -135,4 +135,26 @@ class Request extends SymfonyRequest implements Arrayable, \ArrayAccess
         return in_array($this->getRealMethod(), ['GET', 'HEAD']) ? $this->query : $this->request;
     }
 
+    /**
+     * Get the current path info for the request.
+     *
+     * @return string
+     */
+    public function path()
+    {
+        $pattern = trim($this->getPathInfo(), '/');
+
+        return $pattern == '' ? '/' : $pattern;
+    }
+
+    /**
+     * Get the current decoded path info for the request.
+     *
+     * @return string
+     */
+    public function decodedPath()
+    {
+        return rawurldecode($this->path());
+    }
+
 }

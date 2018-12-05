@@ -75,4 +75,16 @@ class PhandaStr
         return mb_strlen($value);
     }
 
+    /**
+     * Parse a Class@method style callback into class and method.
+     *
+     * @param  string  $callback
+     * @param  string|null  $default
+     * @return array
+     */
+    public static function parseClassAtMethod($callback, $default = null)
+    {
+        return static::contains($callback, '@') ? explode('@', $callback, 2) : [$callback, $default];
+    }
+
 }
