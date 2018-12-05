@@ -458,4 +458,14 @@ class Router implements RouterContract
                 );
             });
     }
+
+    /**
+     * Get the underlying route repository.
+     *
+     * @return RouteRepository
+     */
+    public function getRoutes()
+    {
+        return $this->routes;
+    }
 }

@@ -5,6 +5,7 @@ namespace Phanda\Contracts\Routing;
 
 
 use Phanda\Foundation\Http\Request;
+use Phanda\Routing\RouteRepository;
 
 interface Router
 {
@@ -97,5 +98,12 @@ interface Router
      * @return mixed
      */
     public function dispatchToRoute(Request $request);
+
+    /**
+     * Get the underlying route repository.
+     *
+     * @return RouteRepository
+     */
+    public function getRoutes();
 
 }
