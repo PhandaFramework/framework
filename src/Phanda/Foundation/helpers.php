@@ -84,3 +84,15 @@ if (!function_exists('public_path')) {
         return phanda()->publicPath() . ($path ? DIRECTORY_SEPARATOR . $path : $path);
     }
 }
+
+if(!function_exists('router')) {
+    /**
+     * Returns the router.
+     *
+     * @return \Phanda\Contracts\Routing\Router
+     */
+    function router()
+    {
+        return phanda()->create(\Phanda\Contracts\Routing\Router::class);
+    }
+}

@@ -97,6 +97,11 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     /**
      * @var string
      */
+    protected $corePath;
+
+    /**
+     * @var string
+     */
     protected $environmentPath;
 
     /**
@@ -208,6 +213,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
         $this->instance('path.bootstrap', $this->bootstrapPath());
         $this->instance('path.base', $this->basePath());
         $this->instance('path.config', $this->configPath());
+        $this->instance('path.core', $this->corePath());
         $this->instance('path.environment', $this->environmentPath());
         $this->instance('path.public', $this->publicPath());
         $this->instance('path.storage', $this->storagePath());
@@ -271,6 +277,16 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     {
         return $this->configPath . ($path ? DIRECTORY_SEPARATOR . $path : $path) ?:
             $this->basePath . DIRECTORY_SEPARATOR . 'config' . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+    }
+
+    /**
+     * @param string $path
+     * @return string
+     */
+    public function corePath($path = '')
+    {
+        return $this->corePath . ($path ? DIRECTORY_SEPARATOR . $path : $path) ?:
+            $this->basePath . DIRECTORY_SEPARATOR . 'core' . ($path ? DIRECTORY_SEPARATOR . $path : $path);
     }
 
     /**
@@ -355,6 +371,17 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     {
         $this->configPath = $path;
         $this->instance('path.config', $path);
+        return $this;
+    }
+
+    /**
+     * @param string $path
+     * @return $this
+     */
+    public function setCorePath($path)
+    {
+        $this->corePath = $path;
+        $this->instance('path.core', $path);
         return $this;
     }
 

@@ -217,11 +217,11 @@ class Route implements RouteContract
         $this->getSymfonyCompiledRoute();
 
         foreach ($this->getRequestValidators() as $validator) {
-            if (! $includingMethod && $validator instanceof ValidateAgainstMethod) {
+            if (!$includingMethod && $validator instanceof ValidateAgainstMethod) {
                 continue;
             }
 
-            if (! $validator->matches($this, $request)) {
+            if (!$validator->matches($this, $request)) {
                 return false;
             }
         }
@@ -589,12 +589,11 @@ class Route implements RouteContract
      */
     protected function addGroupNamespaceToStringUses($action)
     {
-        // fix this when groups work :eye_roll:
-        /**$groupStack = end($this->router->getGroupStack());
-         *
-         * if (isset($groupStack['namespace']) && strpos($action, '\\') !== 0) {
-         * return $groupStack['namespace'].'\\'.$action;
-         * }*/
+        $groupStack = end($this->router->getGroupStack());
+
+        if (isset($groupStack['namespace']) && strpos($action, '\\') !== 0) {
+            return $groupStack['namespace'] . '\\' . $action;
+        }
 
         return $action;
     }

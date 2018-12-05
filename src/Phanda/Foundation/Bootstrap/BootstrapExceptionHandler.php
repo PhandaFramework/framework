@@ -46,7 +46,7 @@ class BootstrapExceptionHandler implements Bootstrap
      *
      * @throws ErrorException
      */
-    public function handleError($level, $message, $file = '', $line = 0, $context = [])
+    public function handleError($level, $message, $file = '', $line = 0)
     {
         if (error_reporting() & $level) {
             throw new ErrorException($message, 0, $level, $file, $line);

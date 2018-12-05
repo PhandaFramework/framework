@@ -161,7 +161,7 @@ class RouteRepository implements Repository, \Countable, \IteratorAggregate
         $others = [];
 
         foreach ($methods as $method) {
-            if (! is_null($this->matchRoutesAgainstRequest($this->get($method), $request, false))) {
+            if (! is_null($this->matchRoutesAgainstRequest($this->getByMethod($method), $request, false))) {
                 $others[] = $method;
             }
         }

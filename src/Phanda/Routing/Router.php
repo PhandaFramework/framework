@@ -20,6 +20,9 @@ use Phanda\Support\Routing\RouteGroupMerger;
 use Phanda\Routing\Route as PhandaRoute;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
+/**
+ * @mixin RouteRegistrar
+ */
 class Router implements RouterContract
 {
     public const VERBS = ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'];
@@ -467,5 +470,25 @@ class Router implements RouterContract
     public function getRoutes()
     {
         return $this->routes;
+    }
+
+    /**
+     * @return array
+     */
+    public function getGroupStack()
+    {
+        return $this->groupStack;
+    }
+
+    /**
+     * Dynamically handle calls into the router instance.
+     *
+     * @param  string  $method
+     * @param  array  $parameters
+     * @return mixed
+     */
+    public function __call($method, $parameters)
+    {
+        return (new RouteRegistrar($this))->attribute($method, $parameters[0]);
     }
 }

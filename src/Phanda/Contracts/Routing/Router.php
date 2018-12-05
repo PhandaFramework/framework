@@ -3,10 +3,13 @@
 
 namespace Phanda\Contracts\Routing;
 
-
 use Phanda\Foundation\Http\Request;
+use Phanda\Routing\RouteRegistrar;
 use Phanda\Routing\RouteRepository;
 
+/**
+ * @mixin RouteRegistrar
+ */
 interface Router
 {
 
@@ -105,5 +108,10 @@ interface Router
      * @return RouteRepository
      */
     public function getRoutes();
+
+    /**
+     * @return array
+     */
+    public function getGroupStack();
 
 }
