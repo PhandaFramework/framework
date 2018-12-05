@@ -9,6 +9,7 @@ use Phanda\Contracts\Http\Kernel as HttpKernel;
 use Phanda\Contracts\Routing\Router;
 use Phanda\Foundation\Bootstrap\BootstrapConfig;
 use Phanda\Foundation\Bootstrap\BootstrapEnvironment;
+use Phanda\Foundation\Bootstrap\BootstrapExceptionHandler;
 use Phanda\Foundation\Bootstrap\BootstrapPhanda;
 use Phanda\Foundation\Bootstrap\BootstrapProviders;
 
@@ -30,6 +31,7 @@ class Kernel implements HttpKernel
     protected $httpBootstrappers = [
         BootstrapEnvironment::class,
         BootstrapConfig::class,
+        BootstrapExceptionHandler::class,
         BootstrapProviders::class,
         BootstrapPhanda::class
     ];

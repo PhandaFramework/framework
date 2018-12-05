@@ -13,6 +13,7 @@ use Phanda\Contracts\Foundation\Application;
 use Phanda\Contracts\Foundation\Bootstrap\Bootstrap;
 use Phanda\Foundation\Bootstrap\BootstrapConfig;
 use Phanda\Foundation\Bootstrap\BootstrapEnvironment;
+use Phanda\Foundation\Bootstrap\BootstrapExceptionHandler;
 use Phanda\Foundation\Bootstrap\BootstrapPhanda;
 use Phanda\Foundation\Bootstrap\BootstrapProviders;
 use Phanda\Support\PhandArr;
@@ -51,6 +52,7 @@ class Kernel implements ConsoleKernel
     protected $consoleBootstrappers = [
         BootstrapEnvironment::class,
         BootstrapConfig::class,
+        BootstrapExceptionHandler::class,
         BootstrapProviders::class,
         BootstrapPhanda::class
     ];
