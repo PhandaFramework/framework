@@ -55,13 +55,21 @@ if (! function_exists('environment')) {
      * @param  mixed   $default
      * @return mixed
      */
-    function environment($key, $default = null)
+    function environment($key = null, $default = null)
     {
-        $value = getenv($key);
+        /** @var \Phanda\Environment\Repository $environment */
+        $environment = phanda('environment');
 
-        if ($value === false) {
-            return value($default);
+        if(is_null($key)) {
+            return $environment;
         }
+
+        if (is_array($key)) {
+            $environment->set($key);
+            return null;
+        }
+
+        $value = $environment->get($key, $default);
 
         switch (strtolower($value)) {
             case 'true':
@@ -83,6 +91,32 @@ if (! function_exists('environment')) {
         }
 
         return $value;
+    }
+}
+
+
+
+if (! function_exists('config')) {
+    /**
+     * @param null|string|array $key
+     * @param mixed $default
+     * @return \Phanda\Configuration\Repository|null
+     */
+    function config($key = null, $default = null)
+    {
+        /** @var \Phanda\Configuration\Repository $config */
+        $config = phanda('config');
+
+        if (is_null($key)) {
+            return $config;
+        }
+
+        if (is_array($key)) {
+            $config->set($key);
+            return null;
+        }
+
+        return $config->get($key, $default);
     }
 }
 

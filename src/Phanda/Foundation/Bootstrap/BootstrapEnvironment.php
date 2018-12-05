@@ -2,13 +2,10 @@
 
 namespace Phanda\Foundation\Bootstrap;
 
-use Dotenv\Dotenv;
-use Dotenv\Exception\InvalidFileException;
-use Dotenv\Exception\InvalidPathException;
+use Phanda\Dotenv\Dotenv;
 use Phanda\Foundation\Application;
 use Phanda\Contracts\Foundation\Bootstrap\Bootstrap;
 use SplFileInfo;
-use Symfony\Component\Console\Input\ArgvInput;
 use Phanda\Environment\Repository as EnvironmentRepository;
 use Symfony\Component\Finder\Finder;
 
@@ -25,6 +22,8 @@ class BootstrapEnvironment implements Bootstrap
         $environment = new EnvironmentRepository();
         $phanda->instance('environment', $environment);
         $this->loadEnvironment($phanda, $environment);
+
+        dd($environment);
     }
 
     /**
@@ -43,7 +42,8 @@ class BootstrapEnvironment implements Bootstrap
 
         foreach($files as $key => $path) {
             $dotEnv = (new Dotenv(dirname($path), basename($path)));
-            $repository->set($key, $dotEnv->load());
+            $dotEnv->load();
+            $repository->set($key, $dotEnv->toArray());
         }
     }
 

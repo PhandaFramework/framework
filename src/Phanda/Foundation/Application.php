@@ -4,6 +4,7 @@ namespace Phanda\Foundation;
 
 use Closure;
 use Phanda\Configuration\Repository as ConfigurationRepository;
+use Phanda\Environment\Repository as EnvironmentRepository;
 use Phanda\Container\Container;
 use Phanda\Contracts\Foundation\Application as ApplicationContract;
 use Phanda\Contracts\Foundation\Bootstrap\Bootstrap;
@@ -665,6 +666,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
         foreach ([
                      'app' => [Application::class, Container::class, ApplicationContract::class, ContainerInterface::class],
                      'config' => [ConfigurationRepository::class],
+                     'environment' => [EnvironmentRepository::class],
                      'events' => [Dispatcher::class, \Phanda\Contracts\Events\Dispatcher::class],
                      'request' => [Request::class, SymfonyRequest::class]
                  ] as $key => $aliases) {
