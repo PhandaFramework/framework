@@ -664,7 +664,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
     public function registerPhandaAliases()
     {
         foreach ([
-                     'app' => [Application::class, Container::class, ApplicationContract::class, ContainerInterface::class],
+                     'app' => [Application::class, Container::class, ApplicationContract::class, ContainerInterface::class, \Phanda\Contracts\Container\Container::class],
                      'config' => [ConfigurationRepository::class],
                      'environment' => [EnvironmentRepository::class],
                      'events' => [Dispatcher::class, \Phanda\Contracts\Events\Dispatcher::class],

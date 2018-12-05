@@ -3,6 +3,7 @@
 
 namespace Phanda\Foundation\Http;
 
+use Phanda\Contracts\Exceptions\ExceptionHandler;
 use Phanda\Contracts\Foundation\Application;
 use Phanda\Contracts\Foundation\Bootstrap\Bootstrap;
 use Phanda\Contracts\Http\Kernel as HttpKernel;
@@ -94,7 +95,9 @@ class Kernel implements HttpKernel
      */
     protected function saveException(\Exception $e)
     {
-
+        /** @var ExceptionHandler $exceptionHandler */
+        $exceptionHandler = $this->phanda[ExceptionHandler::class];
+        $exceptionHandler->save($e);
     }
 
     /**
@@ -104,7 +107,9 @@ class Kernel implements HttpKernel
      */
     protected function renderException(Request $request, \Exception $e)
     {
-
+        /** @var ExceptionHandler $exceptionHandler */
+        $exceptionHandler = $this->phanda[ExceptionHandler::class];
+        return $exceptionHandler->render($request, $e);
     }
 
     /**

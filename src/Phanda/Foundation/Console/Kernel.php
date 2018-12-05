@@ -11,6 +11,7 @@ use Phanda\Contracts\Console\Kernel as ConsoleKernel;
 use Phanda\Contracts\Events\Dispatcher;
 use Phanda\Contracts\Foundation\Application;
 use Phanda\Contracts\Foundation\Bootstrap\Bootstrap;
+use Phanda\Exceptions\ExceptionHandler;
 use Phanda\Foundation\Bootstrap\BootstrapConfig;
 use Phanda\Foundation\Bootstrap\BootstrapEnvironment;
 use Phanda\Foundation\Bootstrap\BootstrapExceptionHandler;
@@ -258,8 +259,10 @@ class Kernel implements ConsoleKernel
      */
     protected function saveException($e)
     {
-        echo $e;
-        die(-1);
+        /** @var ExceptionHandler $exceptionHandler */
+        $exceptionHandler = $this->phanda->create(ExceptionHandler::class);
+        //$exceptionHandler = $this->phanda[ExceptionHandler::class];
+        $exceptionHandler->save($e);
     }
 
     /**
@@ -268,6 +271,8 @@ class Kernel implements ConsoleKernel
      */
     protected function outputException(OutputInterface $output, \Exception $e)
     {
-
+        /** @var ExceptionHandler $exceptionHandler */
+        $exceptionHandler = $this->phanda[ExceptionHandler::class];
+        $exceptionHandler->outputToKungfu($output, $e);
     }
 }
