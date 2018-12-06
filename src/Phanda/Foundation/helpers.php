@@ -96,3 +96,16 @@ if(!function_exists('router')) {
         return phanda()->create(\Phanda\Contracts\Routing\Router::class);
     }
 }
+
+if (!function_exists('storage_path')) {
+    /**
+     * Get the path to the storage serving path.
+     *
+     * @param  string $path
+     * @return string
+     */
+    function storage_path($path = '')
+    {
+        return phanda()->storagePath() . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+    }
+}
