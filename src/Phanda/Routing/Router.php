@@ -3,6 +3,7 @@
 namespace Phanda\Routing;
 
 use ArrayObject;
+use http\Exception;
 use JsonSerializable;
 use Phanda\Conduit\HttpConduit;
 use Phanda\Contracts\Events\Dispatcher;
@@ -185,7 +186,7 @@ class Router implements RouterContract
 
         $route = $this->newPhandaRoute(
             $methods,
-            $uri,
+            $this->setPrefix($uri),
             $action
         );
 

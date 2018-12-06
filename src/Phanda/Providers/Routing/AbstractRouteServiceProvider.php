@@ -2,7 +2,6 @@
 
 namespace Phanda\Providers\Routing;
 
-use Phanda\Contracts\Routing\Router;
 use Phanda\Providers\AbstractServiceProvider;
 use Phanda\Util\Routing\ForwardRouteCallsTrait;
 
@@ -18,16 +17,10 @@ abstract class AbstractRouteServiceProvider extends AbstractServiceProvider
     protected $namespace;
 
     /**
-     * @var Router
-     */
-    protected $router;
-
-    /**
      * Boots the route service provider
      */
     public function boot()
     {
-        $this->router = $this->phanda->create(Router::class);
         $this->loadRoutes();
     }
 

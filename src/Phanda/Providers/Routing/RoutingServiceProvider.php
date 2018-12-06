@@ -10,14 +10,13 @@ use Phanda\Routing\Controller\Dispatcher as ControllerDispatcher;
 
 class RoutingServiceProvider extends AbstractServiceProvider
 {
-
     /**
      * Initialises core routing
      */
     public function register()
     {
         $this->registerRouter();
-        $this->registerRoutes();
+        //$this->registerRoutes();
         $this->registerControllerDispatcher();
     }
 
@@ -34,9 +33,12 @@ class RoutingServiceProvider extends AbstractServiceProvider
 
     protected function registerRoutes()
     {
-        /** @var \Phanda\Contracts\Routing\Router $router */
-        $router = $this->phanda->create(\Phanda\Contracts\Routing\Router::class);
-        $this->phanda->instance('routes', $router->getRoutes());
+        $this->phanda->singleton('routes', function($phanda) {
+            /** @var Application $phanda */
+            /** @var Router $router */
+            $router = $phanda[Router::class];
+            return $router->getRoutes();
+        });
     }
 
     /**
