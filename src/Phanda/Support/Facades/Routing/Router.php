@@ -28,6 +28,7 @@ use Phanda\Support\Facades\Facade;
  * @method static RouteRegistrar namespace(string $value)
  * @method static RouteRegistrar prefix(string  $prefix)
  * @method static RouteRegistrar where(array  $where)
+ * @method static RouteRegistrar group(array|\Closure|string $attributes, \Closure|string $routes)
  */
 class Router extends Facade
 {
