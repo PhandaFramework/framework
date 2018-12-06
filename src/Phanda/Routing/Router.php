@@ -227,6 +227,7 @@ class Router implements RouterContract
         }
 
         $action['controller'] = $action['method'];
+
         return $action;
     }
 

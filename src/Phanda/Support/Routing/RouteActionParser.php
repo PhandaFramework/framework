@@ -21,15 +21,15 @@ class RouteActionParser
         }
 
         if (is_callable($action)) {
-            return ! is_array($action) ? ['method' => $action] : [
-                'method' => $action[0].'@'.$action[1],
-                'controller' => $action[0].'@'.$action[1],
+            return !is_array($action) ? ['method' => $action] : [
+                'method' => $action[0] . '@' . $action[1],
+                'controller' => $action[0] . '@' . $action[1],
             ];
-        } elseif (! isset($action['method'])) {
+        } elseif (!isset($action['method'])) {
             $action['method'] = static::findCallback($action);
         }
 
-        if (is_string($action['method']) && ! PhandaStr::contains($action['method'], '@')) {
+        if (is_string($action['method']) && !PhandaStr::contains('@', $action['method'])) {
             $action['method'] = static::makeInvokable($action['method']);
         }
 
@@ -64,11 +64,11 @@ class RouteActionParser
      */
     protected static function makeInvokable($action)
     {
-        if (! method_exists($action, '__invoke')) {
+        if (!method_exists($action, '__invoke')) {
             throw new UnexpectedValueException("Invalid action supplied: [{$action}].");
         }
 
-        return $action.'@__invoke';
+        return $action . '@__invoke';
     }
 
 }

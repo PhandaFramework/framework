@@ -2,6 +2,7 @@
 
 namespace Phanda\Routing\Controller;
 
+use BadMethodCallException;
 use Phanda\Foundation\Http\Response;
 
 abstract class AbstractController
