@@ -28,7 +28,7 @@ use Phanda\Support\Facades\Facade;
  * @method static RouteRegistrar namespace(string $value)
  * @method static RouteRegistrar prefix(string  $prefix)
  * @method static RouteRegistrar where(array  $where)
- * @method static RouteRegistrar group(array|\Closure|string $attributes, \Closure|string $routes)
+ * @method static RouteRegistrar group(\Closure|string $routes)
  */
 class Router extends Facade
 {
@@ -53,5 +53,6 @@ class Router extends Facade
     protected static function setupFacadeImplementations()
     {
         static::addImplementation('router-facade', \Phanda\Contracts\Routing\Router::class);
+        static::addImplementation('router-registrar', RouteRegistrar::class, true);
     }
 }

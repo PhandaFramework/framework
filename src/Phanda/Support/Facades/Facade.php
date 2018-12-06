@@ -26,14 +26,26 @@ abstract class Facade
      */
     protected static $resolved;
 
+    /**
+     * @var array
+     */
+    protected static $magicCalls;
+
 
     /**
      * @param string $name
      * @param mixed $implementation
+     * @param bool $hasMagicCalls
      */
-    public static function addImplementation($name, $implementation)
+    public static function addImplementation($name, $implementation, $hasMagicCalls = false)
     {
         static::$implementations[static::getFacadeName()][$name] = $implementation;
+
+        if($hasMagicCalls) {
+            static::$magicCalls[static::getFacadeName()][$name] = true;
+        } else {
+            static::$magicCalls[static::getFacadeName()][$name] = false;
+        }
 
         if (isset(static::$phanda)) {
             if(static::$phanda->isAttached($name)) {
@@ -57,6 +69,10 @@ abstract class Facade
             unset(static::$resolvedImplementations[static::getFacadeName()][$name]);
         }
 
+        if(isset(static::$magicCalls[static::getFacadeName()][$name])) {
+            unset(static::$magicCalls[static::getFacadeName()][$name]);
+        }
+
         if (isset(static::$phanda) && static::$phanda->isAttached($name)) {
             static::$phanda->clearInstance($name);
         }
@@ -75,6 +91,7 @@ abstract class Facade
 
         static::$implementations[static::getFacadeName()] = [];
         static::$resolvedImplementations[static::getFacadeName()] = [];
+        static::$magicCalls[static::getFacadeName()] = [];
     }
 
     /**
@@ -158,13 +175,13 @@ abstract class Facade
             throw new \RuntimeException("Facade has not been setup correctly, or has defined no implementations.");
         }
 
-        foreach($implementations as $implementation)
+        foreach($implementations as $implementationName => $implementation)
         {
-            if(method_exists($implementation, $name)) {
+            if(method_exists($implementation, $name) || static::$magicCalls[static::getFacadeName()][$implementationName]) {
                 return $implementation->$name(...$arguments);
             }
         }
 
-        throw new \RuntimeException("Method {$name} not found on Facade " . static::getFacadeName());
+        throw new \RuntimeException("Method '{$name}' not found on Facade: " . static::getFacadeName());
     }
 }
