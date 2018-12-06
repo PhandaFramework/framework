@@ -76,7 +76,8 @@ class PhandaStr
     }
 
     /**
-     * Parse a Class@method style callback into class and method.
+     * Parse a Class@method
+     * style callback into class and method.
      *
      * @param  string  $callback
      * @param  string|null  $default
@@ -84,7 +85,7 @@ class PhandaStr
      */
     public static function parseClassAtMethod($callback, $default = null)
     {
-        return static::contains($callback, '@') ? explode('@', $callback, 2) : [$callback, $default];
+        return static::contains('@', $callback) ? explode('@', $callback, 2) : [$callback, $default];
     }
 
     /**
@@ -96,7 +97,7 @@ class PhandaStr
      */
     public static function matchesPattern($pattern, $value)
     {
-        $patterns = PhandArr::wrap($pattern);
+        $patterns = PhandArr::makeArray($pattern);
 
         if (empty($patterns)) {
             return false;
