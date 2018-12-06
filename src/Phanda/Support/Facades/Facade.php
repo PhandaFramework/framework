@@ -36,7 +36,11 @@ abstract class Facade
         static::$implementations[static::getFacadeName()][$name] = $implementation;
 
         if (isset(static::$phanda)) {
-            static::$phanda->instance($name, $implementation);
+            if(static::$phanda->isAttached($name)) {
+                throw new \RuntimeException("Can't create instance {$name} on Phanda container. Attachment with name {$name} is already attached.");
+            } else {
+                static::$phanda->instance($name, $implementation);
+            }
         }
     }
 
