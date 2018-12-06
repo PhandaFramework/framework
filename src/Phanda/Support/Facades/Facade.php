@@ -177,7 +177,7 @@ abstract class Facade
 
         foreach($implementations as $implementationName => $implementation)
         {
-            if(method_exists($implementation, $name) || static::$magicCalls[static::getFacadeName()][$implementationName]) {
+            if(method_exists($implementation, $name) || (static::$magicCalls[static::getFacadeName()][$implementationName] && is_callable([$implementation, $name]))) {
                 return $implementation->$name(...$arguments);
             }
         }
