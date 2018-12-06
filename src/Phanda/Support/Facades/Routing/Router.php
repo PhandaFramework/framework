@@ -11,21 +11,23 @@ use Phanda\Support\Facades\Facade;
  * The Base Phanda Router Facade
  *
  * @package Phanda\Support\Facades\Routing
+ * @see \Phanda\Contracts\Routing\Router
+ * @see RouteRegistrar
  *
- * @method Route get(string $name, string $uri, \Closure|array|string|null $action = null)
- * @method Route post(string $name, string $uri, \Closure|array|string|null $action = null)
- * @method Route put(string $name, string $uri, \Closure|array|string|null $action = null)
- * @method Route delete(string $name, string $uri, \Closure|array|string|null $action = null)
- * @method Route patch(string $name, string $uri, \Closure|array|string|null $action = null)
- * @method Route options(string $name, string $uri, \Closure|array|string|null $action = null)
- * @method Route any(string $name, string $uri, \Closure|array|string|null $action = null)
+ * @method static Route get(string $name, string $uri, \Closure|array|string|null $action = null)
+ * @method static Route post(string $name, string $uri, \Closure|array|string|null $action = null)
+ * @method static Route put(string $name, string $uri, \Closure|array|string|null $action = null)
+ * @method static Route delete(string $name, string $uri, \Closure|array|string|null $action = null)
+ * @method static Route patch(string $name, string $uri, \Closure|array|string|null $action = null)
+ * @method static Route options(string $name, string $uri, \Closure|array|string|null $action = null)
+ * @method static Route any(string $name, string $uri, \Closure|array|string|null $action = null)
  *
- * @method RouteRegistrar domain(string $value)
- * @method RouteRegistrar middleware(array|string|null $middleware)
- * @method RouteRegistrar name(string $value)
- * @method RouteRegistrar namespace(string $value)
- * @method RouteRegistrar prefix(string  $prefix)
- * @method RouteRegistrar where(array  $where)
+ * @method static RouteRegistrar domain(string $value)
+ * @method static RouteRegistrar middleware(array|string|null $middleware)
+ * @method static RouteRegistrar name(string $value)
+ * @method static RouteRegistrar namespace(string $value)
+ * @method static RouteRegistrar prefix(string  $prefix)
+ * @method static RouteRegistrar where(array  $where)
  */
 class Router extends Facade
 {
@@ -49,6 +51,6 @@ class Router extends Facade
      */
     protected static function setupFacadeImplementations()
     {
-        static::addImplementation('router', \Phanda\Contracts\Routing\Router::class);
+        static::addImplementation('routerFacade', \Phanda\Contracts\Routing\Router::class);
     }
 }
