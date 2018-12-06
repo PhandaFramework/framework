@@ -65,6 +65,11 @@ interface Container extends PsrContainer
 
     /**
      * @param string $abstract
+     */
+    public function clearInstance($abstract);
+
+    /**
+     * @param string $abstract
      * @return Closure
      */
     public function getResolver($abstract);
