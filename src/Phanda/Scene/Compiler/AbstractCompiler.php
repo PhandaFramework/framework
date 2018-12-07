@@ -5,7 +5,7 @@ namespace Phanda\Scene\Compiler;
 use Phanda\Contracts\Scene\Compiler\Compiler as CompilerContract;
 use Phanda\Filesystem\Filesystem;
 
-abstract class Compiler implements CompilerContract
+abstract class AbstractCompiler implements CompilerContract
 {
     /**
      * @var string
