@@ -8,12 +8,14 @@ use Phanda\Support\PhandArr;
 use Phanda\Support\PhandaStr;
 use Phanda\Util\Scene\Compiler\Bamboo\CompileComments;
 use Phanda\Util\Scene\Compiler\Bamboo\CompileConditionalStatements;
+use Phanda\Util\Scene\Compiler\Bamboo\CompileOutputStatements;
 
 class Compiler extends AbstractCompiler implements ExtendableCompiler
 {
 
     use CompileComments,
-        CompileConditionalStatements;
+        CompileConditionalStatements,
+        CompileOutputStatements;
 
     /**
      * @var string The file being compiled

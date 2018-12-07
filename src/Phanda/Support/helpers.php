@@ -1,5 +1,6 @@
 <?php
 
+use Phanda\Contracts\Support\Htmlable;
 use Phanda\Support\PhandArr;
 
 if (!function_exists('data_get')) {
@@ -148,3 +149,20 @@ if (!function_exists('value')) {
     }
 }
 
+if (! function_exists('e')) {
+    /**
+     * Escape HTML special characters in a string.
+     *
+     * @param  Htmlable|string  $value
+     * @param  bool  $doubleEncode
+     * @return string
+     */
+    function e($value, $doubleEncode = true)
+    {
+        if ($value instanceof Htmlable) {
+            return $value->toHtml();
+        }
+
+        return htmlspecialchars($value, ENT_QUOTES, 'UTF-8', $doubleEncode);
+    }
+}
