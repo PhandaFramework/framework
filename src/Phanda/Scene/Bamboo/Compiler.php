@@ -10,6 +10,7 @@ use Phanda\Util\Scene\Compiler\Bamboo\CompileComments;
 use Phanda\Util\Scene\Compiler\Bamboo\CompileConditionalStatements;
 use Phanda\Util\Scene\Compiler\Bamboo\CompileDebugStatements;
 use Phanda\Util\Scene\Compiler\Bamboo\CompileOutputStatements;
+use Phanda\Util\Scene\Compiler\Bamboo\CompilePhandaStatements;
 
 class Compiler extends AbstractCompiler implements ExtendableCompiler
 {
@@ -17,7 +18,8 @@ class Compiler extends AbstractCompiler implements ExtendableCompiler
     use CompileComments,
         CompileConditionalStatements,
         CompileDebugStatements,
-        CompileOutputStatements;
+        CompileOutputStatements,
+        CompilePhandaStatements;
 
     /**
      * @var string The file being compiled
