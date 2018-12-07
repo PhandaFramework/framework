@@ -5,7 +5,7 @@ namespace Phanda\Util\Scene\Compiler\Bamboo;
 trait CompileOutputStatements
 {
     /**
-     * Compile Blade echos into valid PHP.
+     * Compile Phanda outputs into valid PHP.
      *
      * @param  string  $value
      * @return string
