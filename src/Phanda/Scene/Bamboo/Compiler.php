@@ -12,6 +12,7 @@ use Phanda\Util\Scene\Compiler\Bamboo\CompileDebugStatements;
 use Phanda\Util\Scene\Compiler\Bamboo\CompileLoopStatements;
 use Phanda\Util\Scene\Compiler\Bamboo\CompileOutputStatements;
 use Phanda\Util\Scene\Compiler\Bamboo\CompilePhandaStatements;
+use Phanda\Util\Scene\Compiler\Bamboo\CompilePHPStatements;
 
 class Compiler extends AbstractCompiler implements ExtendableCompiler
 {
@@ -21,7 +22,8 @@ class Compiler extends AbstractCompiler implements ExtendableCompiler
         CompileDebugStatements,
         CompileLoopStatements,
         CompileOutputStatements,
-        CompilePhandaStatements;
+        CompilePhandaStatements,
+        CompilePHPStatements;
 
     /**
      * @var string The file being compiled
