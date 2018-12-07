@@ -24,7 +24,7 @@ class PhandaStr
      * @param  string|array  $needles
      * @return bool
      */
-    public static function startsIn($haystack, $needles)
+    public static function startsIn($needles, $haystack)
     {
         foreach ((array) $needles as $needle) {
             if ($needle !== '' && substr($haystack, 0, strlen($needle)) === (string) $needle) {

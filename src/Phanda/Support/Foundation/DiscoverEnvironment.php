@@ -53,7 +53,7 @@ class DiscoverEnvironment
     protected function getConsoleEnvironmentArgument(array $consoleArgs)
     {
         return PhandArr::first($consoleArgs, function ($value) {
-            return PhandaStr::startsIn($value, '--env');
+            return PhandaStr::startsIn( '--env', $value);
         });
     }
 

@@ -2,9 +2,12 @@
 
 namespace Phanda\Scene\Bamboo;
 
+use Phanda\Contracts\Scene\Compiler\ExtendableCompiler;
 use Phanda\Scene\Compiler\AbstractCompiler;
+use Phanda\Support\PhandArr;
+use Phanda\Support\PhandaStr;
 
-class Compiler extends AbstractCompiler
+class Compiler extends AbstractCompiler implements ExtendableCompiler
 {
 
     /**
@@ -18,6 +21,9 @@ class Compiler extends AbstractCompiler
     protected $extensions = [];
 
     /**
+     * These are the internal functions that get called on the compiler. The function format is compile{$compiler}
+     * For example the 'Extensions' will call compileExtensions() internally, and return the result.
+     *
      * @var array
      */
     protected $compilers = [
@@ -130,19 +136,19 @@ class Compiler extends AbstractCompiler
         $result = '';
 
         if (strlen($this->header) > 0) {
-            $result .= $this->header;
+            $result .= $this->header . PHP_EOL;
         }
 
-        foreach(token_get_all($value) as $token) {
+        foreach (token_get_all($value) as $token) {
             $result .= is_array($token) ? $this->parseToken($token) : $token;
         }
 
-        if(!empty($this->rawPhpBlocks)) {
+        if (!empty($this->rawPhpBlocks)) {
             $result = $this->restoreRawContent($result);
         }
 
-        if(count($this->footer) > 0) {
-            $result = $this->addFooters($this->footer);
+        if (count($this->footer) > 0) {
+            $result = $this->addFooters($result);
         }
 
         return $result;
@@ -203,20 +209,114 @@ class Compiler extends AbstractCompiler
     }
 
     /**
+     * @param string $result
+     * @return string
+     */
+    protected function addFooters($result)
+    {
+        return ltrim($result, PHP_EOL)
+            . PHP_EOL . implode(PHP_EOL, array_reverse($this->footer));
+    }
+
+    /**
      * @param array $token
      * @return string
      */
     protected function parseToken(array $token)
     {
+        [$id, $content] = $token;
 
+        if ($id == T_INLINE_HTML) {
+            foreach ($this->compilers as $type) {
+                $content = $this->{"compile{$type}"}($content);
+            }
+        }
+
+        return $content;
     }
 
     /**
-     * @param array $footers
+     * Execute the user defined extensions.
+     *
+     * @param  string $value
      * @return string
      */
-    protected function addFooters(array $footers)
+    protected function compileExtensions($value)
     {
+        foreach ($this->extensions as $compiler) {
+            $value = call_user_func($compiler, $value, $this);
+        }
 
+        return $value;
+    }
+
+    /**
+     * Compile Bamboo statements that start with "@".
+     *
+     * @param  string $value
+     * @return string
+     */
+    protected function compileStatements($value)
+    {
+        return preg_replace_callback(
+            '/\B@(@?\w+(?:::\w+)?)([ \t]*)(\( ( (?>[^()]+) | (?3) )* \))?/x',
+            function ($match) {
+                return $this->compileStatement($match);
+            }, $value
+        );
+    }
+
+    /**
+     * Compile a single Bamboo @ statement.
+     *
+     * @param  array $match
+     * @return string
+     */
+    protected function compileStatement($match)
+    {
+        if (PhandaStr::contains('@', $match[1])) {
+            $match[0] = isset($match[3]) ? $match[1] . $match[3] : $match[1];
+        } elseif (method_exists($this, $method = 'compile' . ucfirst($match[1]))) {
+            $match[0] = $this->$method(PhandArr::get($match, 3));
+        }
+
+        return isset($match[3]) ? $match[0] : $match[0] . $match[2];
+    }
+
+    /**
+     * Strip the parentheses from the given expression.
+     *
+     * @param  string  $expression
+     * @return string
+     */
+    public function stripParentheses($expression)
+    {
+        if (PhandaStr::startsIn( '(', $expression)) {
+            $expression = substr($expression, 1, -1);
+        }
+
+        return $expression;
+    }
+
+    /**
+     * Register a custom Bamboo compiler.
+     *
+     * @param  callable $extensionCompiler
+     * @return $this
+     */
+    public function extend(callable $extensionCompiler)
+    {
+        $this->extensions[] = $extensionCompiler;
+        return $this;
+    }
+
+    /**
+     * Get the extensions used by the compiler.
+     *
+     * @return array
+     */
+    public function getExtensions()
+    {
+        return $this->extensions;
     }
 }
