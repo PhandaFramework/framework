@@ -8,6 +8,7 @@ use Phanda\Support\PhandArr;
 use Phanda\Support\PhandaStr;
 use Phanda\Util\Scene\Compiler\Bamboo\CompileComments;
 use Phanda\Util\Scene\Compiler\Bamboo\CompileConditionalStatements;
+use Phanda\Util\Scene\Compiler\Bamboo\CompileDebugStatements;
 use Phanda\Util\Scene\Compiler\Bamboo\CompileOutputStatements;
 
 class Compiler extends AbstractCompiler implements ExtendableCompiler
@@ -15,6 +16,7 @@ class Compiler extends AbstractCompiler implements ExtendableCompiler
 
     use CompileComments,
         CompileConditionalStatements,
+        CompileDebugStatements,
         CompileOutputStatements;
 
     /**
@@ -297,12 +299,12 @@ class Compiler extends AbstractCompiler implements ExtendableCompiler
     /**
      * Strip the parentheses from the given expression.
      *
-     * @param  string  $expression
+     * @param  string $expression
      * @return string
      */
     public function stripParentheses($expression)
     {
-        if (PhandaStr::startsIn( '(', $expression)) {
+        if (PhandaStr::startsIn('(', $expression)) {
             $expression = substr($expression, 1, -1);
         }
 
