@@ -6,9 +6,12 @@ use Phanda\Contracts\Scene\Compiler\ExtendableCompiler;
 use Phanda\Scene\Compiler\AbstractCompiler;
 use Phanda\Support\PhandArr;
 use Phanda\Support\PhandaStr;
+use Phanda\Util\Scene\Compiler\Bamboo\CompileComments;
 
 class Compiler extends AbstractCompiler implements ExtendableCompiler
 {
+
+    use CompileComments;
 
     /**
      * @var string The file being compiled
