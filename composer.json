@@ -18,6 +18,7 @@
         "symfony/console": "^4.2",
         "symfony/dependency-injection": "^4.2",
         "symfony/event-dispatcher": "^4.2",
+        "symfony/filesystem": "^4.2",
         "symfony/finder": "^4.2",
         "symfony/http-foundation": "^4.2",
         "symfony/http-kernel": "^4.2",
