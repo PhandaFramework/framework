@@ -7,11 +7,13 @@ use Phanda\Scene\Compiler\AbstractCompiler;
 use Phanda\Support\PhandArr;
 use Phanda\Support\PhandaStr;
 use Phanda\Util\Scene\Compiler\Bamboo\CompileComments;
+use Phanda\Util\Scene\Compiler\Bamboo\CompileConditionalStatements;
 
 class Compiler extends AbstractCompiler implements ExtendableCompiler
 {
 
-    use CompileComments;
+    use CompileComments,
+        CompileConditionalStatements;
 
     /**
      * @var string The file being compiled
@@ -26,6 +28,10 @@ class Compiler extends AbstractCompiler implements ExtendableCompiler
     /**
      * These are the internal functions that get called on the compiler. The function format is compile{$compiler}
      * For example the 'Extensions' will call compileExtensions() internally, and return the result.
+     *
+     * The order in which these appear is important, as it will strip out the Bamboo tag from the string and replace it
+     * with the actual value. Hence why we put comments at the start so that they can be omitted and any functionality
+     * contained in a comment is ignored.
      *
      * @var array
      */
