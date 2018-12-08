@@ -122,3 +122,25 @@ if (!function_exists('storage_path')) {
         return phanda()->storagePath() . ($path ? DIRECTORY_SEPARATOR . $path : $path);
     }
 }
+
+if (! function_exists('view')) {
+    /**
+     * Get the evaluated view contents for the given view.
+     *
+     * @param  string  $view
+     * @param  array   $data
+     * @param  array   $mergeData
+     * @return \Phanda\Contracts\Scene\Scene|\Phanda\Contracts\Scene\Factory
+     */
+    function view($view = null, $data = [], $mergeData = [])
+    {
+        /** @var \Phanda\Contracts\Scene\Factory $factory */
+        $factory = phanda()->create(\Phanda\Contracts\Scene\Factory::class);
+
+        if (func_num_args() === 0) {
+            return $factory;
+        }
+
+        return $factory->create($view, $data, $mergeData);
+    }
+}
