@@ -46,6 +46,19 @@ if (!function_exists('app_path')) {
     }
 }
 
+if (!function_exists('assets_path')) {
+    /**
+     * Get the path to the base of the install.
+     *
+     * @param  string $path
+     * @return string
+     */
+    function assets_path($path = '')
+    {
+        return phanda()->assetsPath() . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+    }
+}
+
 if (!function_exists('base_path')) {
     /**
      * Get the path to the base of the install.
