@@ -9,6 +9,7 @@ use Phanda\Filesystem\Filesystem;
 use Phanda\Providers\AbstractServiceProvider;
 use Phanda\Scene\Bamboo\Compiler as BambooCompiler;
 
+// TODO: Fix this and break away from scene service provider.
 class BambooServiceProvider extends AbstractServiceProvider
 {
     /**
@@ -28,8 +29,8 @@ class BambooServiceProvider extends AbstractServiceProvider
             );
 
             /** @var Factory $sceneFactory */
-            $sceneFactory = $phanda->create(Factory::class);
-            $sceneFactory->addExtension('bamboo.php', 'bamboo', $bambooCompiler);
+            $sceneFactory = $this->phanda->create(Factory::class);
+            $sceneFactory->addExtension('bamboo.php', 'bamboo', $this->phanda->create(BambooCompiler::class));
 
             return $bambooCompiler;
         });

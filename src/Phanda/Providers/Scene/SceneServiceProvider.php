@@ -9,10 +9,14 @@ use Phanda\Contracts\Scene\Factory as FactoryContract;
 use Phanda\Contracts\Support\Scene\SceneFinder;
 use Phanda\Filesystem\Filesystem;
 use Phanda\Providers\AbstractServiceProvider;
+use Phanda\Providers\Scene\Bamboo\BambooServiceProvider;
 use Phanda\Scene\Engine\EngineResolver;
 use Phanda\Scene\Engine\FileEngine;
 use Phanda\Scene\Engine\PhpEngine;
+use Phanda\Scene\Engine\SceneCompilerEngine;
 use Phanda\Scene\Factory;
+use Phanda\Scene\Bamboo\Compiler as BambooCompiler;
+
 
 class SceneServiceProvider extends AbstractServiceProvider
 {
@@ -93,6 +97,7 @@ class SceneServiceProvider extends AbstractServiceProvider
     {
         $this->registerCssEngine($factory);
         $this->registerPhpExtension($factory);
+        $this->registerBambooExtension($factory);
     }
 
     /**
@@ -116,6 +121,38 @@ class SceneServiceProvider extends AbstractServiceProvider
     {
         $factory->addExtension('php', 'php', function () {
             return new PhpEngine();
+        });
+    }
+
+    /**
+     * Registers the bamboo compiler
+     * @param FactoryContract $factory
+     *
+     * @todo fix this, and reimplement this into BambooServiceProvider
+     * @see BambooServiceProvider
+     */
+    protected function registerBambooExtension(FactoryContract $factory)
+    {
+        $this->phanda->singleton('bamboo.compiler', function ($phanda) {
+            /** @var Application $phanda */
+            $filesystem = $phanda->create(Filesystem::class);
+            /** @var Repository $config */
+            $config = $phanda->create(Repository::class);
+            $cachedPath = $config->get('scene.cachedPath');
+            $bambooCompiler = new BambooCompiler(
+                $filesystem,
+                $cachedPath
+            );
+
+            return $bambooCompiler;
+        });
+
+        $this->phanda->alias('bamboo.compiler', BambooCompiler::class);
+
+        $factory->addExtension('bamboo.php', 'bamboo', function() {
+            return new SceneCompilerEngine(
+                $this->phanda->create(BambooCompiler::class)
+            );
         });
     }
 }
