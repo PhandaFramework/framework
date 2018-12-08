@@ -38,10 +38,11 @@ trait CompilePHPStatements
      */
     protected function compileSet($expression)
     {
-        $segments = explode(',', preg_replace("/[\(\)\\\"\']/", '', $expression));
-        $variable = trim($segments[0]);
-        $service = trim($segments[1]);
+        $expression = $this->stripParentheses($expression);
+        $segments = explode(',', $expression);
+        $variable = trim(preg_replace("/[\(\)\\\"\']/", '', $segments[0]));
+        $value = trim($segments[1]);
 
-        return "<?php {$variable} = {$service}; ?>";
+        return "<?php \${$variable} = {$value}; ?>";
     }
 }
