@@ -57,7 +57,7 @@ class Compiler extends AbstractCompiler implements ExtendableCompiler
      *
      * @var array
      */
-    protected $rawTags = ['{%', '%}'];
+    protected $rawTags = ['{\%', '\%}'];
 
     /**
      * Opening and closing tags for outputting of variables and other miscs
@@ -71,7 +71,7 @@ class Compiler extends AbstractCompiler implements ExtendableCompiler
      *
      * @var array
      */
-    protected $escapedTags = ['{|', '|}'];
+    protected $escapedTags = ['{\|', '\|}'];
 
     /**
      * @var string
@@ -146,7 +146,7 @@ class Compiler extends AbstractCompiler implements ExtendableCompiler
      */
     public function compileString($value)
     {
-        $this->header = [];
+        $this->footer = [];
 
         if (strpos($value, '@php')) {
             $value = $this->storePhpBlocks($value);

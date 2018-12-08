@@ -47,7 +47,7 @@ abstract class AbstractCompiler implements CompilerContract
         $compiledScene = $this->getPathToCompiledScene($path);
 
         if(!$this->filesystem->exists($compiledScene)) {
-            return false;
+            return true;
         }
 
         return $this->filesystem->lastModified($path) >= $this->filesystem->lastModified($compiledScene);
