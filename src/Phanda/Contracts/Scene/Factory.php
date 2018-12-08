@@ -3,6 +3,7 @@
 namespace Phanda\Contracts\Scene;
 
 use Phanda\Contracts\Container\Container;
+use Phanda\Contracts\Events\Dispatcher;
 use Phanda\Contracts\Support\Arrayable;
 
 interface Factory
@@ -33,7 +34,7 @@ interface Factory
      * @param  array  $mergeData
      * @return Scene
      */
-    public function make($scene, $data = [], $mergeData = []);
+    public function create($scene, $data = [], $mergeData = []);
 
     /**
      * Add a piece of shared data to the environment.
@@ -79,6 +80,20 @@ interface Factory
     public function hasRendered();
 
     /**
+     * Increment the rendering counter.
+     *
+     * @return $this
+     */
+    public function incrementRender();
+
+    /**
+     * Decrement the rendering counter.
+     *
+     * @return $this
+     */
+    public function decrementRender();
+
+    /**
      * @param $location
      * @return $this
      */
@@ -119,6 +134,17 @@ interface Factory
      * @return $this
      */
     public function clearFinderCache();
+
+    /**
+     * @return Dispatcher
+     */
+    public function getEventDispatcher();
+
+    /**
+     * @param Dispatcher $eventDispatcher
+     * @return $this
+     */
+    public function setEventDispatcher(Dispatcher $eventDispatcher);
 
     /**
      * Get the IoC container instance.

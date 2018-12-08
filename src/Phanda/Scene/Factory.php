@@ -118,7 +118,7 @@ class Factory implements FactoryContract
      *
      * @throws UnrecognizedExtensionException
      */
-    public function make($scene, $data = [], $mergeData = [])
+    public function create($scene, $data = [], $mergeData = [])
     {
         $path = $this->sceneFinder->find(
             $scene = $this->normalizeSceneName($scene)
@@ -361,6 +361,24 @@ class Factory implements FactoryContract
     public function clearFinderCache()
     {
         $this->sceneFinder->clear();
+        return $this;
+    }
+
+    /**
+     * @return Dispatcher
+     */
+    public function getEventDispatcher()
+    {
+        return $this->eventDispatcher;
+    }
+
+    /**
+     * @param Dispatcher $eventDispatcher
+     * @return $this
+     */
+    public function setEventDispatcher(Dispatcher $eventDispatcher)
+    {
+        $this->eventDispatcher = $eventDispatcher;
         return $this;
     }
 
