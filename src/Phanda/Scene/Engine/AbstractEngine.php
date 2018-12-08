@@ -18,8 +18,16 @@ abstract class AbstractEngine implements EngineContract
      *
      * @return string
      */
-    public function getLastRendered()
+    public function getLastRenderedScene()
     {
         return $this->lastRendered;
+    }
+
+    /**
+     * @param string $renderedScene
+     */
+    protected function setLastRenderedScene($renderedScene)
+    {
+        $this->lastRendered = $renderedScene;
     }
 }
