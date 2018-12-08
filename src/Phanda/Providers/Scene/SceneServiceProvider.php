@@ -77,8 +77,7 @@ class SceneServiceProvider extends AbstractServiceProvider
      */
     protected function registerEngineResolver()
     {
-        $this->phanda->singleton('scene.engine.resolver', function($phanda) {
-            /** @var Application $phanda */
+        $this->phanda->singleton('scene.engine.resolver', function() {
             return new EngineResolver();
         });
 
