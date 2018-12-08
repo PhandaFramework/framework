@@ -31,7 +31,7 @@ class SceneServiceProvider extends AbstractServiceProvider
      */
     protected function registerFactory()
     {
-        $this->phanda->singleton('scene', function($phanda) {
+        $this->phanda->singleton('scene', function ($phanda) {
             /** @var Application $phanda */
             $resolver = $phanda->create(EngineResolver::class);
             $finder = $phanda->create(SceneFinder::class);
@@ -55,7 +55,7 @@ class SceneServiceProvider extends AbstractServiceProvider
      */
     protected function registerSceneFinder()
     {
-        $this->phanda->attach('scene.finder', function($phanda) {
+        $this->phanda->attach('scene.finder', function ($phanda) {
             /** @var Application $phanda */
             $filesystem = $phanda->create(Filesystem::class);
             /** @var Repository $config */
@@ -77,7 +77,7 @@ class SceneServiceProvider extends AbstractServiceProvider
      */
     protected function registerEngineResolver()
     {
-        $this->phanda->singleton('scene.engine.resolver', function() {
+        $this->phanda->singleton('scene.engine.resolver', function () {
             return new EngineResolver();
         });
 
@@ -102,7 +102,7 @@ class SceneServiceProvider extends AbstractServiceProvider
      */
     protected function registerCssEngine(FactoryContract $factory)
     {
-        $factory->addExtension('css', 'file', function() {
+        $factory->addExtension('css', 'file', function () {
             return new FileEngine();
         });
     }
@@ -114,7 +114,7 @@ class SceneServiceProvider extends AbstractServiceProvider
      */
     protected function registerPhpExtension(FactoryContract $factory)
     {
-        $factory->addExtension('php', 'php', function() {
+        $factory->addExtension('php', 'php', function () {
             return new PhpEngine();
         });
     }
