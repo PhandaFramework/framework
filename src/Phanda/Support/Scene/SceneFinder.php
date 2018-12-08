@@ -111,7 +111,6 @@ class SceneFinder implements SceneFinderContract
      */
     protected function findInPaths($name, $paths)
     {
-        dd($this->extensions);
         foreach ((array) $paths as $path) {
             foreach ($this->getPossibleSceneFiles($name) as $file) {
                 if ($this->filesystem->exists($scenePath = $path.'/'.$file)) {
