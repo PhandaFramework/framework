@@ -52,7 +52,6 @@ class Router extends Facade
      */
     protected static function setupFacadeImplementations()
     {
-        $router = phanda('router');
         static::addImplementation('router-facade', phanda()->create(\Phanda\Contracts\Routing\Router::class), true);
     }
 }

@@ -115,7 +115,7 @@ abstract class Facade
      */
     public static function getFacadeImplementations()
     {
-        if (!static::$resolved[static::getFacadeName()]) {
+        if (!isset(static::$resolved) || !isset(static::$resolved[static::getFacadeName()])) {
             static::setupFacadeImplementations();
             return static::resolveImplementations();
         }

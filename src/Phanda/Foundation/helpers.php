@@ -123,7 +123,7 @@ if (!function_exists('storage_path')) {
     }
 }
 
-if (! function_exists('view')) {
+if (! function_exists('scene')) {
     /**
      * Get the evaluated view contents for the given view.
      *
@@ -132,7 +132,7 @@ if (! function_exists('view')) {
      * @param  array   $mergeData
      * @return \Phanda\Contracts\Scene\Scene|\Phanda\Contracts\Scene\Factory
      */
-    function view($view = null, $data = [], $mergeData = [])
+    function scene($view = null, $data = [], $mergeData = [])
     {
         /** @var \Phanda\Contracts\Scene\Factory $factory */
         $factory = phanda()->create(\Phanda\Contracts\Scene\Factory::class);
