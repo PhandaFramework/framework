@@ -2,6 +2,8 @@
 
 namespace Phanda\Contracts\Routing\Generators;
 
+use Phanda\Routing\RouteRepository;
+
 interface UrlGenerator
 {
     /**
@@ -71,4 +73,12 @@ interface UrlGenerator
      * @return string
      */
     public function formatUrl($base, $path);
+
+    /**
+     * Sets the internal route repository for generating route urls.
+     *
+     * @param RouteRepository $routes
+     * @return $this
+     */
+    public function setRoutes(RouteRepository $routes);
 }

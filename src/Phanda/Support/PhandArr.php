@@ -293,4 +293,30 @@ class PhandArr
         return value($default);
     }
 
+    /**
+     * Convert the array into a query string.
+     *
+     * @param  array  $array
+     * @return string
+     */
+    public static function convertToQueryString($array)
+    {
+        return http_build_query($array, null, '&', PHP_QUERY_RFC3986);
+    }
+
+    /**
+     * Get a value from the array, and remove it.
+     *
+     * @param  array   $array
+     * @param  string  $key
+     * @param  mixed   $default
+     * @return mixed
+     */
+    public static function take(&$array, $key, $default = null)
+    {
+        $value = static::get($array, $key, $default);
+        static::forget($array, $key);
+        return $value;
+    }
+
 }

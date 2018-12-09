@@ -3,6 +3,8 @@
 namespace Phanda\Routing\Generators;
 
 use Phanda\Contracts\Routing\Generators\UrlGenerator as UrlGeneratorContract;
+use Phanda\Contracts\Routing\Route;
+use Phanda\Exceptions\Routing\RouteNotFoundException;
 use Phanda\Foundation\Http\Request;
 use Phanda\Routing\RouteRepository;
 use Phanda\Support\PhandArr;
@@ -30,6 +32,11 @@ class UrlGenerator implements UrlGeneratorContract
      * @var string
      */
     protected $cachedBaseUrl;
+
+    /**
+     * @var RouteUrlGenerator
+     */
+    protected $routeUrlGenerator;
 
     /**
      * UrlGenerator constructor.
@@ -126,10 +133,17 @@ class UrlGenerator implements UrlGeneratorContract
      * @param array $parameters
      * @param bool $absolute
      * @return string
+     *
+     * @throws RouteNotFoundException
      */
     public function generateFromRoute($name, $parameters = [], $absolute = true)
     {
-        // TODO: Implement generateFromRoute() method.
+        $route = $this->routes->get($name);
+        if(!is_null($route)) {
+            return $this->convertRouteToUrl($route, $parameters, $absolute);
+        }
+
+        throw new RouteNotFoundException("Route with name '{$name}' not found.'");
     }
 
     /**
@@ -158,6 +172,18 @@ class UrlGenerator implements UrlGeneratorContract
     {
         $path = '/'.trim($path, '/');
         return trim($base.$path, '/');
+    }
+
+    /**
+     * Sets the internal route repository for generating route urls.
+     *
+     * @param RouteRepository $routes
+     * @return UrlGeneratorContract
+     */
+    public function setRoutes(RouteRepository $routes)
+    {
+        $this->routes = $routes;
+        return $this;
     }
 
     /**
@@ -222,5 +248,33 @@ class UrlGenerator implements UrlGeneratorContract
         }
 
         return [$path, ''];
+    }
+
+    /**
+     * @param Route $route
+     * @param mixed $parameters
+     * @param bool $absolute
+     * @return string
+     */
+    protected function convertRouteToUrl(Route $route, $parameters = [], $absolute = true)
+    {
+        return $this->getRouteUrlGenerator()
+            ->generate(
+                $route,
+                $this->formatParameters($parameters),
+                $absolute
+            );
+    }
+
+    /**
+     * @return RouteUrlGenerator
+     */
+    protected function getRouteUrlGenerator()
+    {
+        if(is_null($this->routeUrlGenerator)) {
+            $this->routeUrlGenerator = new RouteUrlGenerator($this, $this->request);
+        }
+
+        return $this->routeUrlGenerator;
     }
 }
