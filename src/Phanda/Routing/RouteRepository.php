@@ -8,7 +8,6 @@ use Phanda\Foundation\Http\Response;
 use Phanda\Support\PhandArr;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\VarDumper\VarDumper;
 use Traversable;
 
 class RouteRepository implements Repository, \Countable, \IteratorAggregate
