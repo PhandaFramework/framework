@@ -8,6 +8,7 @@ use Phanda\Foundation\Http\Response;
 use Phanda\Support\PhandArr;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\VarDumper\VarDumper;
 use Traversable;
 
 class RouteRepository implements Repository, \Countable, \IteratorAggregate
@@ -82,7 +83,7 @@ class RouteRepository implements Repository, \Countable, \IteratorAggregate
     public function set($key, $route = null)
     {
         if(!is_null($route)) {
-            $key = $route->getName() ?? $route->getUri();
+            $key = $route->getUri();
             PhandArr::set($this->routes, $key, $route);
             $this->addRouteLookups($route);
         }
