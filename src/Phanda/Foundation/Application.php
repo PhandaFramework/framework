@@ -698,8 +698,7 @@ class Application extends Container implements ApplicationContract, HttpKernelIn
                      'config' => [ConfigurationRepository::class],
                      'environment' => [EnvironmentRepository::class],
                      'events' => [Dispatcher::class, \Phanda\Contracts\Events\Dispatcher::class],
-                     'request' => [Request::class, SymfonyRequest::class],
-                     'router' => [Router::class]
+                     'request' => [Request::class, SymfonyRequest::class]
                  ] as $key => $aliases) {
             foreach ($aliases as $alias) {
                 $this->alias($key, $alias);

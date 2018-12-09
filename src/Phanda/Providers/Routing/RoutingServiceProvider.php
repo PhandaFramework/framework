@@ -32,6 +32,7 @@ class RoutingServiceProvider extends AbstractServiceProvider
             /** @var Application $phanda */
             return $phanda->create(Router::class);
         });
+        $this->phanda->alias('router', \Phanda\Contracts\Routing\Router::class);
     }
 
     /**
@@ -42,7 +43,7 @@ class RoutingServiceProvider extends AbstractServiceProvider
         $this->phanda->singleton('url', function ($phanda) {
             /** @var Application $phanda */
             /** @var Router $router */
-            $router = $phanda->create(Router::class);
+            $router = $phanda->create('router');
             $routes = $router->getRoutes();
             $phanda->instance('routes', $routes);
 
