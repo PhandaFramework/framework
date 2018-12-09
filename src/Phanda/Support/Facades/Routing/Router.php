@@ -14,13 +14,14 @@ use Phanda\Support\Facades\Facade;
  * @see \Phanda\Contracts\Routing\Router
  * @see RouteRegistrar
  *
- * @method static Route get(string $name, string $uri, \Closure|array|string|null $action = null)
- * @method static Route post(string $name, string $uri, \Closure|array|string|null $action = null)
- * @method static Route put(string $name, string $uri, \Closure|array|string|null $action = null)
- * @method static Route delete(string $name, string $uri, \Closure|array|string|null $action = null)
- * @method static Route patch(string $name, string $uri, \Closure|array|string|null $action = null)
- * @method static Route options(string $name, string $uri, \Closure|array|string|null $action = null)
- * @method static Route any(string $name, string $uri, \Closure|array|string|null $action = null)
+ * @method static Route get(string $uri, \Closure|array|string|null $action = null, string $name = null)
+ * @method static Route post(string $uri, \Closure|array|string|null $action = null, string $name = null)
+ * @method static Route put(string $uri, \Closure|array|string|null $action = null, string $name = null)
+ * @method static Route delete(string $uri, \Closure|array|string|null $action = null, string $name = null)
+ * @method static Route patch(string $uri, \Closure|array|string|null $action = null, string $name = null)
+ * @method static Route options(string $uri, \Closure|array|string|null $action = null, string $name = null)
+ * @method static Route any(string $uri, \Closure|array|string|null $action = null, string $name = null)
+ * @method static Route getCurrentRoute()
  *
  * @method static RouteRegistrar domain(string $value)
  * @method static RouteRegistrar middleware(array|string|null $middleware)

@@ -87,7 +87,7 @@ class RouteGroupMerger
     protected static function formatName($new, $old)
     {
         if (isset($old['name'])) {
-            $new['name'] = $old['name'] . ($new['name'] ?? '');
+            $new['name'] = $old['name'] . (isset($new['name']) ? '.' . $new['name'] : '');
         }
 
         return $new;

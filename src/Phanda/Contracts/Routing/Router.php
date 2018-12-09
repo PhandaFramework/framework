@@ -14,60 +14,60 @@ interface Router
 {
 
     /**
-     * @param string $name
      * @param string $uri
      * @param \Closure|array|string|callable $action
+     * @param string|null $name
      * @return Route
      */
-    public function get($name, $uri, $action);
+    public function get($uri, $action, $name = null);
 
     /**
-     * @param string $name
      * @param string $uri
      * @param \Closure|array|string|callable $action
+     * @param string|null $name
      * @return Route
      */
-    public function post($name, $uri, $action);
+    public function post($uri, $action, $name = null);
 
     /**
-     * @param string $name
      * @param string $uri
      * @param \Closure|array|string|callable $action
+     * @param string|null $name
      * @return Route
      */
-    public function put($name, $uri, $action);
+    public function put($uri, $action, $name = null);
 
     /**
-     * @param string $name
      * @param string $uri
      * @param \Closure|array|string|callable $action
+     * @param string|null $name
      * @return Route
      */
-    public function delete($name, $uri, $action);
+    public function delete($uri, $action, $name = null);
 
     /**
-     * @param string $name
      * @param string $uri
      * @param \Closure|array|string|callable $action
+     * @param string|null $name
      * @return Route
      */
-    public function patch($name, $uri, $action);
+    public function patch($uri, $action, $name = null);
 
     /**
-     * @param string $name
      * @param string $uri
      * @param \Closure|array|string|callable $action
+     * @param string|null $name
      * @return Route
      */
-    public function options($name, $uri, $action);
+    public function options($uri, $action, $name = null);
 
     /**
-     * @param string $name
      * @param string $uri
      * @param \Closure|array|string|callable $action
+     * @param string|null $name
      * @return Route
      */
-    public function any($name, $uri, $action);
+    public function any($uri, $action, $name = null);
 
     /**
      * @param string $name
@@ -113,5 +113,10 @@ interface Router
      * @return array
      */
     public function getGroupStack();
+
+    /**
+     * @return Route
+     */
+    public function getCurrentRoute();
 
 }

@@ -97,8 +97,9 @@ class Route implements RouteContract
      * @param string $uri
      * @param array|string $methods
      * @param \Closure|array $action
+     * @param string|null $name
      */
-    public function __construct($uri, $methods, $action)
+    public function __construct($uri, $methods, $action, $name = null)
     {
         $this->uri = $uri;
         $this->methods = (array)$methods;
@@ -110,6 +111,10 @@ class Route implements RouteContract
 
         if (isset($this->action['prefix'])) {
             $this->setPrefix($this->action['prefix']);
+        }
+
+        if(!is_null($name)) {
+            $this->setName($name);
         }
     }
 
@@ -541,7 +546,7 @@ class Route implements RouteContract
      */
     public function setName($name)
     {
-        $this->action['name'] = isset($this->action['name']) ? $this->action['name'] . $name : $name;
+        $this->action['name'] = isset($this->action['name']) ? $this->action['name'] . '.' . $name : $name;
 
         return $this;
     }

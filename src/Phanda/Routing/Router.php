@@ -3,7 +3,6 @@
 namespace Phanda\Routing;
 
 use ArrayObject;
-use http\Exception;
 use JsonSerializable;
 use Phanda\Conduit\HttpConduit;
 use Phanda\Contracts\Events\Dispatcher;
@@ -82,80 +81,80 @@ class Router implements RouterContract
     }
 
     /**
-     * @param string $name
      * @param string $uri
      * @param \Closure|array|string|callable $action
+     * @param string|null $name
      * @return Route
      */
-    public function get($name, $uri, $action)
+    public function get($uri, $action, $name = null)
     {
-        return $this->addRoute($name, ['GET', 'HEAD'], $uri, $action);
+        return $this->addRoute(['GET', 'HEAD'], $uri, $action, $name);
     }
 
     /**
-     * @param string $name
      * @param string $uri
      * @param \Closure|array|string|callable $action
+     * @param string|null $name
      * @return Route
      */
-    public function post($name, $uri, $action)
+    public function post($uri, $action, $name = null)
     {
-        return $this->addRoute($name, 'POST', $uri, $action);
+        return $this->addRoute('POST', $uri, $action, $name);
     }
 
     /**
-     * @param string $name
      * @param string $uri
      * @param \Closure|array|string|callable $action
+     * @param string|null $name
      * @return Route
      */
-    public function put($name, $uri, $action)
+    public function put($uri, $action, $name = null)
     {
-        return $this->addRoute($name, 'PUT', $uri, $action);
+        return $this->addRoute('PUT', $uri, $action, $name);
     }
 
     /**
-     * @param string $name
      * @param string $uri
      * @param \Closure|array|string|callable $action
+     * @param string|null $name
      * @return Route
      */
-    public function delete($name, $uri, $action)
+    public function delete($uri, $action, $name = null)
     {
-        return $this->addRoute($name, 'DELETE', $uri, $action);
+        return $this->addRoute('DELETE', $uri, $action, $name);
     }
 
     /**
-     * @param string $name
      * @param string $uri
      * @param \Closure|array|string|callable $action
+     * @param string|null $name
      * @return Route
      */
-    public function patch($name, $uri, $action)
+    public function patch($uri, $action, $name = null)
     {
-        return $this->addRoute($name, 'PATCH', $uri, $action);
+        return $this->addRoute('PATCH', $uri, $action, $name);
     }
 
     /**
-     * @param string $name
      * @param string $uri
      * @param \Closure|array|string|callable $action
+     * @param string|null $name
      * @return Route
      */
-    public function options($name, $uri, $action)
+    public function options($uri, $action, $name = null)
     {
-        return $this->addRoute($name, 'OPTIONS', $uri, $action);
+        return $this->addRoute('OPTIONS', $uri, $action, $name);
     }
 
     /**
-     * @param string $name
      * @param string $uri
      * @param \Closure|array|string|callable $action
+     * @param string|null $name
      * @return Route
      */
-    public function any($name, $uri, $action)
+    public function any($uri, $action, $name = null)
     {
-        return $this->addRoute($name, self::VERBS, $uri, $action);
+        return $this->addRoute(self::VERBS, $uri, $action, $name);
     }
 
     /**
@@ -165,9 +164,9 @@ class Router implements RouterContract
      * @param \Closure|array|string|callable|null $action
      * @return Route
      */
-    public function addRoute($name, $methods, $uri, $action)
+    public function addRoute($methods, $uri, $action, $name = null)
     {
-        $this->routes->set($name, $route = $this->createRoute($name, $methods, $uri, $action));
+        $this->routes->set($name, $route = $this->createRoute($methods, $uri, $action, $name));
         return $route;
     }
 
@@ -178,7 +177,7 @@ class Router implements RouterContract
      * @param $action
      * @return Route
      */
-    protected function createRoute($name, $methods, $uri, $action)
+    protected function createRoute($methods, $uri, $action, $name = null)
     {
         if ($this->isActionInController($action)) {
             $action = $this->convertActionToControllerAction($action);
@@ -187,7 +186,8 @@ class Router implements RouterContract
         $route = $this->newPhandaRoute(
             $methods,
             $this->setPrefix($uri),
-            $action
+            $action,
+            $name
         );
 
         if ($this->hasGroupStack()) {
@@ -317,11 +317,12 @@ class Router implements RouterContract
      * @param $methods
      * @param $uri
      * @param $action
+     * @param string|null $name
      * @return Route
      */
-    protected function newPhandaRoute($methods, $uri, $action)
+    protected function newPhandaRoute($methods, $uri, $action, $name = null)
     {
-        return (new PhandaRoute($uri, $methods, $action))
+        return (new PhandaRoute($uri, $methods, $action, $name))
             ->setRouter($this)
             ->setContainer($this->phanda);
     }
@@ -492,5 +493,13 @@ class Router implements RouterContract
     public function __call($method, $parameters)
     {
         return (new RouteRegistrar($this))->attribute($method, $parameters[0]);
+    }
+
+    /**
+     * @return Route
+     */
+    public function getCurrentRoute()
+    {
+        return $this->currentRoute;
     }
 }
