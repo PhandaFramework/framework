@@ -25,7 +25,6 @@ trait LayoutFactoryTrait
     /**
      * @var string $stage
      * @var string|null $content
-     * @return $this
      */
     public function startStage($stage, $content = null)
     {
@@ -36,14 +35,11 @@ trait LayoutFactoryTrait
         } else {
             $this->extendStage($stage, $content instanceof Scene ? $content : e($content));
         }
-
-        return $this;
     }
 
     /**
      * @param string $stage
      * @param string $content
-     * @return $this
      */
     protected function extendStage($stage, $content)
     {
@@ -52,7 +48,6 @@ trait LayoutFactoryTrait
         }
 
         $this->stages[$stage] = $content;
-        return $this;
     }
 
     /**
@@ -183,12 +178,10 @@ trait LayoutFactoryTrait
 
     /**
      * Clears the internal stages.
-     * @return $this
      */
     public function clearStages()
     {
         $this->stages = [];
         $this->stagesStack = [];
-        return $this;
     }
 }
