@@ -27,6 +27,18 @@ trait CompileLayoutStatements
     }
 
     /**
+     * Includes a scene in place.
+     *
+     * @param $expression
+     * @return string
+     */
+    protected function compileScene($expression)
+    {
+        $expression = $this->stripParentheses($expression);
+        return "<?php echo \$__scene->create({$expression}, \Phanda\Support\PhandArr::except(get_defined_vars(), ['data', 'path']))->render(); ?>";
+    }
+
+    /**
      * Extends a stage in a scene element.
      *
      * @param $expression
