@@ -3,10 +3,13 @@
 namespace Phanda\Providers\Routing;
 
 use Phanda\Contracts\Foundation\Application;
+use Phanda\Foundation\Http\Request;
 use Phanda\Providers\AbstractServiceProvider;
+use Phanda\Routing\Generators\UrlGenerator;
 use Phanda\Routing\Router;
 use Phanda\Contracts\Routing\Controller\Dispatcher as ControllerDispatcherContract;
 use Phanda\Routing\Controller\Dispatcher as ControllerDispatcher;
+use Phanda\Routing\RouteRepository;
 
 class RoutingServiceProvider extends AbstractServiceProvider
 {
@@ -16,7 +19,7 @@ class RoutingServiceProvider extends AbstractServiceProvider
     public function register()
     {
         $this->registerRouter();
-        //$this->registerRoutes();
+        $this->registerUrlGenerator();
         $this->registerControllerDispatcher();
     }
 
@@ -25,20 +28,40 @@ class RoutingServiceProvider extends AbstractServiceProvider
      */
     protected function registerRouter()
     {
-        $this->phanda->singleton('router', function($phanda) {
+        $this->phanda->singleton('router', function ($phanda) {
             /** @var Application $phanda */
             return $phanda->create(Router::class);
         });
     }
 
-    protected function registerRoutes()
+    /**
+     * Registers the Url Generator, and the respective routes.
+     */
+    protected function registerUrlGenerator()
     {
-        $this->phanda->singleton('routes', function($phanda) {
+        $this->phanda->singleton('url', function ($phanda) {
             /** @var Application $phanda */
             /** @var Router $router */
-            $router = $phanda[Router::class];
-            return $router->getRoutes();
+            $router = $phanda->create(Router::class);
+            $routes = $router->getRoutes();
+            $phanda->instance('routes', $routes);
+
+            $urlGenerator = new UrlGenerator(
+                $routes,
+                $phanda->onReattach('request', $this->urlRequestAttachmentCallback())
+            );
+
+            $phanda->onReattach('routes', function(Application $phanda, RouteRepository $routes) {
+                /** @var UrlGenerator $urlGenerator */
+                $urlGenerator = $phanda->create(UrlGenerator::class);
+                $urlGenerator->setRoutes($routes);
+            });
+
+            return $urlGenerator;
         });
+
+        $this->phanda->alias('url', \Phanda\Contracts\Routing\Generators\UrlGenerator::class);
+        $this->phanda->alias('url', UrlGenerator::class);
     }
 
     /**
@@ -51,6 +74,18 @@ class RoutingServiceProvider extends AbstractServiceProvider
         $this->phanda->singleton(ControllerDispatcherContract::class, function ($app) {
             return new ControllerDispatcher($app);
         });
+    }
+
+    /**
+     * @return \Closure
+     */
+    protected function urlRequestAttachmentCallback()
+    {
+        return function(Application $phanda, Request $request) {
+            /** @var UrlGenerator $urlGenerator */
+            $urlGenerator = $phanda->create(UrlGenerator::class);
+            $urlGenerator->setRequest($request);
+        };
     }
 
 }

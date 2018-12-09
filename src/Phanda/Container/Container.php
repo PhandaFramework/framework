@@ -815,4 +815,19 @@ class Container implements ContainerContract, \ArrayAccess
     {
         unset($this->attachments[$offset], $this->instances[$offset], $this->resolved[$offset]);
     }
+
+    /**
+     * @param string $abstract
+     * @param Closure $callback
+     * @return mixed
+     */
+    public function onReattach($abstract, Closure $callback)
+    {
+        $abstract = $this->getAlias($abstract);
+        $this->reattachedCallbacks[$abstract][] = $callback;
+
+        if($this->isAttached($abstract)) {
+            return $this->create($abstract);
+        }
+    }
 }

@@ -110,6 +110,23 @@ if(!function_exists('router')) {
     }
 }
 
+if(!function_exists('routeUrl')) {
+    /**
+     * Returns a routes url by it's name.
+     *
+     * @param string $name
+     * @param array $parameters
+     * @param bool $absolute
+     * @return string
+     */
+    function routeUrl($name, $parameters = [], $absolute = true)
+    {
+        /** @var \Phanda\Contracts\Routing\Generators\UrlGenerator $urlGenerator */
+        $urlGenerator = phanda()->create(\Phanda\Contracts\Routing\Generators\UrlGenerator::class);
+        return $urlGenerator->generateFromRoute($name, $parameters, $absolute);
+    }
+}
+
 if (!function_exists('storage_path')) {
     /**
      * Get the path to the storage serving path.
@@ -142,5 +159,27 @@ if (! function_exists('scene')) {
         }
 
         return $factory->create($view, $data, $mergeData);
+    }
+}
+
+if (! function_exists('url')) {
+    /**
+     * Generate a url for the application.
+     *
+     * @param  string  $path
+     * @param  mixed   $parameters
+     * @param  bool    $secure
+     * @return \Phanda\Contracts\Routing\Generators\UrlGenerator|string
+     */
+    function url($path = null, $parameters = [], $secure = null)
+    {
+        /** @var \Phanda\Contracts\Routing\Generators\UrlGenerator $urlGenerator */
+        $urlGenerator = phanda()->create(\Phanda\Contracts\Routing\Generators\UrlGenerator::class);
+
+        if (is_null($path)) {
+            return $urlGenerator;
+        }
+
+        return $urlGenerator->generate($path, $parameters, $secure);
     }
 }

@@ -47,7 +47,7 @@ class UrlGenerator implements UrlGeneratorContract
     public function __construct(RouteRepository $routes, Request $request)
     {
         $this->routes = $routes;
-        $this->request = $request;
+        $this->setRequest($request);
     }
 
     /**
@@ -276,5 +276,17 @@ class UrlGenerator implements UrlGeneratorContract
         }
 
         return $this->routeUrlGenerator;
+    }
+
+    /**
+     * @param Request $request
+     * @return $this
+     */
+    public function setRequest(Request $request)
+    {
+        $this->request = $request;
+        $this->cachedBaseUrl = null;
+        $this->cachedScheme = null;
+        return $this;
     }
 }

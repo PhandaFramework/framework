@@ -2,6 +2,7 @@
 
 namespace Phanda\Contracts\Routing\Generators;
 
+use Phanda\Foundation\Http\Request;
 use Phanda\Routing\RouteRepository;
 
 interface UrlGenerator
@@ -81,4 +82,10 @@ interface UrlGenerator
      * @return $this
      */
     public function setRoutes(RouteRepository $routes);
+
+    /**
+     * @param Request $request
+     * @return $this
+     */
+    public function setRequest(Request $request);
 }

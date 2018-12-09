@@ -94,4 +94,11 @@ interface Container extends PsrContainer
      * @return mixed
      */
     public function isResolved($abstract);
+
+    /**
+     * @param string $abstract
+     * @param Closure $callback
+     * @return mixed
+     */
+    public function onReattach($abstract, Closure $callback);
 }
