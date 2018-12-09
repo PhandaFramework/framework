@@ -25,7 +25,7 @@ interface UrlGenerator
      * Gets the previous url, with an optional fallback if there is no previous url.
      *
      * @param $fallback
-     * @return mixed
+     * @return string
      */
     public function previous($fallback = '/');
 
