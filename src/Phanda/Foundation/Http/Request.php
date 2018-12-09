@@ -178,4 +178,34 @@ class Request extends SymfonyRequest implements Arrayable, \ArrayAccess
         return $this;
     }
 
+    /**
+     * Gets the current url
+     *
+     * @return string
+     */
+    public function getUrl()
+    {
+        return rtrim(preg_replace('/\?.*/', '', $this->getUri()), '/');
+    }
+
+    /**
+     * Gets the current url including the query
+     *
+     * @return string
+     */
+    public function getFullUrl()
+    {
+        $query = $this->getQueryString();
+        $question = $this->getBaseUrl().$this->getPathInfo() === '/' ? '/?' : '?';
+        return $query ? $this->getUrl().$question.$query : $this->getUrl();
+    }
+
+    /**
+     * @return string
+     */
+    public function getRootUrl()
+    {
+        return rtrim($this->getSchemeAndHttpHost().$this->getBaseUrl(), '/');
+    }
+
 }
