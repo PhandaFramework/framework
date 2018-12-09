@@ -141,6 +141,18 @@ trait LayoutFactoryTrait
     }
 
     /**
+     * @return string
+     */
+    public function insertCurrentStage()
+    {
+        if (empty($this->stagesStack)) {
+            return '';
+        }
+
+        return $this->insertContent($this->stopStage());
+    }
+
+    /**
      * Chekcs if a given stage exists
      *
      * @param $stage

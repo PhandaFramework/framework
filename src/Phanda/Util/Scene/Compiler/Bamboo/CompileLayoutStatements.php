@@ -34,12 +34,39 @@ trait CompileLayoutStatements
      */
     protected function compileStage($expression)
     {
-        return '';
+        $this->lastStage = trim($expression, "()'\" ");
+        return "<?php echo \$__scene->startStage{$expression}; ?>";
     }
 
-    protected function compileEndstage($expression)
+    /**
+     * Stops a stage extension
+     *
+     * @return string
+     */
+    protected function compileEndstage()
     {
-        return '';
+        return "<?php echo \$__scene->stopStage(); ?>";
+    }
+
+    /**
+     * Renders a stage in a layout
+     *
+     * @param $expression
+     * @return string
+     */
+    protected function compileRenderstage($expression)
+    {
+        return "<?php echo \$__scene->insertContent{$expression}; ?>";
+    }
+
+    /**
+     * Renders the current stage in a layout
+     *
+     * @return string
+     */
+    protected function compileShow()
+    {
+        return "<?php echo \$__scene->insertCurrentStage(); ?>";
     }
 
 }
