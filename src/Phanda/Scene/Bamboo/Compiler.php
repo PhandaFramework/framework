@@ -9,6 +9,7 @@ use Phanda\Support\PhandaStr;
 use Phanda\Util\Scene\Compiler\Bamboo\CompileComments;
 use Phanda\Util\Scene\Compiler\Bamboo\CompileConditionalStatements;
 use Phanda\Util\Scene\Compiler\Bamboo\CompileDebugStatements;
+use Phanda\Util\Scene\Compiler\Bamboo\CompileLayoutStatements;
 use Phanda\Util\Scene\Compiler\Bamboo\CompileLoopStatements;
 use Phanda\Util\Scene\Compiler\Bamboo\CompileOutputStatements;
 use Phanda\Util\Scene\Compiler\Bamboo\CompilePhandaStatements;
@@ -20,6 +21,7 @@ class Compiler extends AbstractCompiler implements ExtendableCompiler
     use CompileComments,
         CompileConditionalStatements,
         CompileDebugStatements,
+        CompileLayoutStatements,
         CompileLoopStatements,
         CompileOutputStatements,
         CompilePhandaStatements,

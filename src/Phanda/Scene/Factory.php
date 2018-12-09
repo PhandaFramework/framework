@@ -16,9 +16,12 @@ use Phanda\Scene\Events\CreatingSceneEvent;
 use Phanda\Support\PhandArr;
 use Phanda\Support\PhandaStr;
 use Phanda\Support\Scene\SceneName;
+use Phanda\Util\Scene\LayoutFactoryTrait;
 
 class Factory implements FactoryContract
 {
+
+    use LayoutFactoryTrait;
 
     /**
      * @var EngineResolver
