@@ -166,7 +166,7 @@ class Router implements RouterContract
      */
     public function addRoute($methods, $uri, $action, $name = null)
     {
-        $this->routes->set($name, $route = $this->createRoute($methods, $uri, $action, $name));
+        $this->routes->set($name ?? $uri, $route = $this->createRoute($methods, $uri, $action, $name));
         return $route;
     }
 
