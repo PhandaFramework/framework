@@ -16,6 +16,8 @@ class RouteRepository implements Repository, \Countable, \IteratorAggregate
     /** @var \Phanda\Contracts\Routing\Route[] */
     protected $routes = [];
 
+    protected $routesByName = [];
+
     /**
      * @param  string $key
      * @return bool
@@ -54,6 +56,17 @@ class RouteRepository implements Repository, \Countable, \IteratorAggregate
     }
 
     /**
+     * Gets a route by name
+     *
+     * @param $name
+     * @return \Phanda\Contracts\Routing\Route|null
+     */
+    public function getByName($name)
+    {
+        return $this->routesByName[$name] ?? null;
+    }
+
+    /**
      * @return \Phanda\Contracts\Routing\Route[]
      */
     public function all()
@@ -62,16 +75,25 @@ class RouteRepository implements Repository, \Countable, \IteratorAggregate
     }
 
     /**
-     * @param  array|string $key
-     * @param  \Phanda\Contracts\Routing\Route|null $value
+     * @param  string $key
+     * @param  \Phanda\Contracts\Routing\Route|null $route
      * @return void
      */
-    public function set($key, $value = null)
+    public function set($key, $route = null)
     {
-        $keys = is_array($key) ? $key : [$key => $value];
+        if(!is_null($route)) {
+            PhandArr::set($this->routes, $key, $route);
+            $this->addRouteLookups($route);
+        }
+    }
 
-        foreach ($keys as $key => $value) {
-            PhandArr::set($this->routes, $key, $value);
+    /**
+     * @param \Phanda\Contracts\Routing\Route $route
+     */
+    protected function addRouteLookups($route)
+    {
+        if($name = $route->getName()) {
+            $this->routesByName[$name] = $route;
         }
     }
 

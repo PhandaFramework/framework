@@ -138,7 +138,7 @@ class UrlGenerator implements UrlGeneratorContract
      */
     public function generateFromRoute($name, $parameters = [], $absolute = true)
     {
-        $route = $this->routes->get($name);
+        $route = $this->routes->getByName($name);
         if(!is_null($route)) {
             return $this->convertRouteToUrl($route, $parameters, $absolute);
         }
