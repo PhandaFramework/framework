@@ -20,7 +20,7 @@ trait CompileLayoutStatements
     {
         $expression = $this->stripParentheses($expression);
 
-        $output = "<?php echo \$__scene->make({$expression}), \Phanda\Support\PhandArr::except(get_defined_vars(), ['data', 'path']))->render(); ?>";
+        $output = "<?php echo \$__scene->create({$expression}), \Phanda\Support\PhandArr::except(get_defined_vars(), ['data', 'path']))->render(); ?>";
         $this->footer[] = $output;
 
         return '';
