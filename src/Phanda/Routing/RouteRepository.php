@@ -82,6 +82,7 @@ class RouteRepository implements Repository, \Countable, \IteratorAggregate
     public function set($key, $route = null)
     {
         if(!is_null($route)) {
+            $key = $route->getName() ?? $route->getUri();
             PhandArr::set($this->routes, $key, $route);
             $this->addRouteLookups($route);
         }
