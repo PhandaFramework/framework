@@ -32,7 +32,7 @@ trait CompileLayoutStatements
      * @param $expression
      * @return string
      */
-    protected function compileScene($expression)
+    protected function compileIncludeScene($expression)
     {
         $expression = $this->stripParentheses($expression);
         return "<?php echo \$__scene->create({$expression}, \Phanda\Support\PhandArr::except(get_defined_vars(), ['data', 'path']))->render(); ?>";
