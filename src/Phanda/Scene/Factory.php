@@ -340,6 +340,7 @@ class Factory implements FactoryContract
     public function clearState()
     {
         $this->renderCount = 0;
+        $this->clearStages();
         return $this;
     }
 
