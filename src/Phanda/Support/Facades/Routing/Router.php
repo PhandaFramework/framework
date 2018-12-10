@@ -3,6 +3,7 @@
 namespace Phanda\Support\Facades\Routing;
 
 use Phanda\Contracts\Routing\Route;
+use Phanda\Routing\RouteBuilder;
 use Phanda\Routing\RouteRegistrar;
 use Phanda\Support\Facades\Facade;
 
@@ -54,5 +55,15 @@ class Router extends Facade
     protected static function setupFacadeImplementations()
     {
         static::addImplementation('router-facade', phanda()->create(\Phanda\Contracts\Routing\Router::class), true);
+    }
+
+    /**
+     * @return RouteBuilder
+     */
+    public static function builder()
+    {
+        /** @var RouteBuilder $routeBuilder */
+        $routeBuilder = phanda()->create(RouteBuilder::class);
+        return $routeBuilder;
     }
 }

@@ -70,12 +70,12 @@ interface Router
     public function any($uri, $action, $name = null);
 
     /**
-     * @param string $name
      * @param array|string $methods
      * @param string $uri
+     * @param string|null $name
      * @param \Closure|array|string|callable|null $action
      */
-    public function addRoute($name, $methods, $uri, $action);
+    public function addRoute($methods, $uri, $action, $name = null);
 
     /**
      * @param array $attributes
