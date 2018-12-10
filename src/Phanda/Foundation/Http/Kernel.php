@@ -116,7 +116,7 @@ class Kernel implements HttpKernel
     protected function saveException(\Exception $e)
     {
         /** @var ExceptionHandler $exceptionHandler */
-        $exceptionHandler = $this->phanda[ExceptionHandler::class];
+        $exceptionHandler = $this->phanda->create(ExceptionHandler::class);
         $exceptionHandler->save($e);
     }
 
@@ -128,7 +128,7 @@ class Kernel implements HttpKernel
     protected function renderException(Request $request, \Exception $e)
     {
         /** @var ExceptionHandler $exceptionHandler */
-        $exceptionHandler = $this->phanda[ExceptionHandler::class];
+        $exceptionHandler = $this->phanda->create(ExceptionHandler::class);
         return $exceptionHandler->render($request, $e);
     }
 
