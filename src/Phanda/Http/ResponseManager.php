@@ -9,6 +9,7 @@ use Phanda\Exceptions\Scene\UnrecognizedExtensionException;
 use Phanda\Foundation\Http\Request;
 use Phanda\Foundation\Http\Response;
 use Phanda\Scene\Factory as SceneFactory;
+use Phanda\Scene\Factory;
 
 class ResponseManager implements ResponseManagerContract
 {

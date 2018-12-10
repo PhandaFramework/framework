@@ -51,7 +51,7 @@ class SceneServiceProvider extends AbstractServiceProvider
         });
 
         $this->phanda->alias('scene', FactoryContract::class);
-        $this->phanda->alias('scene', FactoryContract::class);
+        $this->phanda->alias('scene', Factory::class);
     }
 
     /**
