@@ -42,7 +42,6 @@ class BootstrapExceptionHandler implements Bootstrap
      * @param string $message
      * @param string $file
      * @param int $line
-     * @param array $context
      *
      * @throws ErrorException
      */
@@ -124,7 +123,7 @@ class BootstrapExceptionHandler implements Bootstrap
     protected function renderExceptionForHttp(Exception $e)
     {
         /** @var Request $request */
-        $request = $this->phanda['request'];
+        $request = $this->phanda->create(Request::class);
         $this->getPhandaExceptionHandler()->render($request, $e)->send();
     }
 
