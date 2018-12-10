@@ -4,6 +4,9 @@ namespace Phanda\Caching;
 
 use Phanda\Contracts\Caching\CacheRepository;
 use Phanda\Filesystem\Filesystem;
+use Phanda\Support\PhandArr;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 
 class FileCacheRepository implements CacheRepository
 {
@@ -52,7 +55,34 @@ class FileCacheRepository implements CacheRepository
      */
     public function all()
     {
+        $files = [];
+        $cachePath = $this->convertKeyToPath();
 
+        foreach(Finder::create()->files()->in($cachePath) as $file)
+        {
+            /** @var SplFileInfo $file */
+            $directory = $this->getNestedDirectory($file, $cachePath);
+            PhandArr::set($files, $directory.basename($file->getRealPath(), ".".$file->getExtension()), $file->getRealPath());
+        }
+
+        ksort($files, SORT_NATURAL);
+        return $files;
+    }
+
+    /**
+     * @param SplFileInfo $file
+     * @param string $configPath
+     * @return string
+     */
+    protected function getNestedDirectory(SplFileInfo $file, $configPath)
+    {
+        $directory = $file->getPath();
+
+        if ($nested = trim(str_replace($configPath, '', $directory), DIRECTORY_SEPARATOR)) {
+            $nested = str_replace(DIRECTORY_SEPARATOR, '.', $nested).'.';
+        }
+
+        return $nested;
     }
 
     /**
@@ -105,8 +135,8 @@ class FileCacheRepository implements CacheRepository
      * @param string $key
      * @return string
      */
-    protected function convertKeyToPath($key)
+    protected function convertKeyToPath($key = null)
     {
-        return realpath(storage_path(rtrim($this->basePath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $key));
+        return realpath(storage_path(!is_null($key) ? rtrim($this->basePath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $key : $this->basePath));
     }
 }

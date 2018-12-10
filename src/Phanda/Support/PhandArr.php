@@ -305,6 +305,21 @@ class PhandArr
     }
 
     /**
+     * Converts a dot array to a normal multidimensional array
+     *
+     * @param $dotArray
+     * @return array
+     */
+    public static function convertDotArrayToArray($dotArray)
+    {
+        $array = [];
+        foreach ($dotArray as $key => $value) {
+            self::set($array, $key, $value);
+        }
+        return $array;
+    }
+
+    /**
      * Get a value from the array, and remove it.
      *
      * @param  array   $array
