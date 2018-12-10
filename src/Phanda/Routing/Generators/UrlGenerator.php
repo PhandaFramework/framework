@@ -289,4 +289,12 @@ class UrlGenerator implements UrlGeneratorContract
         $this->cachedScheme = null;
         return $this;
     }
+
+    /**
+     * @return Request
+     */
+    public function getRequest()
+    {
+        return $this->request;
+    }
 }

@@ -88,4 +88,9 @@ interface UrlGenerator
      * @return $this
      */
     public function setRequest(Request $request);
+
+    /**
+     * @return Request
+     */
+    public function getRequest();
 }

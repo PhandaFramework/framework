@@ -98,7 +98,7 @@ if (!function_exists('public_path')) {
     }
 }
 
-if(!function_exists('router')) {
+if (!function_exists('router')) {
     /**
      * Returns the router.
      *
@@ -110,7 +110,7 @@ if(!function_exists('router')) {
     }
 }
 
-if(!function_exists('routeUrl')) {
+if (!function_exists('routeUrl')) {
     /**
      * Returns a routes url by it's name.
      *
@@ -140,13 +140,13 @@ if (!function_exists('storage_path')) {
     }
 }
 
-if (! function_exists('scene')) {
+if (!function_exists('scene')) {
     /**
      * Get the evaluated view contents for the given view.
      *
-     * @param  string  $view
-     * @param  array   $data
-     * @param  array   $mergeData
+     * @param  string $view
+     * @param  array $data
+     * @param  array $mergeData
      * @return \Phanda\Contracts\Scene\Scene|\Phanda\Contracts\Scene\Factory
      */
     function scene($view = null, $data = [], $mergeData = [])
@@ -162,13 +162,13 @@ if (! function_exists('scene')) {
     }
 }
 
-if (! function_exists('url')) {
+if (!function_exists('url')) {
     /**
      * Generate a url for the application.
      *
-     * @param  string  $path
-     * @param  mixed   $parameters
-     * @param  bool    $secure
+     * @param  string $path
+     * @param  mixed $parameters
+     * @param  bool $secure
      * @return \Phanda\Contracts\Routing\Generators\UrlGenerator|string
      */
     function url($path = null, $parameters = [], $secure = null)
@@ -181,5 +181,20 @@ if (! function_exists('url')) {
         }
 
         return $urlGenerator->generate($path, $parameters, $secure);
+    }
+}
+
+if (!function_exists('responseManager')) {
+    /**
+     * Returns the ResponseManager instance.
+     *
+     * @return \Phanda\Contracts\Http\ResponseManager
+     */
+    function responseManager()
+    {
+        /** @var \Phanda\Contracts\Http\ResponseManager $responseManager */
+        $responseManager = phanda()->create(\Phanda\Contracts\Http\ResponseManager::class);
+
+        return $responseManager;
     }
 }
