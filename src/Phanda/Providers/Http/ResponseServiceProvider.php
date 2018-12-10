@@ -3,9 +3,11 @@
 namespace Phanda\Providers\Http;
 
 use Phanda\Contracts\Foundation\Application;
+use Phanda\Contracts\Routing\Generators\UrlGenerator;
 use Phanda\Http\ResponseManager;
 use Phanda\Contracts\Http\ResponseManager as ResponseManagerContract;
 use Phanda\Providers\AbstractServiceProvider;
+use Phanda\Scene\Factory;
 
 class ResponseServiceProvider extends AbstractServiceProvider
 {
@@ -25,7 +27,11 @@ class ResponseServiceProvider extends AbstractServiceProvider
     {
         $this->phanda->attach('response-manager', function($phanda) {
            /** @var Application $phanda */
-           $responseManager = new ResponseManager();
+           /** @var Factory $sceneFactory */
+           $sceneFactory = $phanda->create(Factory::class);
+           /** @var UrlGenerator $urlGenerator */
+           $urlGenerator = $phanda->create(UrlGenerator::class);
+           $responseManager = new ResponseManager($sceneFactory, $urlGenerator);
            return $responseManager;
         });
 

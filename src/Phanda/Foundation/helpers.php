@@ -194,7 +194,21 @@ if (!function_exists('responseManager')) {
     {
         /** @var \Phanda\Contracts\Http\ResponseManager $responseManager */
         $responseManager = phanda()->create(\Phanda\Contracts\Http\ResponseManager::class);
-
         return $responseManager;
+    }
+}
+
+if(!function_exists('createResponse')) {
+    /**
+     * @param string $content
+     * @param int $status
+     * @param array $headers
+     * @return \Phanda\Foundation\Http\Response
+     */
+    function createResponse($content = '', $status = 200, $headers = [])
+    {
+        /** @var \Phanda\Contracts\Http\ResponseManager $responseManager */
+        $responseManager = phanda()->create(\Phanda\Contracts\Http\ResponseManager::class);
+        return $responseManager->createResponse($content, $status, $headers);
     }
 }

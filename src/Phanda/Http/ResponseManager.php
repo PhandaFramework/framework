@@ -137,7 +137,7 @@ class ResponseManager implements ResponseManagerContract
      */
     protected function createRedirect($path, $status, $headers)
     {
-        return modify(new RedirectResponse($path, $status, $headers), function($redirectResponse) {
+        return modify(new RedirectResponse($path, $status, $headers), function ($redirectResponse) {
             /** @var RedirectResponse $redirectResponse */
             $redirectResponse->setRequest($this->urlGenerator->getRequest());
         });
