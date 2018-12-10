@@ -224,4 +224,12 @@ class RouteBuilder
 
         return $this;
     }
+
+    /**
+     * @return RouteBuilder
+     */
+    public function newRoute()
+    {
+        return app()->create(self::class);
+    }
 }
