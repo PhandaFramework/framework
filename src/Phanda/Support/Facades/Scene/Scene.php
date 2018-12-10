@@ -6,6 +6,8 @@ use Phanda\Contracts\Container\Container;
 use Phanda\Contracts\Events\Dispatcher;
 use Phanda\Contracts\Scene\Factory;
 use Phanda\Contracts\Support\Arrayable;
+use Phanda\Exceptions\ExceptionHandler;
+use Phanda\Foundation\Http\Request;
 use Phanda\Support\Facades\Facade;
 use Phanda\Contracts\Scene\Scene as BaseScene;
 
@@ -62,5 +64,23 @@ class Scene extends Facade
     protected static function setupFacadeImplementations()
     {
         static::addImplementation('scene-facade', phanda()->create(Factory::class), true);
+    }
+
+    /**
+     * @param $scene
+     * @param array $data
+     * @param array $mergeData
+     * @return string
+     */
+    public static function render($scene, $data = [], array $mergeData = [])
+    {
+        try {
+            return static::create($scene, $data, $mergeData)->render();
+        } catch (\Throwable $e) {
+            /** @var ExceptionHandler $exceptionHandler */
+            $exceptionHandler = app()->create(ExceptionHandler::class);
+            $exceptionHandler->save($e);
+            return $exceptionHandler->render(phanda()->create(Request::class), $e)->send();
+        }
     }
 }
