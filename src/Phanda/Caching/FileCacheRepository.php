@@ -107,6 +107,6 @@ class FileCacheRepository implements CacheRepository
      */
     protected function convertKeyToPath($key)
     {
-        return storage_path(rtrim($this->basePath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $key);
+        return realpath(storage_path(rtrim($this->basePath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $key));
     }
 }
