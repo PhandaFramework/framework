@@ -205,7 +205,7 @@ class Router implements RouterContract
      */
     protected function isActionInController($action)
     {
-        if (!$action instanceof \Closure) {
+        if (!$action instanceof \Closure && !is_array($action) && !$action instanceof Arrayable) {
             return is_string($action) || (isset($action['method']) && is_string($action['method']));
         }
 

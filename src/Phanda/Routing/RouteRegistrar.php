@@ -7,19 +7,13 @@ use Closure;
 use InvalidArgumentException;
 
 /**
- * @method Route get(string $name, string $uri, \Closure|array|string|null $action = null)
- * @method Route post(string $name, string $uri, \Closure|array|string|null $action = null)
- * @method Route put(string $name, string $uri, \Closure|array|string|null $action = null)
- * @method Route delete(string $name, string $uri, \Closure|array|string|null $action = null)
- * @method Route patch(string $name, string $uri, \Closure|array|string|null $action = null)
- * @method Route options(string $name, string $uri, \Closure|array|string|null $action = null)
- * @method Route any(string $name, string $uri, \Closure|array|string|null $action = null)
  * @method RouteRegistrar domain(string $value)
  * @method RouteRegistrar middleware(array|string|null $middleware)
  * @method RouteRegistrar name(string $value)
  * @method RouteRegistrar namespace(string $value)
  * @method RouteRegistrar prefix(string  $prefix)
  * @method RouteRegistrar where(array  $where)
+ * @mixin Router
  */
 class RouteRegistrar
 {

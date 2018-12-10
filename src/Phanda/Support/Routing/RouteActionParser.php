@@ -30,7 +30,11 @@ class RouteActionParser
         }
 
         if (is_string($action['method']) && !PhandaStr::contains('@', $action['method'])) {
-            $action['method'] = static::makeInvokable($action['method']);
+            if(!is_null($action['controller']) && is_string($action['controller'])) {
+                $action['method'] = static::makeControllerMethod($action['controller'], $action['method']);
+            } else {
+                $action['method'] = static::makeInvokable($action['method']);
+            }
         }
 
         return $action;
@@ -69,6 +73,14 @@ class RouteActionParser
         }
 
         return $action . '@__invoke';
+    }
+
+    protected static function makeControllerMethod($controller, $method) {
+        if(!method_exists($controller, $method)) {
+            throw new UnexpectedValueException("Method '{$method}' does not exist on controller '{$controller}'");
+        }
+
+        return $controller . '@' . $method;
     }
 
 }

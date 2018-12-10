@@ -547,7 +547,6 @@ class Route implements RouteContract
     public function setName($name)
     {
         $this->action['name'] = isset($this->action['name']) ? $this->action['name'] . '.' . $name : $name;
-
         return $this;
     }
 
