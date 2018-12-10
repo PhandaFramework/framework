@@ -42,4 +42,13 @@ class Filesystem extends SymfonyFilesystem
     {
         return file_put_contents($path, $contents, 0);
     }
+
+    /**
+     * @param $path
+     * @return bool
+     */
+    public function fileExists($path)
+    {
+        return is_file($path);
+    }
 }
