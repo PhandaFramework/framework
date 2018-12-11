@@ -2,6 +2,6 @@
 
 @stage('title', '503 - Maintenance.')
 
-@stage('error', 'Uh oh!')
+@stage('error', '503')
 
 @stage('message', 'Sorry, we are currently down for maintenance.')
