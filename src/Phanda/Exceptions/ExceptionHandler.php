@@ -3,6 +3,7 @@
 namespace Phanda\Exceptions;
 
 use Exception;
+use Phanda\Support\Facades\Scene\Scene;
 use Symfony\Component\Debug\Exception\FlattenException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Whoops\Run as Whoops;
@@ -125,6 +126,7 @@ class ExceptionHandler implements ExceptionHandlerContract
     protected function prepareResponse(Request $request, Exception $e)
     {
         if (!$this->isHttpException($e) && config('phanda.debug')) {
+            /** @var HttpException $e */
             return $this->toPhandaResponse(
                 $this->convertExceptionToRenderableException($e),
                 $e
@@ -163,10 +165,10 @@ class ExceptionHandler implements ExceptionHandlerContract
     }
 
     /**
-     * @param Exception $e
+     * @param HttpException $e
      * @return Response
      */
-    protected function convertExceptionToRenderableException(Exception $e)
+    protected function convertExceptionToRenderableException(HttpException $e)
     {
         return Response::create(
             $this->renderExceptionContent($e),
@@ -228,12 +230,39 @@ class ExceptionHandler implements ExceptionHandlerContract
     }
 
     /**
-     * @param Exception $e
+     * @param HttpException $e
      * @return Response
      */
-    protected function renderHttpException(Exception $e)
+    protected function renderHttpException(HttpException $e)
     {
-        //TODO: Implement custom error handlers
+        $this->registerExceptionScenes();
+        $scene = "errors::{$e->getStatusCode()}";
+
+        if(scene()->exists($scene)) {
+            return responseManager()->createSceneResponse(
+                $scene,
+                [
+                    'errors' => [$e->getMessage()],
+                    'exception' => $e
+                ],
+                $e->getStatusCode(),
+                $e->getHeaders()
+            );
+        }
+
         return $this->convertExceptionToRenderableException($e);
+    }
+
+    /**
+     * Registers the application exception scenes for the given errors.
+     */
+    protected function registerExceptionScenes()
+    {
+        $paths = createDictionary(config('scene.error_scenes_path', assets_path('scenes/error')));
+
+        scene()->replaceNamespace(
+            'errors',
+            $paths->push(__DIR__ . 'exception_scenes')->all()
+        );
     }
 }

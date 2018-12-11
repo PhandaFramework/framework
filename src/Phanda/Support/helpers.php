@@ -166,3 +166,18 @@ if (! function_exists('e')) {
         return htmlspecialchars($value, ENT_QUOTES, 'UTF-8', $doubleEncode);
     }
 }
+
+
+
+if(!function_exists('createDictionary')) {
+    /**
+     * Creates a new Dictionary with the given items.
+     *
+     * @param array $items
+     * @return \Phanda\Support\Dictionary
+     */
+    function createDictionary($items = [])
+    {
+        return new \Phanda\Support\Dictionary($items);
+    }
+}
