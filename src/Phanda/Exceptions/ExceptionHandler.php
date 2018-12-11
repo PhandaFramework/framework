@@ -258,11 +258,13 @@ class ExceptionHandler implements ExceptionHandlerContract
      */
     protected function registerExceptionScenes()
     {
-        $paths = createDictionary(config('scene.error_scenes_path', assets_path('scenes/error')));
+        $paths = createDictionary(
+            config('scene.error_scenes_path', assets_path('scenes/error'))
+        )->push(__DIR__ . DIRECTORY_SEPARATOR . 'exception_scenes')->all();
 
         scene()->replaceNamespace(
             'errors',
-            $paths->push(__DIR__ . 'exception_scenes')->all()
+            $paths
         );
     }
 }
