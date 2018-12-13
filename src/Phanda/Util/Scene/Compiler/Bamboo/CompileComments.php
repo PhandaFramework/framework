@@ -12,7 +12,7 @@ trait CompileComments
      */
     protected function compileComments($value)
     {
-        $pattern = sprintf('/%s\*(.*?)\*%s/s', $this->commentTags[0], $this->commentTags[1]);
+        $pattern = sprintf('/%s\*(.*?)\*%s/s', $this->outputTags[0], $this->outputTags[1]);
         return preg_replace($pattern, '', $value);
     }
 }
