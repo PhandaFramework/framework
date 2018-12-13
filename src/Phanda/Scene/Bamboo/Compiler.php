@@ -75,7 +75,7 @@ class Compiler extends AbstractCompiler implements ExtendableCompiler
      */
     protected $escapedTags = ['{\|', '\|}'];
 
-    protected $commentTags = ['{*', '*}'];
+    protected $commentTags = ['{\*', '\*}'];
 
     /**
      * @var string
