@@ -37,7 +37,7 @@ class KungfuServiceProvider extends AbstractServiceProvider
     {
         foreach ($commands as $key => $command) {
             $this->phanda->singleton($key, function() use ($command) {
-               return new $command;
+               return $this->phanda->create($command);
             });
         }
 
