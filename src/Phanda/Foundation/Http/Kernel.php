@@ -138,7 +138,7 @@ class Kernel implements HttpKernel
     public function bootstrap()
     {
         if(!$this->phanda->hasBeenBootstrapped()) {
-            $this->phanda->bootstrapWith($this->bootstrappers());
+            $this->phanda->bootstrapWith($this->getBootstrappers());
         }
     }
 
@@ -147,8 +147,41 @@ class Kernel implements HttpKernel
      *
      * @return array
      */
-    protected function bootstrappers()
+    public function getBootstrappers()
     {
         return $this->httpBootstrappers;
+    }
+
+    /**
+     * Adds a bootstrapper to the http kernel
+     *
+     * @param Bootstrap $bootstrapper
+     * @return $this
+     */
+    public function addBootstrapper(Bootstrap $bootstrapper) {
+        $this->httpBootstrappers[] = $bootstrapper;
+        return $this;
+    }
+
+    /**
+     * Advanced use only: Sets the http bootstrappers
+     *
+     * @param array $bootstrappers
+     * @return $this
+     */
+    public function setBootstrappers(array $bootstrappers) {
+        $this->httpBootstrappers = $bootstrappers;
+        return $this;
+    }
+
+    /**
+     * Advanced use only: Clears the http bootstrappers
+     *
+     * @return $this
+     */
+    public function clearBootstrappers()
+    {
+        $this->httpBootstrappers = [];
+        return $this;
     }
 }

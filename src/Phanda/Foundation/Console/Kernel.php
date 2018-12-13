@@ -237,7 +237,7 @@ class Kernel implements ConsoleKernel
     protected function bootstrap()
     {
         if(!$this->phanda->hasBeenBootstrapped()) {
-            $this->phanda->bootstrapWith($this->bootstrappers());
+            $this->phanda->bootstrapWith($this->getBootstrappers());
         }
 
         if (!$this->commandsLoaded) {
@@ -251,9 +251,42 @@ class Kernel implements ConsoleKernel
      *
      * @return array
      */
-    protected function bootstrappers()
+    public function getBootstrappers()
     {
         return $this->consoleBootstrappers;
+    }
+
+    /**
+     * Adds a bootstrapper to the console
+     *
+     * @param Bootstrap $bootstrapper
+     * @return $this
+     */
+    public function addBootstrapper(Bootstrap $bootstrapper) {
+        $this->consoleBootstrappers[] = $bootstrapper;
+        return $this;
+    }
+
+    /**
+     * Advanced use only: Sets the console bootstrappers
+     *
+     * @param array $bootstrappers
+     * @return $this
+     */
+    public function setBootstrappers(array $bootstrappers) {
+        $this->consoleBootstrappers = $bootstrappers;
+        return $this;
+    }
+
+    /**
+     * Advanced use only: Clears the console bootstrappers
+     * 
+     * @return $this
+     */
+    public function clearBootstrappers()
+    {
+        $this->consoleBootstrappers = [];
+        return $this;
     }
 
     /**
