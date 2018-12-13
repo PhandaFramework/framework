@@ -9,7 +9,7 @@ class EnvironmentCommand extends ConsoleCommand
 {
     use ConfirmIfInProductionTrait;
 
-    protected $signature = 'environment {environment?}';
+    protected $signature = 'app:environment {environment?}';
 
     protected $description = "Gets or sets the current application environment.";
 

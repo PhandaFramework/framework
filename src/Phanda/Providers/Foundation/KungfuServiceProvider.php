@@ -2,6 +2,7 @@
 
 namespace Phanda\Providers\Foundation;
 
+use Phanda\Foundation\Console\Commands\ApplicationDebugCommand;
 use Phanda\Foundation\Console\Commands\EnvironmentCommand;
 use Phanda\Foundation\Console\Commands\ServeCommand;
 use Phanda\Providers\AbstractServiceProvider;
@@ -17,8 +18,9 @@ class KungfuServiceProvider extends AbstractServiceProvider
     ];
 
     protected $devCommands = [
-        'Environment' => 'command.environment',
-        'Serve' => 'command.serve'
+        'command.debug' => ApplicationDebugCommand::class,
+        'command.environment' => EnvironmentCommand::class,
+        'command.serve' => ServeCommand::class
     ];
 
     public function register()
@@ -33,25 +35,13 @@ class KungfuServiceProvider extends AbstractServiceProvider
      */
     protected function registerCommands(array $commands)
     {
-        foreach (array_keys($commands) as $command) {
-            call_user_func_array([$this, "register{$command}Command"], []);
+        foreach ($commands as $key => $command) {
+            $this->phanda->singleton($key, function() use ($command) {
+               return new $command;
+            });
         }
 
         $this->commands(array_values($commands));
-    }
-
-    protected function registerEnvironmentCommand()
-    {
-        $this->phanda->singleton('command.environment', function() {
-            return new EnvironmentCommand();
-        });
-    }
-
-    protected function registerServeCommand()
-    {
-        $this->phanda->singleton('command.serve', function () {
-            return new ServeCommand();
-        });
     }
 
     /**
