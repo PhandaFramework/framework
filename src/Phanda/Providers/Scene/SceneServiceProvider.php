@@ -97,7 +97,6 @@ class SceneServiceProvider extends AbstractServiceProvider
     {
         $this->registerCssEngine($factory);
         $this->registerPhpExtension($factory);
-        $this->registerBambooExtension($factory);
     }
 
     /**
@@ -121,38 +120,6 @@ class SceneServiceProvider extends AbstractServiceProvider
     {
         $factory->addExtension('php', 'php', function () {
             return new PhpEngine();
-        });
-    }
-
-    /**
-     * Registers the bamboo compiler
-     * @param FactoryContract $factory
-     *
-     * @todo fix this, and reimplement this into BambooServiceProvider
-     * @see BambooServiceProvider
-     */
-    protected function registerBambooExtension(FactoryContract $factory)
-    {
-        $this->phanda->singleton('bamboo.compiler', function ($phanda) {
-            /** @var Application $phanda */
-            $filesystem = $phanda->create(Filesystem::class);
-            /** @var Repository $config */
-            $config = $phanda->create(Repository::class);
-            $cachedPath = $config->get('scene.cachedPath');
-            $bambooCompiler = new BambooCompiler(
-                $filesystem,
-                $cachedPath
-            );
-
-            return $bambooCompiler;
-        });
-
-        $this->phanda->alias('bamboo.compiler', BambooCompiler::class);
-
-        $factory->addExtension('bamboo.php', 'bamboo', function() {
-            return new SceneCompilerEngine(
-                $this->phanda->create(BambooCompiler::class)
-            );
         });
     }
 }

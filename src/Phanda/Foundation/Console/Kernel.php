@@ -263,7 +263,6 @@ class Kernel implements ConsoleKernel
     {
         /** @var ExceptionHandler $exceptionHandler */
         $exceptionHandler = $this->phanda->create(ExceptionHandler::class);
-        //$exceptionHandler = $this->phanda[ExceptionHandler::class];
         $exceptionHandler->save($e);
     }
 
