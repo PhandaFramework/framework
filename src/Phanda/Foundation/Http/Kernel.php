@@ -29,7 +29,7 @@ class Kernel implements HttpKernel
     protected $router;
 
     /**
-     * @var Bootstrap[]
+     * @var array
      */
     protected $httpBootstrappers = [
         BootstrapEnvironment::class,
@@ -155,10 +155,10 @@ class Kernel implements HttpKernel
     /**
      * Adds a bootstrapper to the http kernel
      *
-     * @param Bootstrap $bootstrapper
+     * @param string $bootstrapper
      * @return $this
      */
-    public function addBootstrapper(Bootstrap $bootstrapper) {
+    public function addBootstrapper($bootstrapper) {
         $this->httpBootstrappers[] = $bootstrapper;
         return $this;
     }

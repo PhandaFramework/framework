@@ -49,7 +49,7 @@ class Kernel implements ConsoleKernel
     protected $commands = [];
 
     /**
-     * @var Bootstrap[]
+     * @var array
      */
     protected $consoleBootstrappers = [
         BootstrapEnvironment::class,
@@ -259,10 +259,10 @@ class Kernel implements ConsoleKernel
     /**
      * Adds a bootstrapper to the console
      *
-     * @param Bootstrap $bootstrapper
+     * @param string $bootstrapper
      * @return $this
      */
-    public function addBootstrapper(Bootstrap $bootstrapper) {
+    public function addBootstrapper($bootstrapper) {
         $this->consoleBootstrappers[] = $bootstrapper;
         return $this;
     }
@@ -280,7 +280,7 @@ class Kernel implements ConsoleKernel
 
     /**
      * Advanced use only: Clears the console bootstrappers
-     * 
+     *
      * @return $this
      */
     public function clearBootstrappers()
