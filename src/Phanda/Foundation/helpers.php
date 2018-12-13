@@ -85,6 +85,25 @@ if (!function_exists('bootstrap_path')) {
     }
 }
 
+if (!function_exists('environment_path')) {
+    /**
+     * Get the path to the environment of the install.
+     *
+     * @param  string $path
+     * @return string
+     */
+    function environment_path($path = '')
+    {
+        if(strlen($path) > 0) {
+            if(strpos($path, '.env') == false) {
+                $path = trim($path) . '.env';
+            }
+        }
+
+        return phanda()->environmentPath() . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+    }
+}
+
 if (!function_exists('public_path')) {
     /**
      * Get the path to the public serving path.

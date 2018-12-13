@@ -255,9 +255,14 @@ class ConsoleCommand extends SymfonyCommand
     /**
      * @return array
      */
-    public function getOptions()
+    public function options()
     {
         return $this->getOption();
+    }
+
+    public function getOptions()
+    {
+        return [];
     }
 
     /**
@@ -267,7 +272,7 @@ class ConsoleCommand extends SymfonyCommand
      */
     public function confirm($question, $default = null)
     {
-        return $this->output->confirm($question, $default);
+        return $this->output->confirm($question, $default ?? false);
     }
 
     /**

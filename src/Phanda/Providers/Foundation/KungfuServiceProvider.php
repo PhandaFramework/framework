@@ -2,6 +2,7 @@
 
 namespace Phanda\Providers\Foundation;
 
+use Phanda\Foundation\Console\Commands\EnvironmentCommand;
 use Phanda\Foundation\Console\Commands\ServeCommand;
 use Phanda\Providers\AbstractServiceProvider;
 use Phanda\Console\Application as Kungfu;
@@ -16,6 +17,7 @@ class KungfuServiceProvider extends AbstractServiceProvider
     ];
 
     protected $devCommands = [
+        'Environment' => 'command.environment',
         'Serve' => 'command.serve'
     ];
 
@@ -38,10 +40,17 @@ class KungfuServiceProvider extends AbstractServiceProvider
         $this->commands(array_values($commands));
     }
 
+    protected function registerEnvironmentCommand()
+    {
+        $this->phanda->singleton('command.environment', function() {
+            return new EnvironmentCommand();
+        });
+    }
+
     protected function registerServeCommand()
     {
         $this->phanda->singleton('command.serve', function () {
-            return new ServeCommand;
+            return new ServeCommand();
         });
     }
 

@@ -63,7 +63,7 @@ class ServeCommand extends ConsoleCommand
      *
      * @return array
      */
-    public function getOptions()
+    public function options()
     {
         return [
             ['host', null, InputOption::VALUE_OPTIONAL, 'The host address to serve the application on', '127.0.0.1'],

@@ -22,7 +22,8 @@ class BootstrapConfig implements Bootstrap
         $phanda->instance('config', $config);
         $this->loadConfiguration($phanda, $config);
         $phanda->discoverEnvironment(function() use ($config) {
-           return $config->get('phanda.environment', 'production');
+           $environment = $config->get('phanda.environment', 'production');
+           return $environment;
         });
 
         date_default_timezone_set($config->get('phanda.timezone', 'UTC'));
