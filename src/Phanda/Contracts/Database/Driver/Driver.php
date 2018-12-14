@@ -2,6 +2,8 @@
 
 namespace Phanda\Contracts\Database\Driver;
 
+use Phanda\Contracts\Database\Statement;
+
 interface Driver
 {
 
@@ -41,4 +43,11 @@ interface Driver
      */
     public function isConnected(): bool;
 
+    /**
+     * Prepares the given SQL into statement to be executed.
+     *
+     * @param $sql
+     * @return Statement
+     */
+    public function prepare($sql): Statement;
 }

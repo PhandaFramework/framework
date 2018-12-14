@@ -5,6 +5,7 @@ namespace Phanda\Database\Connection;
 use Exception;
 use Phanda\Contracts\Database\Connection\Connection as ConnectionContact;
 use Phanda\Contracts\Database\Driver\Driver;
+use Phanda\Contracts\Database\Statement;
 use Phanda\Exceptions\Database\Connection\ConnectionFailedException;
 use Phanda\Support\RetryCommand;
 
@@ -127,6 +128,38 @@ class Connection implements ConnectionContact
     public function isConnected(): bool
     {
         return $this->driver->isConnected();
+    }
+
+    /**
+     * Prepares the given SQL into statement to be executed.
+     *
+     * @param $sql
+     * @return Statement
+     *
+     * @throws Exception
+     */
+    public function prepare($sql): Statement
+    {
+        return $this->getRetryConnectionCommand()->run(function() use ($sql) {
+           return $this->driver->prepare($sql);
+        });
+    }
+
+    /**
+     * Runs the given SQL and returns the executed statement
+     *
+     * @param $sql
+     * @return Statement
+     *
+     * @throws Exception
+     */
+    public function execute($sql): Statement
+    {
+        return $this->getRetryConnectionCommand()->run(function() use ($sql) {
+           $statement = $this->prepare($sql);
+           $statement->execute();
+           return $statement;
+        });
     }
 
     /**

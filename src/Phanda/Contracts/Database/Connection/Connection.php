@@ -3,6 +3,7 @@
 namespace Phanda\Contracts\Database\Connection;
 
 use Phanda\Contracts\Database\Driver\Driver;
+use Phanda\Contracts\Database\Statement;
 use Phanda\Exceptions\Database\Connection\ConnectionFailedException;
 
 interface Connection
@@ -58,6 +59,22 @@ interface Connection
      * @return bool
      */
     public function isConnected(): bool;
+
+    /**
+     * Prepares the given SQL into statement to be executed.
+     *
+     * @param $sql
+     * @return Statement
+     */
+    public function prepare($sql): Statement;
+
+    /**
+     * Runs the given SQL and returns the executed statement
+     *
+     * @param $sql
+     * @return Statement
+     */
+    public function execute($sql): Statement;
 
     /**
      * Checks if currently performing a transaction on the database or not.
