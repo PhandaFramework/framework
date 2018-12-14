@@ -131,32 +131,32 @@ class Connection implements ConnectionContact
     }
 
     /**
-     * Prepares the given SQL into statement to be executed.
+     * Prepares the given query into statement to be executed.
      *
-     * @param $sql
+     * @param $query
      * @return Statement
      *
      * @throws Exception
      */
-    public function prepare($sql): Statement
+    public function prepareQuery($query): Statement
     {
-        return $this->getRetryConnectionCommand()->run(function() use ($sql) {
-           return $this->driver->prepare($sql);
+        return $this->getRetryConnectionCommand()->run(function() use ($query) {
+           return $this->driver->prepare($query);
         });
     }
 
     /**
-     * Runs the given SQL and returns the executed statement
+     * Runs the given query and returns the executed statement
      *
-     * @param $sql
+     * @param $query
      * @return Statement
      *
      * @throws Exception
      */
-    public function execute($sql): Statement
+    public function executeQuery($query): Statement
     {
-        return $this->getRetryConnectionCommand()->run(function() use ($sql) {
-           $statement = $this->prepare($sql);
+        return $this->getRetryConnectionCommand()->run(function() use ($query) {
+           $statement = $this->prepareQuery($query);
            $statement->execute();
            return $statement;
         });

@@ -63,18 +63,18 @@ interface Connection
     /**
      * Prepares the given SQL into statement to be executed.
      *
-     * @param $sql
+     * @param $query
      * @return Statement
      */
-    public function prepare($sql): Statement;
+    public function prepareQuery($query): Statement;
 
     /**
      * Runs the given SQL and returns the executed statement
      *
-     * @param $sql
+     * @param $query
      * @return Statement
      */
-    public function execute($sql): Statement;
+    public function executeQuery($query): Statement;
 
     /**
      * Checks if currently performing a transaction on the database or not.
