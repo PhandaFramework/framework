@@ -59,4 +59,11 @@ interface Connection
      */
     public function isConnected(): bool;
 
+    /**
+     * Checks if currently performing a transaction on the database or not.
+     *
+     * @return bool
+     */
+    public function inTransaction(): bool;
+
 }

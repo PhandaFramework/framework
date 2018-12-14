@@ -6,6 +6,7 @@ use Exception;
 use Phanda\Contracts\Database\Connection\Connection as ConnectionContact;
 use Phanda\Contracts\Database\Driver\Driver;
 use Phanda\Exceptions\Database\Connection\ConnectionFailedException;
+use Phanda\Support\RetryCommand;
 
 class Connection implements ConnectionContact
 {
@@ -33,6 +34,16 @@ class Connection implements ConnectionContact
     {
         $this->configuration = $configuration;
         $this->name = $name;
+    }
+
+    /**
+     * Gets the retry connection command used to try connections again incase of disconnection
+     *
+     * @return RetryCommand
+     */
+    protected function getRetryConnectionCommand()
+    {
+        return new RetryCommand(new ReconnectCommandStrategy($this));
     }
 
     /**
@@ -116,5 +127,15 @@ class Connection implements ConnectionContact
     public function isConnected(): bool
     {
         return $this->driver->isConnected();
+    }
+
+    /**
+     * Checks if currently performing a transaction on the database or not.
+     *
+     * @return bool
+     */
+    public function inTransaction(): bool
+    {
+        // TODO: Implement inTransaction() method.
     }
 }
