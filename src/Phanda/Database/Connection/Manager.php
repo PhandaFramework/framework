@@ -76,6 +76,30 @@ class Manager implements ManagerContract
         if(!isset($this->registeredConnections[$name])) {
             throw new ConnectionNotRegisteredException("Connection '{$name}' has not been registered with the Connection Manager.");
         }
+
+        return $this->resolveConnection($name);
+    }
+
+    /**
+     * Resolves a connection by name.
+     *
+     * @param string $name
+     * @return Connection
+     */
+    protected function resolveConnection($name = 'default')
+    {
+        $connection = new \Phanda\Database\Connection\Connection();
+
+        $configuration = $this->registeredConnections[$name];
+        if(!isset($configuration['driver'])) {
+            throw new \LogicException("A driver must be passed as an option for a connection.");
+        }
+
+        $driver = $this->driverRegistry->getDriver($configuration['driver']);
+        $connection->setDriver($driver);
+
+        $this->resolvedConnections[$name] = $connection;
+        return $connection;
     }
 
     /**
@@ -90,6 +114,7 @@ class Manager implements ManagerContract
      */
     public function setConnection(string $name, array $config)
     {
+        $this->registeredConnections[$name] = $config;
         return $this;
     }
 }
