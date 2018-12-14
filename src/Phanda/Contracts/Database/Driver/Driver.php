@@ -34,4 +34,11 @@ interface Driver
      */
     public function disconnect(): Driver;
 
+    /**
+     * Checks if currently connected to a database
+     *
+     * @return bool
+     */
+    public function isConnected(): bool;
+
 }

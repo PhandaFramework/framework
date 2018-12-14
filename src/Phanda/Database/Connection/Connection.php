@@ -107,4 +107,14 @@ class Connection implements ConnectionContact
         $this->driver->disconnect();
         return $this;
     }
+
+    /**
+     * Checks if currently connected to a database
+     *
+     * @return bool
+     */
+    public function isConnected(): bool
+    {
+        return $this->driver->isConnected();
+    }
 }

@@ -52,4 +52,11 @@ interface Connection
      */
     public function disconnect(): Connection;
 
+    /**
+     * Checks if currently connected to a database
+     *
+     * @return bool
+     */
+    public function isConnected(): bool;
+
 }
