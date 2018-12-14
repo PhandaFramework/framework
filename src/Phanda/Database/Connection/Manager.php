@@ -88,14 +88,13 @@ class Manager implements ManagerContract
      */
     protected function resolveConnection($name = 'default')
     {
-        $connection = new \Phanda\Database\Connection\Connection();
-
         $configuration = $this->registeredConnections[$name];
         if(!isset($configuration['driver'])) {
             throw new \LogicException("A driver must be passed as an option for a connection.");
         }
 
         $driver = $this->driverRegistry->getDriver($configuration['driver']);
+        $connection = new \Phanda\Database\Connection\Connection($name, $configuration);
         $connection->setDriver($driver);
 
         $this->resolvedConnections[$name] = $connection;
