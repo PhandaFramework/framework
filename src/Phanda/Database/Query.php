@@ -4,9 +4,12 @@ namespace Phanda\Database;
 
 use Phanda\Contracts\Database\Connection\Connection;
 use Phanda\Contracts\Database\Statement;
+use Phanda\Support\PhandArr;
 
 class Query
 {
+    const TYPE_SELECT = 'select';
+
     /**
      * @var Connection
      */
@@ -173,6 +176,36 @@ class Query
         foreach ($queryKeywords as $keyword) {
             $visitor($this->queryKeywords[$keyword], $keyword);
         }
+
+        return $this;
+    }
+
+    /**
+     * Adds fields to be returned by the execution of this query with a `SELECT` statement.
+     *
+     * Setting overwrite to true will reset currently selected fields.
+     * Optionally, passing a named array of fields will perform a `SELECT AS` statement.
+     *
+     * @param array|string $fields
+     * @param bool $overwrite
+     * @return Query
+     */
+    public function select($fields = [], $overwrite = false): Query
+    {
+        if(!is_string($fields) && is_callable($fields)) {
+            $fields = $fields($this);
+        }
+
+        $fields = PhandArr::makeArray($fields);
+
+        if($overwrite) {
+            $this->queryKeywords['select'] = $fields;
+        } else {
+            $this->queryKeywords['select'] = array_merge($this->queryKeywords['select'], $fields);
+        }
+
+        $this->makeDirty();
+        $this->type = self::TYPE_SELECT;
 
         return $this;
     }
