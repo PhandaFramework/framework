@@ -85,6 +85,21 @@ if (!function_exists('bootstrap_path')) {
     }
 }
 
+
+
+if (!function_exists('core_path')) {
+    /**
+     * Get the path to the core of the install.
+     *
+     * @param  string $path
+     * @return string
+     */
+    function core_path($path = '')
+    {
+        return phanda()->corePath() . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+    }
+}
+
 if (!function_exists('environment_path')) {
     /**
      * Get the path to the environment of the install.
