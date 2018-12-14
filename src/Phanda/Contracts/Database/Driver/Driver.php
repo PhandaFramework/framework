@@ -3,6 +3,7 @@
 namespace Phanda\Contracts\Database\Driver;
 
 use Phanda\Contracts\Database\Statement;
+use Phanda\Database\Query;
 
 interface Driver
 {
@@ -46,8 +47,17 @@ interface Driver
     /**
      * Prepares the given SQL into statement to be executed.
      *
-     * @param $sql
+     * @param string|Query $query
      * @return Statement
      */
-    public function prepare($sql): Statement;
+    public function prepare($query): Statement;
+
+    /**
+     * Returns last id generated for a table or sequence in database.
+     *
+     * @param string|null $table
+     * @param string|null $column
+     * @return string|int
+     */
+    public function getLastInsertId($table = null, $column = null);
 }

@@ -6,6 +6,7 @@ use Exception;
 use Phanda\Contracts\Database\Connection\Connection as ConnectionContact;
 use Phanda\Contracts\Database\Driver\Driver;
 use Phanda\Contracts\Database\Statement;
+use Phanda\Database\Query;
 use Phanda\Exceptions\Database\Connection\ConnectionFailedException;
 use Phanda\Support\RetryCommand;
 
@@ -133,7 +134,7 @@ class Connection implements ConnectionContact
     /**
      * Prepares the given query into statement to be executed.
      *
-     * @param $query
+     * @param string|Query $query
      * @return Statement
      *
      * @throws Exception
@@ -148,7 +149,7 @@ class Connection implements ConnectionContact
     /**
      * Runs the given query and returns the executed statement
      *
-     * @param $query
+     * @param string|Query $query
      * @return Statement
      *
      * @throws Exception
