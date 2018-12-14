@@ -211,6 +211,74 @@ class Query
     }
 
     /**
+     * Adds a distinct to fields in the current query
+     *
+     * @param array|string|bool $on
+     * @param bool $overwrite
+     * @return Query
+     */
+    public function distinct($on = [], $overwrite = false): Query
+    {
+        if ($on === []) {
+            $on = true;
+        } else {
+            $on = PhandArr::makeArray($on);
+
+            $merge = [];
+            if (is_array($this->queryKeywords['distinct'])) {
+                $merge = $this->queryKeywords['distinct'];
+            }
+            $on = $overwrite ? array_values($on) : array_merge($merge, array_values($on));
+        }
+
+        $this->queryKeywords['distinct'] = $on;
+        $this->makeDirty();
+
+        return $this;
+    }
+
+    /**
+     * Adds a modifer to be performed after a `SELECT`
+     *
+     * @param $modifiers
+     * @param bool $overwrite
+     * @return Query
+     */
+    public function modifier($modifiers, $overwrite = false): Query
+    {
+        $modifiers = PhandArr::makeArray($modifiers);
+
+        if($overwrite) {
+            $this->queryKeywords['modifier'] = $modifiers;
+        } else {
+            $this->queryKeywords['modifier'] = array_merge($this->queryKeywords['modifier'], $modifiers);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Adds a table(s) to the `FROM` clause of this statement
+     *
+     * @param string|array $tables
+     * @param bool $overwrite
+     * @return Query
+     */
+    public function from($tables, $overwrite = false): Query
+    {
+        $tables = PhandArr::makeArray($tables);
+
+        if($overwrite) {
+            $this->queryKeywords['from'] = $tables;
+        } else {
+            $this->queryKeywords['from'] = array_merge($this->queryKeywords['from'], $tables);
+        }
+
+        $this->makeDirty();
+        return $this;
+    }
+
+    /**
      * Marks a query as dirty, and resets any value bindings if need be.
      */
     protected function makeDirty()
