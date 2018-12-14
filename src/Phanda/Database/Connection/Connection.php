@@ -7,6 +7,7 @@ use Phanda\Contracts\Database\Connection\Connection as ConnectionContact;
 use Phanda\Contracts\Database\Driver\Driver;
 use Phanda\Contracts\Database\Statement;
 use Phanda\Database\Query;
+use Phanda\Database\ValueBinder;
 use Phanda\Exceptions\Database\Connection\ConnectionFailedException;
 use Phanda\Support\RetryCommand;
 
@@ -161,6 +162,16 @@ class Connection implements ConnectionContact
            $statement->execute();
            return $statement;
         });
+    }
+
+    /**
+     * @param Query $query
+     * @param ValueBinder $valueBinder
+     * @return string
+     */
+    public function compileQuery(Query $query, ValueBinder $valueBinder): string
+    {
+        return $this->getDriver()->compileQuery($query, $valueBinder);
     }
 
     /**

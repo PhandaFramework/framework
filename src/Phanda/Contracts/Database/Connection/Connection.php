@@ -4,6 +4,8 @@ namespace Phanda\Contracts\Database\Connection;
 
 use Phanda\Contracts\Database\Driver\Driver;
 use Phanda\Contracts\Database\Statement;
+use Phanda\Database\Query;
+use Phanda\Database\ValueBinder;
 use Phanda\Exceptions\Database\Connection\ConnectionFailedException;
 
 interface Connection
@@ -75,6 +77,13 @@ interface Connection
      * @return Statement
      */
     public function executeQuery($query): Statement;
+
+    /**
+     * @param Query $query
+     * @param ValueBinder $valueBinder
+     * @return string
+     */
+    public function compileQuery(Query $query, ValueBinder $valueBinder): string;
 
     /**
      * Checks if currently performing a transaction on the database or not.

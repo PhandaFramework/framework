@@ -4,6 +4,7 @@ namespace Phanda\Contracts\Database\Driver;
 
 use Phanda\Contracts\Database\Statement;
 use Phanda\Database\Query;
+use Phanda\Database\ValueBinder;
 
 interface Driver
 {
@@ -60,4 +61,11 @@ interface Driver
      * @return string|int
      */
     public function getLastInsertId($table = null, $column = null);
+
+    /**
+     * @param Query $query
+     * @param ValueBinder $valueBinder
+     * @return string
+     */
+    public function compileQuery(Query $query, ValueBinder $valueBinder): string;
 }
