@@ -5,6 +5,7 @@ namespace Phanda\Contracts\Database\Driver;
 use PDO;
 use Phanda\Contracts\Database\Query\Query;
 use Phanda\Contracts\Database\Statement;
+use Phanda\Database\Query\QueryCompiler;
 use Phanda\Database\ValueBinder;
 
 interface Driver
@@ -71,35 +72,19 @@ interface Driver
     public function getLastInsertId($table = null, $column = null);
 
     /**
-     * @param Query $query
-     * @param ValueBinder $valueBinder
-     * @return string
-     */
-    public function compileQuery(Query $query, ValueBinder $valueBinder): string;
-
-    /**
-     * Quotes a database identifier (a column name, table name, etc..) to
-     * be used safely in queries without the risk of using reserved words.
-     *
-     * @param string $identifier
-     * @return string
-     */
-    public function quoteIdentifier(string $identifier): string;
-
-    /**
      * Sets the auto quoting of identifiers in queries.
      *
      * @param bool $enable
      * @return $this
      */
-    public function enableAutoQuoting(bool $enable = true): self;
+    public function enableAutoQuoting(bool $enable = true);
 
     /**
      * Disable auto quoting of identifiers in queries.
      *
      * @return $this
      */
-    public function disableAutoQuoting(): self;
+    public function disableAutoQuoting();
 
     /**
      * @return bool
@@ -115,5 +100,125 @@ interface Driver
      * @param PDO $dbConnection
      * @return self
      */
-    public function setConnection(PDO $dbConnection): self;
+    public function setConnection(PDO $dbConnection);
+
+    /**
+     * Begins a transaction
+     * @return bool
+     */
+    public function beginTransaction(): bool;
+
+    /**
+     * Commits a transaction.
+     *
+     * @return bool
+     */
+    public function commitTransaction(): bool;
+
+    /**
+     * Rollbacks a transaction.
+     *
+     * @return bool
+     */
+    public function rollbackTransaction(): bool;
+
+    /**
+     * Get the SQL for releasing a save point.
+     *
+     * @param string $name
+     * @return string
+     */
+    public function releaseSavePointSQL($name): string;
+
+    /**
+     * Get the SQL for creating a save point.
+     *
+     * @param string $name
+     * @return string
+     */
+    public function savePointSQL($name): string;
+
+    /**
+     * Get the SQL for rolling back a save point.
+     *
+     * @param string $name
+     * @return string
+     */
+    public function rollbackSavePointSQL($name): string;
+
+    /**
+     * Get the SQL for disabling foreign keys.
+     *
+     * @return string
+     */
+    public function disableForeignKeySQL(): string;
+
+    /**
+     * Get the SQL for enabling foreign keys.
+     *
+     * @return string
+     */
+    public function enableForeignKeySQL(): string;
+
+    /**
+     * Returns whether the driver supports adding or dropping constraints
+     * to already created tables.
+     *
+     * @return bool
+     */
+    public function supportsDynamicConstraints(): bool;
+
+    /**
+     * Checks if this driver supports save points for nested transactions.
+     *
+     * @return bool
+     */
+    public function supportsSavePoints(): bool;
+
+    /**
+     * Checks if the driver supports quoting.
+     *
+     * @return bool
+     */
+    public function supportsQuoting(): bool;
+
+    /**
+     * Quotes a database identifier (a column name, table name, etc..) to
+     * be used safely in queries without the risk of using reserved words.
+     *
+     * @param string $identifier
+     * @return string
+     */
+    public function quoteIdentifier(string $identifier): string;
+
+    /**
+     * Returns a value in a safe representation to be used in a query string
+     *
+     * @param mixed $value
+     * @param string $type
+     * @return string
+     */
+    public function quoteValue($value, $type): string;
+
+    /**
+     * Returns a callable function that will be used to transform a passed Query object.
+     *
+     * @param string $type
+     * @return callable
+     */
+    public function queryTranslator($type): callable;
+
+    /**
+     * @param Query $query
+     * @param ValueBinder $valueBinder
+     * @return array
+     */
+    public function compileQuery(Query $query, ValueBinder $valueBinder): array;
+
+    /**
+     * Gets a new QueryCompiler instance to compile queries
+     *
+     * @return QueryCompiler
+     */
+    public function newQueryCompiler(): QueryCompiler;
 }

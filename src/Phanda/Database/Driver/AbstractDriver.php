@@ -3,9 +3,13 @@
 namespace Phanda\Database\Driver;
 
 use PDO;
+use PDOException;
 use Phanda\Contracts\Database\Driver\Driver as DriverContract;
 use Phanda\Contracts\Database\Query\Query;
 use Phanda\Contracts\Database\Statement;
+use Phanda\Database\Query\QueryCompiler;
+use Phanda\Database\Statement\PDOStatement;
+use Phanda\Database\ValueBinder;
 
 abstract class AbstractDriver implements DriverContract
 {
@@ -53,6 +57,46 @@ abstract class AbstractDriver implements DriverContract
      * @inheritdoc
      */
     abstract public function isEnabled(): bool;
+
+    /**
+     * {@inheritDoc}
+     */
+    abstract public function releaseSavePointSQL($name): string;
+
+    /**
+     * {@inheritDoc}
+     */
+    abstract public function savePointSQL($name): string;
+
+    /**
+     * {@inheritDoc}
+     */
+    abstract public function rollbackSavePointSQL($name): string;
+
+    /**
+     * {@inheritDoc}
+     */
+    abstract public function disableForeignKeySQL(): string;
+
+    /**
+     * {@inheritDoc}
+     */
+    abstract public function enableForeignKeySQL(): string;
+
+    /**
+     * {@inheritDoc}
+     */
+    abstract public function supportsDynamicConstraints(): bool;
+
+    /**
+     * {@inheritDoc}
+     */
+    abstract public function queryTranslator($type): callable;
+
+    /**
+     * {@inheritDoc}
+     */
+    abstract public function quoteIdentifier(string $identifier): string;
 
     /**
      * @param array $config
@@ -144,6 +188,125 @@ abstract class AbstractDriver implements DriverContract
     }
 
     /**
+     * @inheritdoc
+     */
+    public function beginTransaction(): bool
+    {
+        $this->connect();
+
+        if ($this->dbConnection->inTransaction()) {
+            return true;
+        }
+
+        return $this->dbConnection->beginTransaction();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function commitTransaction(): bool
+    {
+        $this->connect();
+
+        if (!$this->dbConnection->inTransaction()) {
+            return false;
+        }
+
+        return $this->dbConnection->commit();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function rollbackTransaction(): bool
+    {
+        $this->connect();
+
+        if (!$this->dbConnection->inTransaction()) {
+            return false;
+        }
+
+        return $this->dbConnection->rollBack();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function supportsSavePoints(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function supportsQuoting(): bool
+    {
+        $this->connect();
+        return $this->dbConnection->getAttribute(PDO::ATTR_DRIVER_NAME) !== 'odbc';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function quoteValue($value, $type): string
+    {
+        $this->connect();
+        return $this->dbConnection->quote($value, $type);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getLastInsertId($table = null, $column = null)
+    {
+        $this->connect();
+
+        if ($this->dbConnection instanceof PDO) {
+            return $this->dbConnection->lastInsertId($table);
+        }
+
+        return $this->dbConnection->lastInsertId($table, $column);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function isConnected(): bool
+    {
+        if ($this->dbConnection === null) {
+            $connected = false;
+        } else {
+            try {
+                $connected = $this->dbConnection->query('SELECT 1');
+            } catch (PDOException $e) {
+                $connected = false;
+            }
+        }
+
+        return (bool)$connected;
+    }
+
+    /**
+     * @param Query $query
+     * @param ValueBinder $valueBinder
+     * @return array
+     */
+    public function compileQuery(Query $query, ValueBinder $valueBinder): array
+    {
+        $processor = $this->newQueryCompiler();
+        $translator = $this->queryTranslator($query->getType());
+        $query = $translator($query);
+
+        return [$query, $processor->compile($query, $valueBinder)];
+    }
+
+    public function newQueryCompiler(): QueryCompiler
+    {
+        return new QueryCompiler();
+    }
+
+    /**
      * Handles the creation of the internal PDO connection.
      *
      * @param string $dsn
@@ -162,6 +325,14 @@ abstract class AbstractDriver implements DriverContract
         $this->setConnection($connection);
 
         return true;
+    }
+
+    /**
+     * Destructor
+     */
+    public function __destruct()
+    {
+        $this->dbConnection = null;
     }
 
 }

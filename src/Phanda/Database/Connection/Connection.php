@@ -171,7 +171,7 @@ class Connection implements ConnectionContact
      */
     public function compileQuery(Query $query, ValueBinder $valueBinder): string
     {
-        return $this->getDriver()->compileQuery($query, $valueBinder);
+        return $this->getDriver()->compileQuery($query, $valueBinder)[1];
     }
 
     /**
