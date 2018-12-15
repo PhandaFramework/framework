@@ -69,4 +69,26 @@ class PDOStatement extends StatementDecorator
         return $this->statement->fetchAll($type);
     }
 
+    /**
+     * Gets the count of columns in this statement
+     *
+     * @return int
+     */
+    public function getColumnCount(): int
+    {
+        return $this->statement->columnCount();
+    }
+
+
+
+    /**
+     * Gets the count of rows in this statement
+     *
+     * @return int
+     */
+    public function getRowCount(): int
+    {
+        return $this->statement->rowCount();
+    }
+
 }

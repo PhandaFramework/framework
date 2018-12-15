@@ -364,8 +364,8 @@ class QueryExpression implements ExpressionContract, Countable
             }
 
             $isArray = is_array($condition);
-            $isOperator = in_array(strtolower($condition), $operators);
-            $isNot = strtolower($condition) === 'not';
+            $isOperator = in_array(strtolower($key), $operators);
+            $isNot = strtolower($key) === 'not';
 
             if (($isOperator || $isNot) && ($isArray || $condition instanceof Countable) && count($condition) === 0) {
                 continue;

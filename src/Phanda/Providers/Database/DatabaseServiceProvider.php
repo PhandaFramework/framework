@@ -2,12 +2,16 @@
 
 namespace Phanda\Providers\Database;
 
+use Phanda\Contracts\Database\Connection\Connection as ConnectionContract;
 use Phanda\Contracts\Database\Driver\DriverRegistry as DriverRegistryContract;
+use Phanda\Contracts\Database\Query\Query as QueryContract;
 use Phanda\Contracts\Foundation\Application;
+use Phanda\Database\Connection\Connection;
 use Phanda\Database\Connection\Manager as ConnectionManager;
 use Phanda\Contracts\Database\Connection\Manager as ConnectionManagerContract;
 use Phanda\Database\Driver\DriverRegistry;
 use Phanda\Database\Driver\MysqlDriver;
+use Phanda\Database\Query\Query;
 use Phanda\Providers\AbstractServiceProvider;
 
 class DatabaseServiceProvider extends AbstractServiceProvider
@@ -20,6 +24,8 @@ class DatabaseServiceProvider extends AbstractServiceProvider
     {
         $this->registerDriverRegistry();
         $this->registerConnectionManager();
+        $this->registerDefaultConnection();
+        $this->registerDatabaseQueryBuilder();
     }
 
     /**
@@ -57,6 +63,31 @@ class DatabaseServiceProvider extends AbstractServiceProvider
 
         $this->phanda->alias('database.connection_manager', ConnectionManagerContract::class);
         $this->phanda->alias('database.connection_manager', ConnectionManager::class);
+    }
+
+    protected function registerDefaultConnection()
+    {
+        $this->phanda->singleton(ConnectionContract::class, function($phanda){
+            /** @var Application $phanda */
+            /** @var ConnectionManagerContract $connectionManager */
+            $connectionManager = $phanda->create(ConnectionManagerContract::class);
+
+            return $connectionManager->getConnection();
+        });
+
+        $this->phanda->alias(ConnectionContract::class, Connection::class);
+    }
+
+    protected function registerDatabaseQueryBuilder()
+    {
+        $this->phanda->attach(QueryContract::class, function($phanda) {
+            /** @var Application $phanda */
+            /** @var ConnectionContract $connection */
+            $connection = $phanda->create(ConnectionContract::class);
+            return $connection->newQuery();
+        });
+
+        $this->phanda->alias(QueryContract::class, Query::class);
     }
 
     /**
