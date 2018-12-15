@@ -454,6 +454,60 @@ class Query implements QueryContract
     }
 
     /**
+     * Adds a condition to check where a field is in a list
+     *
+     * @param string $field
+     * @param array $values
+     * @param array $options
+     * @return Query
+     */
+    public function whereIn(string $field, array $values, array $options = []): Query
+    {
+        $options += [
+            'allowEmpty' => false,
+        ];
+
+        if ($options['allowEmpty'] && !$values) {
+            return $this->where('1=0');
+        }
+
+        return $this->where([$field . ' IN' => $values]);
+    }
+
+    /**
+     * Adds a condition to check where a field is not in a list
+     *
+     * @param string $field
+     * @param array $values
+     * @param array $options
+     * @return Query
+     */
+    public function whereNotIn(string $field, array $values, array $options = []): Query
+    {
+        $options += [
+            'allowEmpty' => false,
+        ];
+
+        if ($options['allowEmpty'] && !$values) {
+            return $this->where('1=0');
+        }
+
+        return $this->where([$field . ' NOT IN' => $values]);
+    }
+
+    /**
+     * Connects any previous where queries in this query, and conjugates it with an 'AND'
+     *
+     * @param string|array|callable|ExpressionContract $conditions
+     * @return Query
+     */
+    public function andWhere($conditions): Query
+    {
+        $this->conjugateQuery('where', $conditions, 'AND');
+        return $this;
+    }
+
+    /**
      * Marks a query as dirty, and resets any value bindings if need be.
      */
     protected function makeDirty()
