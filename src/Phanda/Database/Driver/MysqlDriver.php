@@ -17,7 +17,7 @@ class MysqlDriver extends AbstractDriver
      *
      * @var array
      */
-    protected $_baseConfig = [
+    protected $baseConfig = [
         'persistent' => true,
         'host' => '127.0.0.1',
         'username' => 'root',
