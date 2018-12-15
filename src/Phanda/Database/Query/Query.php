@@ -590,6 +590,46 @@ class Query implements QueryContract
     }
 
     /**
+     * Adds a GROUP BY clause to this query
+     *
+     * @param string|array|ExpressionContract $fields
+     * @param bool $overwrite
+     * @return Query
+     */
+    public function group($fields, $overwrite = false): Query
+    {
+        if ($overwrite) {
+            $this->queryKeywords['group'] = [];
+        }
+
+        if (!is_array($fields)) {
+            $fields = [$fields];
+        }
+
+        $this->queryKeywords['group'] = array_merge($this->queryKeywords['group'], array_values($fields));
+        $this->makeDirty();
+
+        return $this;
+    }
+
+    /**
+     * Adds a 'HAVING' clause to this query
+     *
+     * @param string|array|callable|ExpressionContract|null $conditions
+     * @param bool $overwrite
+     * @return $this
+     */
+    public function having($conditions = null, $overwrite = false)
+    {
+        if ($overwrite) {
+            $this->queryKeywords['having'] = $this->newExpression();
+        }
+        $this->conjugateQuery('having', $conditions, 'AND');
+
+        return $this;
+    }
+
+    /**
      * Marks a query as dirty, and resets any value bindings if need be.
      */
     protected function makeDirty()
