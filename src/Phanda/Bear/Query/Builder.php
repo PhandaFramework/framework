@@ -3,9 +3,9 @@
 namespace Phanda\Bear\Query;
 
 use Phanda\Database\Query\Query as DatabaseQueryBuilder;
-use Phanda\Contracts\Database\Query\Query as QueryContract;
+use Phanda\Contracts\Bear\Query\Builder as QueryBuilderContract;
 
-class Builder extends DatabaseQueryBuilder implements QueryContract, \JsonSerializable
+class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \JsonSerializable
 {
 
     /**
