@@ -77,6 +77,108 @@ class QueryExpression implements ExpressionContract, Countable
     }
 
     /**
+     * Adds a condition to the expression with the '=' comparison
+     *
+     * @param string|ExpressionContract $field
+     * @param mixed $value
+     * @return QueryExpression
+     */
+    public function equal($field, $value): QueryExpression
+    {
+        return $this->addConditions(new ComparisonExpression($field, $value, '='));
+    }
+
+    /**
+     * Adds a condition to the expression with the '!=' comparison
+     *
+     * @param string|ExpressionContract $field
+     * @param mixed $value
+     * @return QueryExpression
+     */
+    public function notEqual($field, $value): QueryExpression
+    {
+        return $this->addConditions(new ComparisonExpression($field, $value, '!='));
+    }
+
+    /**
+     * Adds a condition to the expression with the '>' comparison
+     *
+     * @param string|ExpressionContract $field
+     * @param mixed $value
+     * @return QueryExpression
+     */
+    public function greaterThan($field, $value): QueryExpression
+    {
+        return $this->addConditions(new ComparisonExpression($field, $value, '>'));
+    }
+
+    /**
+     * Adds a condition to the expression with the '>=' comparison
+     *
+     * @param string|ExpressionContract $field
+     * @param mixed $value
+     * @return QueryExpression
+     */
+    public function greaterThanOrEqual($field, $value): QueryExpression
+    {
+        return $this->addConditions(new ComparisonExpression($field, $value, '>='));
+    }
+
+    /**
+     * Adds a condition to the expression with the '<' comparison
+     *
+     * @param string|ExpressionContract $field
+     * @param mixed $value
+     * @return QueryExpression
+     */
+    public function lessThan($field, $value): QueryExpression
+    {
+        return $this->addConditions(new ComparisonExpression($field, $value, '<'));
+    }
+
+    /**
+     * Adds a condition to the expression with the '<=' comparison
+     *
+     * @param string|ExpressionContract $field
+     * @param mixed $value
+     * @return QueryExpression
+     */
+    public function lessThanOrEqual($field, $value): QueryExpression
+    {
+        return $this->addConditions(new ComparisonExpression($field, $value, '<='));
+    }
+
+    /**
+     * Adds a condition to the expression checking if field is null
+     *
+     * @param string|ExpressionContract $field
+     * @return QueryExpression
+     */
+    public function isNull($field): QueryExpression
+    {
+        if (!$field instanceof ExpressionContract) {
+            $field = new IdentifierExpression($field);
+        }
+
+        return $this->addConditions(new UnaryExpression('IS NULL', $field, UnaryExpression::SUFFIX));
+    }
+
+    /**
+     * Adds a condition to the expression checking if field is not null
+     *
+     * @param string|ExpressionContract $field
+     * @return QueryExpression
+     */
+    public function isNotNull($field): QueryExpression
+    {
+        if (!$field instanceof ExpressionContract) {
+            $field = new IdentifierExpression($field);
+        }
+
+        return $this->addConditions(new UnaryExpression('IS NOT NULL', $field, UnaryExpression::SUFFIX));
+    }
+
+    /**
      * Adds an array of conditions to the current query expressions conditions
      *
      * @param array $conditions
@@ -106,7 +208,7 @@ class QueryExpression implements ExpressionContract, Countable
                 continue;
             }
 
-            if($isKeyNumeric && $condition instanceof ExpressionContract) {
+            if ($isKeyNumeric && $condition instanceof ExpressionContract) {
                 $this->conditions[] = $condition;
                 continue;
             }
@@ -134,6 +236,13 @@ class QueryExpression implements ExpressionContract, Countable
         return $this;
     }
 
+    /**
+     * Parses a condition and returns the expression
+     *
+     * @param $field
+     * @param $value
+     * @return ComparisonExpression|UnaryExpression
+     */
     protected function parseCondition($field, $value)
     {
         $operator = '=';
@@ -146,23 +255,23 @@ class QueryExpression implements ExpressionContract, Countable
 
         $operator = strtolower(trim($operator));
 
+        $multiple = false;
+
         if (in_array($operator, ['in', 'not in'])) {
-            $type = $type ?: 'string';
-            $type .= $typeMultiple ? null : '[]';
             $operator = $operator === '=' ? 'IN' : $operator;
             $operator = $operator === '!=' ? 'NOT IN' : $operator;
-            $typeMultiple = true;
+            $multiple = true;
         }
 
-        if ($typeMultiple) {
-            $value = $value instanceof ExpressionInterface ? $value : (array)$value;
+        if ($multiple) {
+            $value = $value instanceof ExpressionContract ? $value : (array)$value;
         }
 
         if ($operator === 'is' && $value === null) {
             return new UnaryExpression(
                 'IS NULL',
                 new IdentifierExpression($expression),
-                UnaryExpression::POSTFIX
+                UnaryExpression::PREFIX
             );
         }
 
@@ -170,7 +279,7 @@ class QueryExpression implements ExpressionContract, Countable
             return new UnaryExpression(
                 'IS NOT NULL',
                 new IdentifierExpression($expression),
-                UnaryExpression::POSTFIX
+                UnaryExpression::SUFFIX
             );
         }
 
@@ -182,7 +291,7 @@ class QueryExpression implements ExpressionContract, Countable
             $operator = '!=';
         }
 
-        return new Comparison($expression, $value, $type, $operator);
+        return new ComparisonExpression($expression, $value, $operator, $multiple);
     }
 
     /**
