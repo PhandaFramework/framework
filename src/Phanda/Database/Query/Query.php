@@ -9,7 +9,7 @@ use Phanda\Support\PhandArr;
 use Phanda\Contracts\Database\Query\Query as QueryContract;
 use Phanda\Contracts\Database\Query\Expression\Expression as ExpressionContract;
 
-class Query implements QueryContract, ExpressionContract
+class Query implements QueryContract
 {
     const TYPE_SELECT = 'select';
 

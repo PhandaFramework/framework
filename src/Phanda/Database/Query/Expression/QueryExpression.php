@@ -2,8 +2,10 @@
 
 namespace Phanda\Database\Query\Expression;
 
+use BadMethodCallException;
 use Countable;
 use Phanda\Contracts\Database\Query\Expression\Expression as ExpressionContract;
+use Phanda\Contracts\Database\Query\Query;
 use Phanda\Database\ValueBinder;
 use Phanda\Support\PhandArr;
 
@@ -264,6 +266,82 @@ class QueryExpression implements ExpressionContract, Countable
     }
 
     /**
+     * Adds a new condition to the expression with the form 'field BETWEEN min AND max'
+     *
+     * @param string|ExpressionContract $field
+     * @param mixed $min
+     * @param mixed $max
+     * @return QueryExpression
+     */
+    public function between($field, $min, $max): QueryExpression
+    {
+        return $this->addConditions(new BetweenExpression($field, $min, $max));
+    }
+
+
+    /**
+     * Creates a new expression joined to the current with the 'AND' conjunction
+     *
+     * @param string|array|ExpressionContract $conditions
+     * @return QueryExpression
+     */
+    public function andQuery($conditions): QueryExpression
+    {
+        if (is_callable($conditions)) {
+            return $conditions(new static());
+        }
+
+        return new static($conditions);
+    }
+
+    /**
+     * Creates a new expression joined to the current with the 'OR' conjunction
+     *
+     * @param string|array|ExpressionContract $conditions
+     * @return QueryExpression
+     */
+    public function orQuery($conditions): QueryExpression
+    {
+        if (is_callable($conditions)) {
+            return $conditions(new static(), 'OR');
+        }
+
+        return new static($conditions, 'OR');
+    }
+
+    /**
+     * Adds a new set of conditions to this level of the tree and negates
+     * the final result by prefixing with a NOT
+     *
+     * @param $conditions
+     * @return QueryExpression
+     */
+    public function not($conditions): QueryExpression
+    {
+        return $this->addConditions(['NOT' => $conditions]);
+    }
+
+    /**
+     * Builds an equal expression, by wrapping in IdentifierExpressions if needed
+     *
+     * @param $left
+     * @param $right
+     * @return QueryExpression
+     */
+    public function equalFields($left, $right): QueryExpression
+    {
+        $wrapIdentifier = function ($field) {
+            if ($field instanceof ExpressionContract) {
+                return $field;
+            }
+
+            return new IdentifierExpression($field);
+        };
+
+        return $this->equal($wrapIdentifier($left), $wrapIdentifier($right));
+    }
+
+    /**
      * Adds an array of conditions to the current query expressions conditions
      *
      * @param array $conditions
@@ -386,7 +464,7 @@ class QueryExpression implements ExpressionContract, Countable
      */
     public function count()
     {
-        // TODO: Implement count() method.
+        return count($this->conditions);
     }
 
     /**
@@ -395,7 +473,25 @@ class QueryExpression implements ExpressionContract, Countable
      */
     public function toSql(ValueBinder $valueBinder)
     {
-        // TODO: Implement toSql() method.
+        $len = $this->count();
+        if ($len === 0) {
+            return '';
+        }
+        $conjunction = $this->conjunction;
+        $template = ($len === 1) ? '%s' : '(%s)';
+        $parts = [];
+        foreach ($this->conditions as $part) {
+            if ($part instanceof Query) {
+                $part = '(' . $part->toSql($valueBinder) . ')';
+            } elseif ($part instanceof ExpressionContract) {
+                $part = $part->toSql($valueBinder);
+            }
+            if (strlen($part)) {
+                $parts[] = $part;
+            }
+        }
+
+        return sprintf($template, implode(" $conjunction ", $parts));
     }
 
     /**
@@ -404,6 +500,98 @@ class QueryExpression implements ExpressionContract, Countable
      */
     public function traverse(callable $visitor)
     {
-        // TODO: Implement traverse() method.
+        foreach ($this->conditions as $c) {
+            if ($c instanceof ExpressionContract) {
+                $visitor($c);
+                $c->traverse($visitor);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Iterates over the conditions of this expression, and executes a callback
+     *
+     * @param callable $visitor
+     * @return $this
+     */
+    public function iterateParts(callable $visitor)
+    {
+        $parts = [];
+        foreach ($this->conditions as $k => $condition) {
+            $key =& $k;
+            $part = $visitor($condition, $key);
+            if ($part !== null) {
+                $parts[$key] = $part;
+            }
+        }
+        $this->conditions = $parts;
+
+        return $this;
+    }
+
+    /**
+     * Checks if a callable is accepted by this expression
+     *
+     * @param mixed $c
+     * @return bool
+     */
+    public function isCallable($c): bool
+    {
+        if (is_string($c)) {
+            return false;
+        }
+        if (is_object($c) && is_callable($c)) {
+            return true;
+        }
+
+        return is_array($c) && isset($c[0]) && is_object($c[0]) && is_callable($c);
+    }
+
+    /**
+     * Checks if the current expression has nested expressions within the conditions
+     *
+     * @return bool
+     */
+    public function hasNestedExpression(): bool
+    {
+        foreach ($this->conditions as $condition) {
+            if ($condition instanceof ExpressionContract) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Clone this object and its subtree of expressions.
+     *
+     * @return void
+     */
+    public function __clone()
+    {
+        foreach ($this->conditions as $i => $condition) {
+            if ($condition instanceof ExpressionContract) {
+                $this->conditions[$i] = clone $condition;
+            }
+        }
+    }
+
+    /**
+     * A helper for calling 'and()' or 'or()' as these are taken in php.
+     *
+     * @param $method
+     * @param $args
+     * @return mixed
+     */
+    public function __call($method, $args)
+    {
+        if (in_array($method, ['and', 'or'])) {
+            return call_user_func_array([$this, $method . 'Query'], $args);
+        }
+
+        throw new BadMethodCallException(sprintf('Method %s does not exist', $method));
     }
 }
