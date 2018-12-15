@@ -230,6 +230,40 @@ class QueryExpression implements ExpressionContract, Countable
     }
 
     /**
+     * Adds a condition to the expression performing a 'CASE' (if,then,else,etc) operation
+     *
+     * @param $conditions
+     * @param array $values
+     * @return QueryExpression
+     */
+    public function addCase($conditions, $values = []): QueryExpression
+    {
+        return $this->addConditions(new CaseExpression($conditions, $values));
+    }
+
+    /**
+     * Adds a new condition to the expression object in the form "EXISTS (...)".
+     *
+     * @param ExpressionContract $expression
+     * @return QueryExpression
+     */
+    public function exists(ExpressionContract $expression): QueryExpression
+    {
+        return $this->addConditions(new UnaryExpression('EXISTS', $expression, UnaryExpression::PREFIX));
+    }
+
+    /**
+     * Adds a new condition to the expression object in the form "NOT EXISTS (...)".
+     *
+     * @param ExpressionContract $expression
+     * @return QueryExpression
+     */
+    public function notExists(ExpressionContract $expression): QueryExpression
+    {
+        return $this->addConditions(new UnaryExpression('NOT EXISTS', $expression, UnaryExpression::PREFIX));
+    }
+
+    /**
      * Adds an array of conditions to the current query expressions conditions
      *
      * @param array $conditions
