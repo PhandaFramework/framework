@@ -2,6 +2,7 @@
 
 namespace Phanda\Database\Query;
 
+use InvalidArgumentException;
 use Phanda\Contracts\Database\Connection\Connection;
 use Phanda\Contracts\Database\Statement;
 use Phanda\Database\Query\Expression\OrderByExpression;
@@ -596,7 +597,7 @@ class Query implements QueryContract
      * @param bool $overwrite
      * @return Query
      */
-    public function group($fields, $overwrite = false): Query
+    public function groupBy($fields, $overwrite = false): Query
     {
         if ($overwrite) {
             $this->queryKeywords['group'] = [];
@@ -627,6 +628,100 @@ class Query implements QueryContract
         $this->conjugateQuery('having', $conditions, 'AND');
 
         return $this;
+    }
+
+    /**
+     * Adds a LIMIT to the query
+     *
+     * @param int|ExpressionContract $limit
+     * @return Query
+     */
+    public function limit($limit): Query
+    {
+        $this->makeDirty();
+
+        if ($limit !== null && !is_object($limit)) {
+            $limit = (int)$limit;
+        }
+
+        $this->queryKeywords['limit'] = $limit;
+        return $this;
+    }
+
+    /**
+     * Sets the number of records that should be skipped in the original result set
+     *
+     * @param int|ExpressionContract $offset
+     * @return Query
+     */
+    public function offset($offset): Query
+    {
+        $this->makeDirty();
+
+        if ($offset !== null && !is_object($offset)) {
+            $offset = (int)$offset;
+        }
+
+        $this->queryKeywords['offset'] = $offset;
+        return $this;
+    }
+
+    /**
+     * A helper function to handle the LIMIT and OFFSET calls for you.
+     *
+     * If limit is null, it will use the already existing limit applied
+     * to this query. Meaning you can do $query->limit(10)->page(2)
+     * Or alternatively, $query->page(2, 10);
+     *
+     * If limit is not set prior and no limit is passed, '25' is the default.
+     * $query->page(1); Will return 25 results.
+     *
+     * @param int $page
+     * @param int|ExpressionContract|null $limit
+     * @return $this
+     */
+    public function page(int $page, $limit = null)
+    {
+        if ($page < 1) {
+            throw new InvalidArgumentException('Page must be 1 or greater.');
+        }
+
+        if ($limit !== null) {
+            $this->limit($limit);
+        }
+
+        $limit = $this->getClause('limit');
+
+        if ($limit === null) {
+            $limit = 25;
+            $this->limit($limit);
+        }
+
+        $offset = ($page - 1) * $limit;
+
+        if (PHP_INT_MAX <= $offset) {
+            $offset = PHP_INT_MAX;
+        }
+
+        $this->offset((int)$offset);
+
+        return $this;
+    }
+
+    /**
+     * Gets a clause in the current query from the queryKeywords.
+     *
+     * @param $name
+     * @return mixed
+     */
+    public function getClause($name)
+    {
+        if (!array_key_exists($name, $this->queryKeywords)) {
+            $clauses = implode(', ', array_keys($this->queryKeywords));
+            throw new InvalidArgumentException("The '{$name}' clause has not been defined. Valid clauses are: {$clauses}");
+        }
+
+        return $this->queryKeywords[$name];
     }
 
     /**
