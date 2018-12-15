@@ -4,7 +4,6 @@ namespace Phanda\Database\Query\Expression;
 
 use Countable;
 use Phanda\Contracts\Database\Query\Expression\Expression as ExpressionContract;
-use Phanda\Database\Query\UnaryExpression;
 use Phanda\Database\ValueBinder;
 
 class QueryExpression implements ExpressionContract, Countable
