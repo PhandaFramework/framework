@@ -4,6 +4,7 @@ namespace Phanda\Database\Query;
 
 use Phanda\Contracts\Database\Connection\Connection;
 use Phanda\Contracts\Database\Statement;
+use Phanda\Database\Query\Expression\QueryExpression;
 use Phanda\Database\ValueBinder;
 use Phanda\Support\PhandArr;
 use Phanda\Contracts\Database\Query\Query as QueryContract;
@@ -195,13 +196,13 @@ class Query implements QueryContract
      */
     public function select($fields = [], $overwrite = false): Query
     {
-        if(!is_string($fields) && is_callable($fields)) {
+        if (!is_string($fields) && is_callable($fields)) {
             $fields = $fields($this);
         }
 
         $fields = PhandArr::makeArray($fields);
 
-        if($overwrite) {
+        if ($overwrite) {
             $this->queryKeywords['select'] = $fields;
         } else {
             $this->queryKeywords['select'] = array_merge($this->queryKeywords['select'], $fields);
@@ -251,7 +252,7 @@ class Query implements QueryContract
     {
         $modifiers = PhandArr::makeArray($modifiers);
 
-        if($overwrite) {
+        if ($overwrite) {
             $this->queryKeywords['modifier'] = $modifiers;
         } else {
             $this->queryKeywords['modifier'] = array_merge($this->queryKeywords['modifier'], $modifiers);
@@ -271,7 +272,7 @@ class Query implements QueryContract
     {
         $tables = PhandArr::makeArray($tables);
 
-        if($overwrite) {
+        if ($overwrite) {
             $this->queryKeywords['from'] = $tables;
         } else {
             $this->queryKeywords['from'] = array_merge($this->queryKeywords['from'], $tables);
@@ -281,6 +282,13 @@ class Query implements QueryContract
         return $this;
     }
 
+    /**
+     * Adds a single or multiple tables to be used as JOIN clauses to this query.
+     *
+     * @param array|string|null $tables
+     * @param bool $overwrite
+     * @return Query
+     */
     public function join($tables, $overwrite = false): Query
     {
         $tables = PhandArr::makeArray($tables);
@@ -289,15 +297,15 @@ class Query implements QueryContract
         $i = count($this->queryKeywords['join']);
         foreach ($tables as $alias => $t) {
             if (!is_array($t)) {
-                //$t = ['table' => $t, 'conditions' => $this->newExpr()];
+                $t = ['table' => $t, 'conditions' => $this->newExpression()];
             }
 
             if (!is_string($t['conditions']) && is_callable($t['conditions'])) {
-                //$t['conditions'] = $t['conditions']($this->newExpr(), $this);
+                $t['conditions'] = $t['conditions']($this->newExpression(), $this);
             }
 
             if (!($t['conditions'] instanceof ExpressionContract)) {
-                //$t['conditions'] = $this->newExpr()->add($t['conditions'], $types);
+                $t['conditions'] = $this->newExpression()->addConditions($t['conditions']);
             }
 
             $alias = is_string($alias) ? $alias : null;
@@ -312,6 +320,137 @@ class Query implements QueryContract
 
         $this->makeDirty();
         return $this;
+    }
+
+    /**
+     * Removes a join from this query by name/alias if it exists
+     *
+     * @param string $joinName
+     * @return $this
+     */
+    public function removeJoin(string $joinName): Query
+    {
+        unset($this->queryKeywords['join'][$joinName]);
+        $this->makeDirty();
+
+        return $this;
+    }
+
+    /**
+     * Adds a single left join to this query.
+     *
+     * This function is merely a helper function around join()
+     * which handles the creation of the join array.
+     *
+     * @param string|array $table
+     * @param string|array|ExpressionContract $conditions
+     * @return Query
+     */
+    public function leftJoin($table, $conditions = [])
+    {
+        return $this->join(
+            $this->makeJoin(
+                $table,
+                $conditions,
+                self::JOIN_TYPE_LEFT
+            )
+        );
+    }
+
+    /**
+     * Adds a single inner join to this query.
+     *
+     * This function is merely a helper function around join()
+     * which handles the creation of the join array.
+     *
+     * @param string|array $table
+     * @param string|array|ExpressionContract $conditions
+     * @return Query
+     */
+    public function innerJoin($table, $conditions = [])
+    {
+        return $this->join(
+            $this->makeJoin(
+                $table,
+                $conditions,
+                self::JOIN_TYPE_INNER
+            )
+        );
+    }
+
+    /**
+     * Adds a single right join to this query.
+     *
+     * This function is merely a helper function around join()
+     * which handles the creation of the join array.
+     *
+     * @param string|array $table
+     * @param string|array|ExpressionContract $conditions
+     * @return Query
+     */
+    public function rightJoin($table, $conditions = [])
+    {
+        return $this->join(
+            $this->makeJoin(
+                $table,
+                $conditions,
+                self::JOIN_TYPE_RIGHT
+            )
+        );
+    }
+
+    /**
+     * Adds a condition or set of conditions to be used in the WHERE clause for this query.
+     *
+     * @param string|array|callable|ExpressionContract|null $conditions
+     * @param bool $overwrite
+     * @return Query
+     */
+    public function where($conditions = null, $overwrite = false): Query
+    {
+        if ($overwrite) {
+            $this->queryKeywords['where'] = $this->newExpression();
+        }
+
+        $this->conjugateQuery('where', $conditions, 'AND');
+
+        return $this;
+    }
+
+    /**
+     * Adds a condition to check where a field is not null
+     *
+     * @param array|string|ExpressionContract $fields
+     * @return Query
+     */
+    public function whereNotNull($fields): Query
+    {
+        $fields = PhandArr::makeArray($fields);
+        $expression = $this->newExpression();
+
+        foreach ($fields as $field) {
+            $expression->isNotNull($field);
+        }
+
+        return $this->where($expression);
+    }
+
+    /**
+     * Adds a condition to check where a field is null
+     *
+     * @param array|string|ExpressionContract $fields
+     * @return Query
+     */
+    public function whereNull($fields): Query
+    {
+        $fields = PhandArr::makeArray($fields);
+        $expression = $this->newExpression();
+
+        foreach ($fields as $field) {
+            $expression->isNull($field);
+        }
+
+        return $this->where($expression);
     }
 
     /**
@@ -338,6 +477,81 @@ class Query implements QueryContract
         //       CallbackStatement decorator.
 
         return $statement;
+    }
+
+    /**
+     * Creates a new QueryExpression for this query
+     *
+     * @param mixed $rawExpression
+     * @return QueryExpression
+     */
+    protected function newExpression($rawExpression = null): QueryExpression
+    {
+        $expression = new QueryExpression();
+
+        if ($rawExpression !== null) {
+            $expression->addConditions($rawExpression);
+        }
+
+        return $expression;
+    }
+
+    /**
+     * Prepares an array to be passed as the parameter for creating a join
+     *
+     * @param string|array $table
+     * @param string|array|ExpressionContract $conditions
+     * @param string $joinType
+     * @return array
+     */
+    protected function makeJoin($table, $conditions, $joinType): array
+    {
+        $alias = $table;
+
+        if (is_array($table)) {
+            $alias = key($table);
+            $table = current($table);
+        }
+
+        return [
+            $alias => [
+                'table' => $table,
+                'conditions' => $conditions,
+                'type' => $joinType
+            ]
+        ];
+    }
+
+    /**
+     * Conjugates a part of the query with an expression
+     *
+     * @param string $part
+     * @param string|callable|array|ExpressionContract|null $append
+     * @param string $conjunction
+     */
+    protected function conjugateQuery(string $part, $append, string $conjunction)
+    {
+        $expression = $this->queryKeywords[$part] ?: $this->newExpression();
+        if (empty($append)) {
+            $this->queryKeywords[$part] = $expression;
+
+            return;
+        }
+
+        if ($expression->isCallable($append)) {
+            $append = $append($this->newExpression(), $this);
+        }
+
+        if ($expression->getConjunction() === $conjunction) {
+            $expression->addConditions($append);
+        } else {
+            $expression = $this->newExpression()
+                ->setConjunction($conjunction)
+                ->addConditions([$expression, $append]);
+        }
+
+        $this->queryKeywords[$part] = $expression;
+        $this->makeDirty();
     }
 
 }
