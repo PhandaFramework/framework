@@ -134,9 +134,55 @@ class QueryExpression implements ExpressionContract, Countable
         return $this;
     }
 
-    protected function parseCondition($key, $condition)
+    protected function parseCondition($field, $value)
     {
+        $operator = '=';
+        $expression = $field;
+        $parts = explode(' ', trim($field), 2);
 
+        if (count($parts) > 1) {
+            list($expression, $operator) = $parts;
+        }
+
+        $operator = strtolower(trim($operator));
+
+        if (in_array($operator, ['in', 'not in'])) {
+            $type = $type ?: 'string';
+            $type .= $typeMultiple ? null : '[]';
+            $operator = $operator === '=' ? 'IN' : $operator;
+            $operator = $operator === '!=' ? 'NOT IN' : $operator;
+            $typeMultiple = true;
+        }
+
+        if ($typeMultiple) {
+            $value = $value instanceof ExpressionInterface ? $value : (array)$value;
+        }
+
+        if ($operator === 'is' && $value === null) {
+            return new UnaryExpression(
+                'IS NULL',
+                new IdentifierExpression($expression),
+                UnaryExpression::POSTFIX
+            );
+        }
+
+        if ($operator === 'is not' && $value === null) {
+            return new UnaryExpression(
+                'IS NOT NULL',
+                new IdentifierExpression($expression),
+                UnaryExpression::POSTFIX
+            );
+        }
+
+        if ($operator === 'is' && $value !== null) {
+            $operator = '=';
+        }
+
+        if ($operator === 'is not' && $value !== null) {
+            $operator = '!=';
+        }
+
+        return new Comparison($expression, $value, $type, $operator);
     }
 
     /**

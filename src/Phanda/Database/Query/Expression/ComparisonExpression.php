@@ -5,6 +5,7 @@ namespace Phanda\Database\Query\Expression;
 use Phanda\Contracts\Database\Query\Expression\Expression as ExpressionContract;
 use Phanda\Contracts\Database\Query\Expression\Field as FieldContract;
 use Phanda\Database\ValueBinder;
+use Phanda\Exceptions\Database\Query\Expression\QueryExpressionException;
 
 class ComparisonExpression implements ExpressionContract, FieldContract
 {
@@ -29,16 +30,25 @@ class ComparisonExpression implements ExpressionContract, FieldContract
     protected $operator;
 
     /**
+     * If value is traversable or not
+     *
+     * @var bool
+     */
+    protected $multiple = false;
+
+    /**
      * ComparisonExpression constructor.
      * @param string|ExpressionContract $field
      * @param mixed $value
      * @param string $operator
+     * @param bool $multiple
      */
-    public function __construct($field, $value, string $operator)
+    public function __construct($field, $value, string $operator, $multiple = false)
     {
         $this->setFieldName($field);
         $this->setValue($value);
         $this->setOperator($operator);
+        $this->multiple = $multiple;
     }
 
     /**
@@ -88,6 +98,8 @@ class ComparisonExpression implements ExpressionContract, FieldContract
     /**
      * @param ValueBinder $valueBinder
      * @return string
+     *
+     * @throws QueryExpressionException
      */
     public function toSql(ValueBinder $valueBinder)
     {
@@ -112,6 +124,8 @@ class ComparisonExpression implements ExpressionContract, FieldContract
      *
      * @param ValueBinder $valueBinder
      * @return array
+     *
+     * @throws QueryExpressionException
      */
     protected function getStringExpression(ValueBinder $valueBinder)
     {
@@ -121,8 +135,22 @@ class ComparisonExpression implements ExpressionContract, FieldContract
             $template = '(%s) ';
         }
 
-        $template .= '%s %s';
-        $value = $this->bindValue($this->value, $valueBinder);
+        if ($this->multiple) {
+            $template .= '%s (%s)';
+            $value = $this->flattenValue($this->value, $valueBinder);
+
+            // To avoid SQL errors when comparing a field to a list of empty values,
+            // better just throw an exception here
+            if ($value === '') {
+                $field = $this->field instanceof ExpressionContract ? $this->field->toSql($valueBinder) : $this->field;
+                throw new QueryExpressionException(
+                    "Impossible to generate condition with empty list of values for field ({$field})"
+                );
+            }
+        } else {
+            $template .= '%s %s';
+            $value = $this->bindValue($this->value, $valueBinder);
+        }
 
         return [$template, $value];
     }
