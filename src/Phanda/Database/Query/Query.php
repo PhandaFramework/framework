@@ -194,6 +194,35 @@ class Query implements QueryContract, \IteratorAggregate
     }
 
     /**
+     * Does a full-depth traversal of every item in the Query tree
+     *
+     * @param callable $callback
+     * @return Query
+     */
+    public function traverseExpressions(callable $callback): Query
+    {
+        $visitor = function ($expression) use (&$visitor, $callback) {
+            if (is_array($expression)) {
+                foreach ($expression as $e) {
+                    $visitor($e);
+                }
+
+                return null;
+            }
+
+            if ($expression instanceof ExpressionContract) {
+                $expression->traverse($visitor);
+
+                if (!($expression instanceof self)) {
+                    $callback($expression);
+                }
+            }
+        };
+
+        return $this->traverse($visitor);
+    }
+
+    /**
      * Adds fields to be returned by the execution of this query with a `SELECT` statement.
      *
      * Setting overwrite to true will reset currently selected fields.
@@ -941,6 +970,19 @@ class Query implements QueryContract, \IteratorAggregate
         }
 
         return $this->queryKeywords[$name];
+    }
+
+    /**
+     * Binds a value to a placeholder in the current query
+     *
+     * @param string|int $param
+     * @param mixed $value
+     * @return Query
+     */
+    public function bind($param, $value): Query
+    {
+        $this->getValueBinder()->bind($param, $value);
+        return $this;
     }
 
     /**
