@@ -337,7 +337,10 @@ class QueryCompiler implements QueryCompilerContract
      */
     protected function buildInsertKeyword(array $parts, Query $query, ValueBinder $valueBinder): string
     {
-
+        $table = $parts[0];
+        $columns = $this->stringifyExpressions($parts[1], $valueBinder);
+        $modifiers = $this->buildModifierKeyword($query->getClause('modifier'), $query, $valueBinder);
+        return sprintf('INSERT%s INTO %s (%s)', $modifiers, $table, implode(', ', $columns));
     }
 
     /**
@@ -350,7 +353,7 @@ class QueryCompiler implements QueryCompilerContract
      */
     protected function buildValuesKeyword(array $parts, Query $query, ValueBinder $valueBinder): string
     {
-
+        return implode('', $this->stringifyExpressions($parts, $valueBinder));
     }
 
     /**
@@ -363,7 +366,9 @@ class QueryCompiler implements QueryCompilerContract
      */
     protected function buildUpdateKeyword(array $parts, Query $query, ValueBinder $valueBinder): string
     {
-
+        $table = $this->stringifyExpressions($parts, $valueBinder);
+        $modifiers = $this->buildModifierKeyword($query->getClause('modifier'), $query, $valueBinder);
+        return sprintf('UPDATE%s %s', $modifiers, implode(',', $table));
     }
 
     /**
@@ -376,7 +381,11 @@ class QueryCompiler implements QueryCompilerContract
      */
     protected function buildModifierKeyword(array $parts, Query $query, ValueBinder $valueBinder): string
     {
+        if (empty($parts)) {
+            return '';
+        }
 
+        return ' ' . implode(' ', $this->stringifyExpressions($parts, $valueBinder, false));
     }
 
 }
