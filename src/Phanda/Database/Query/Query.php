@@ -709,6 +709,27 @@ class Query implements QueryContract
     }
 
     /**
+     * Adds a complete query to be used in conjunction with a 'UNION'
+     *
+     * @param string|Query $query
+     * @param bool $overwrite
+     * @return Query
+     */
+    public function union($query, $overwrite = false): Query
+    {
+        if ($overwrite) {
+            $this->queryKeywords['union'] = [];
+        }
+        $this->queryKeywords['union'][] = [
+            'all' => false,
+            'query' => $query
+        ];
+        $this->makeDirty();
+
+        return $this;
+    }
+
+    /**
      * Gets a clause in the current query from the queryKeywords.
      *
      * @param $name
