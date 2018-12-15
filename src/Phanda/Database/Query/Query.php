@@ -1,12 +1,15 @@
 <?php
 
-namespace Phanda\Database;
+namespace Phanda\Database\Query;
 
 use Phanda\Contracts\Database\Connection\Connection;
 use Phanda\Contracts\Database\Statement;
+use Phanda\Database\ValueBinder;
 use Phanda\Support\PhandArr;
+use Phanda\Contracts\Database\Query\Query as QueryContract;
+use Phanda\Contracts\Database\Query\Expression\Expression as ExpressionContract;
 
-class Query
+class Query implements QueryContract, ExpressionContract
 {
     const TYPE_SELECT = 'select';
 
@@ -272,6 +275,39 @@ class Query
             $this->queryKeywords['from'] = $tables;
         } else {
             $this->queryKeywords['from'] = array_merge($this->queryKeywords['from'], $tables);
+        }
+
+        $this->makeDirty();
+        return $this;
+    }
+
+    public function join($tables, $overwrite = false): Query
+    {
+        $tables = PhandArr::makeArray($tables);
+
+        $joins = [];
+        $i = count($this->queryKeywords['join']);
+        foreach ($tables as $alias => $t) {
+            if (!is_array($t)) {
+                //$t = ['table' => $t, 'conditions' => $this->newExpr()];
+            }
+
+            if (!is_string($t['conditions']) && is_callable($t['conditions'])) {
+                //$t['conditions'] = $t['conditions']($this->newExpr(), $this);
+            }
+
+            if (!($t['conditions'] instanceof ExpressionContract)) {
+                //$t['conditions'] = $this->newExpr()->add($t['conditions'], $types);
+            }
+
+            $alias = is_string($alias) ? $alias : null;
+            $joins[$alias ?: $i++] = $t + ['type' => self::JOIN_TYPE_INNER, 'alias' => $alias];
+        }
+
+        if ($overwrite) {
+            $this->queryKeywords['join'] = $joins;
+        } else {
+            $this->queryKeywords['join'] = array_merge($this->queryKeywords['join'], $joins);
         }
 
         $this->makeDirty();

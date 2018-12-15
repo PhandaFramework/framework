@@ -6,7 +6,7 @@ use Exception;
 use Phanda\Contracts\Database\Connection\Connection as ConnectionContact;
 use Phanda\Contracts\Database\Driver\Driver;
 use Phanda\Contracts\Database\Statement;
-use Phanda\Database\Query;
+use Phanda\Database\Query\Query;
 use Phanda\Database\ValueBinder;
 use Phanda\Exceptions\Database\Connection\ConnectionFailedException;
 use Phanda\Support\RetryCommand;

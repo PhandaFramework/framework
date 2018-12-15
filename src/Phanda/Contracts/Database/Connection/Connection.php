@@ -4,7 +4,7 @@ namespace Phanda\Contracts\Database\Connection;
 
 use Phanda\Contracts\Database\Driver\Driver;
 use Phanda\Contracts\Database\Statement;
-use Phanda\Database\Query;
+use Phanda\Database\Query\Query;
 use Phanda\Database\ValueBinder;
 use Phanda\Exceptions\Database\Connection\ConnectionFailedException;
 
