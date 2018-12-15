@@ -5,8 +5,9 @@ namespace Phanda\Database\Connection;
 use Exception;
 use Phanda\Contracts\Database\Connection\Connection as ConnectionContact;
 use Phanda\Contracts\Database\Driver\Driver;
-use Phanda\Contracts\Database\Query\Query;
+use Phanda\Contracts\Database\Query\Query as QueryContract;
 use Phanda\Contracts\Database\Statement;
+use Phanda\Database\Query\Query;
 use Phanda\Database\ValueBinder;
 use Phanda\Exceptions\Database\Connection\ConnectionFailedException;
 use Phanda\Support\RetryCommand;
@@ -135,7 +136,7 @@ class Connection implements ConnectionContact
     /**
      * Prepares the given query into statement to be executed.
      *
-     * @param string|Query $query
+     * @param string|QueryContract $query
      * @return Statement
      *
      * @throws Exception
@@ -150,7 +151,7 @@ class Connection implements ConnectionContact
     /**
      * Runs the given query and returns the executed statement
      *
-     * @param string|Query $query
+     * @param string|QueryContract $query
      * @return Statement
      *
      * @throws Exception
@@ -165,11 +166,11 @@ class Connection implements ConnectionContact
     }
 
     /**
-     * @param Query $query
+     * @param QueryContract $query
      * @param ValueBinder $valueBinder
      * @return string
      */
-    public function compileQuery(Query $query, ValueBinder $valueBinder): string
+    public function compileQuery(QueryContract $query, ValueBinder $valueBinder): string
     {
         return $this->getDriver()->compileQuery($query, $valueBinder)[1];
     }
@@ -182,5 +183,10 @@ class Connection implements ConnectionContact
     public function inTransaction(): bool
     {
         // TODO: Implement inTransaction() method.
+    }
+
+    public function newQuery(): Query
+    {
+        return new Query($this);
     }
 }

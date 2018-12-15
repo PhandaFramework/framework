@@ -15,6 +15,11 @@ interface Statement
     const FETCH_TYPE_ASSOC = 'assoc';
 
     /**
+     * Used to denote that named arrays should be returned in a fetch call
+     */
+    const FETCH_TYPE_OBJ = 'obj';
+
+    /**
      * Executes the given statement.
      *
      * @return bool

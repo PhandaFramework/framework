@@ -91,4 +91,6 @@ interface Connection
      */
     public function inTransaction(): bool;
 
+    public function newQuery(): \Phanda\Database\Query\Query;
+
 }

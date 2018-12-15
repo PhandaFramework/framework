@@ -31,13 +31,18 @@ class PDOStatement extends StatementDecorator
     /**
      * @inheritdoc
      */
-    public function fetch($type = parent::FETCH_TYPE_NUMERIC)
+    public function fetch($type = parent::FETCH_TYPE_ASSOC)
     {
         if ($type === static::FETCH_TYPE_NUMERIC) {
             return $this->statement->fetch(PDO::FETCH_NUM);
         }
+
         if ($type === static::FETCH_TYPE_ASSOC) {
             return $this->statement->fetch(PDO::FETCH_ASSOC);
+        }
+
+        if ($type === static::FETCH_TYPE_OBJ) {
+            return $this->statement->fetch(PDO::FETCH_OBJ);
         }
 
         return $this->statement->fetch($type);
@@ -46,13 +51,18 @@ class PDOStatement extends StatementDecorator
     /**
      * @inheritdoc
      */
-    public function fetchAll($type = parent::FETCH_TYPE_NUMERIC): array
+    public function fetchAll($type = parent::FETCH_TYPE_ASSOC): array
     {
         if ($type === static::FETCH_TYPE_NUMERIC) {
             return $this->statement->fetchAll(PDO::FETCH_NUM);
         }
+
         if ($type === static::FETCH_TYPE_ASSOC) {
             return $this->statement->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        if ($type === static::FETCH_TYPE_OBJ) {
+            return $this->statement->fetchAll(PDO::FETCH_OBJ);
         }
 
         return $this->statement->fetchAll($type);
