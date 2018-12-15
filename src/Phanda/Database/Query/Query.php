@@ -4,6 +4,8 @@ namespace Phanda\Database\Query;
 
 use Phanda\Contracts\Database\Connection\Connection;
 use Phanda\Contracts\Database\Statement;
+use Phanda\Database\Query\Expression\OrderByExpression;
+use Phanda\Database\Query\Expression\OrderClauseExpression;
 use Phanda\Database\Query\Expression\QueryExpression;
 use Phanda\Database\ValueBinder;
 use Phanda\Support\PhandArr;
@@ -504,6 +506,86 @@ class Query implements QueryContract
     public function andWhere($conditions): Query
     {
         $this->conjugateQuery('where', $conditions, 'AND');
+        return $this;
+    }
+
+    /**
+     * Performs an order by on fields in this query
+     *
+     * Fields can be passed as a named array with their column as the key
+     * and the direction they want to be ordered by as the value.
+     *
+     * @param array|string|callable|ExpressionContract $fields
+     * @param bool $overwrite
+     * @return Query
+     */
+    public function orderBy($fields, $overwrite = false): Query
+    {
+        if ($overwrite) {
+            $this->queryKeywords['order'] = null;
+        }
+
+        if (!$fields) {
+            return $this;
+        }
+
+        if (!$this->queryKeywords['order']) {
+            $this->queryKeywords['order'] = new OrderByExpression();
+        }
+        $this->conjugateQuery('order', $fields, '');
+
+        return $this;
+    }
+
+    /**
+     * Add an ORDER BY clause with an ASC direction.
+     *
+     * @param string|QueryExpression $field
+     * @param bool $overwrite
+     * @return Query
+     */
+    public function orderByAsc($field, $overwrite = false): Query
+    {
+        if ($overwrite) {
+            $this->queryKeywords['order'] = null;
+        }
+
+        if (!$field) {
+            return $this;
+        }
+
+        if (!$this->queryKeywords['order']) {
+            $this->queryKeywords['order'] = new OrderByExpression();
+        }
+
+        $this->queryKeywords['order']->addConditions(new OrderClauseExpression($field, 'ASC'));
+
+        return $this;
+    }
+
+    /**
+     * Add an ORDER BY clause with an DESC direction.
+     *
+     * @param string|QueryExpression $field
+     * @param bool $overwrite
+     * @return Query
+     */
+    public function orderByDesc($field, $overwrite = false): Query
+    {
+        if ($overwrite) {
+            $this->queryKeywords['order'] = null;
+        }
+
+        if (!$field) {
+            return $this;
+        }
+
+        if (!$this->queryKeywords['order']) {
+            $this->queryKeywords['order'] = new OrderByExpression();
+        }
+
+        $this->queryKeywords['order']->addConditions(new OrderClauseExpression($field, 'DESC'));
+
         return $this;
     }
 

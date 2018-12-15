@@ -25,7 +25,7 @@ class OrderClauseExpression implements ExpressionContract, FieldContract
      * @param string|ExpressionContract $field
      * @param string $orderDirection
      */
-    public function __construct($field, string $orderDirection = 'DESC')
+    public function __construct($field, string $orderDirection = 'ASC')
     {
         $this->setFieldName($field);
         $this->setOrderDirection($orderDirection);
