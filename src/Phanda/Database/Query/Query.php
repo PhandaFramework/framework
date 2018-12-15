@@ -54,7 +54,7 @@ class Query implements QueryContract
         'limit' => null,
         'offset' => null,
         'union' => [],
-        'epilog' => null
+        'append' => null
     ];
 
     /**
@@ -900,6 +900,19 @@ class Query implements QueryContract
             $this->from($table);
         }
 
+        return $this;
+    }
+
+    /**
+     * Appends an expression to the end of the generated query
+     *
+     * @param null $expression
+     * @return Query
+     */
+    public function append($expression = null): Query
+    {
+        $this->makeDirty();
+        $this->queryKeywords['append'] = $expression;
         return $this;
     }
 
