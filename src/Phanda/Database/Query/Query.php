@@ -16,7 +16,7 @@ use Phanda\Contracts\Database\Query\Query as QueryContract;
 use Phanda\Contracts\Database\Query\Expression\Expression as ExpressionContract;
 use RuntimeException;
 
-class Query implements QueryContract
+class Query implements QueryContract, \IteratorAggregate
 {
     const TYPE_SELECT = 'select';
     const TYPE_INSERT = 'insert';
@@ -961,9 +961,9 @@ class Query implements QueryContract
      */
     protected function decorateStatement(Statement $statement): Statement
     {
-        $driver = $this->getConnection()->getDriver();
+        // $driver = $this->getConnection()->getDriver();
 
-        // TODO: Decorate statement here with callback functions using the
+        // PossibleTODO: Decorate statement here with callback functions using the
         //       CallbackStatement decorator.
 
         return $statement;
@@ -1044,4 +1044,25 @@ class Query implements QueryContract
         $this->makeDirty();
     }
 
+    /**
+     * @return string
+     */
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    /**
+     * Retrieve an external iterator
+     *
+     * @return Statement|null
+     */
+    public function getIterator(): ?Statement
+    {
+        if ($this->resultStatement === null || $this->dirty) {
+            $this->resultStatement = $this->execute();
+        }
+
+        return $this->resultStatement;
+    }
 }
