@@ -5,6 +5,7 @@ namespace Phanda\Database\Query;
 use InvalidArgumentException;
 use Phanda\Contracts\Database\Connection\Connection;
 use Phanda\Contracts\Database\Statement;
+use Phanda\Database\Query\Expression\IdentifierExpression;
 use Phanda\Database\Query\Expression\OrderByExpression;
 use Phanda\Database\Query\Expression\OrderClauseExpression;
 use Phanda\Database\Query\Expression\QueryExpression;
@@ -787,8 +788,8 @@ class Query implements QueryContract
     /**
      * Sets the table for the insert query to be inserted into
      *
-     * For example $query->insert(...)->into('table');
-     * Or $query->into('table')->insert(...);
+     * For example $query->insert(...)->into('table')->values(...);
+     * Or $query->into('table')->insert(...)->values(...);
      *
      * @param string $table
      * @return Query
@@ -800,6 +801,40 @@ class Query implements QueryContract
         $this->queryKeywords['insert'][0] = $table;
 
         return $this;
+    }
+
+    /**
+     * Sets the values for the insert of the query
+     *
+     * @param array|Query $data
+     * @return $this
+     */
+    public function values($data)
+    {
+        if ($this->type !== self::TYPE_INSERT || empty($this->queryKeywords['insert'])) {
+            throw new RuntimeException('You cannot add values to the query builder before defining the columns.');
+        }
+
+        $this->makeDirty();
+
+        if ($data instanceof ValuesExpression) {
+            $this->queryKeywords['values'] = $data;
+            return $this;
+        }
+
+        $this->queryKeywords['values']->add($data);
+        return $this;
+    }
+
+    /**
+     * Creates an identifier from a string
+     *
+     * @param string $identifier
+     * @return IdentifierExpression
+     */
+    public function identifier(string $identifier)
+    {
+        return new IdentifierExpression($identifier);
     }
 
     /**
