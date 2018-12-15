@@ -5,6 +5,7 @@ namespace Phanda\Database\Query\Expression;
 use Countable;
 use Phanda\Contracts\Database\Query\Expression\Expression as ExpressionContract;
 use Phanda\Database\ValueBinder;
+use Phanda\Support\PhandArr;
 
 class QueryExpression implements ExpressionContract, Countable
 {
@@ -176,6 +177,56 @@ class QueryExpression implements ExpressionContract, Countable
         }
 
         return $this->addConditions(new UnaryExpression('IS NOT NULL', $field, UnaryExpression::SUFFIX));
+    }
+
+    /**
+     * Adds a condition to the expression with the 'LIKE' comparison
+     *
+     * @param string|ExpressionContract $field
+     * @param mixed $value
+     * @return QueryExpression
+     */
+    public function like($field, $value): QueryExpression
+    {
+        return $this->addConditions(new ComparisonExpression($field, $value, 'LIKE'));
+    }
+
+    /**
+     * Adds a condition to the expression with the 'NOT LIKE' comparison
+     *
+     * @param string|ExpressionContract $field
+     * @param mixed $value
+     * @return QueryExpression
+     */
+    public function notLike($field, $value): QueryExpression
+    {
+        return $this->addConditions(new ComparisonExpression($field, $value, 'NOT LIKE'));
+    }
+
+    /**
+     * Adds a condition to the expression with the 'IN (values)' comparison
+     *
+     * @param string|ExpressionContract $field
+     * @param mixed $values
+     * @return QueryExpression
+     */
+    public function in($field, $values): QueryExpression
+    {
+        $values = $values instanceof ExpressionContract ? $values : PhandArr::makeArray($values);
+        return $this->addConditions(new ComparisonExpression($field, $values, 'IN', true));
+    }
+
+    /**
+     * Adds a condition to the expression with the 'NOT IN (values)' comparison
+     *
+     * @param string|ExpressionContract $field
+     * @param mixed $values
+     * @return QueryExpression
+     */
+    public function notIn($field, $values): QueryExpression
+    {
+        $values = $values instanceof ExpressionContract ? $values : PhandArr::makeArray($values);
+        return $this->addConditions(new ComparisonExpression($field, $values, 'NOT IN', true));
     }
 
     /**
