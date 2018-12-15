@@ -41,23 +41,45 @@ class ComparisonExpression implements ExpressionContract, FieldContract
         $this->setOperator($operator);
     }
 
+    /**
+     * Sets the value of the expression
+     *
+     * @param $value
+     * @return ComparisonExpression
+     */
     public function setValue($value): ComparisonExpression
     {
         $this->value = $value;
         return $this;
     }
 
+    /**
+     * Gets the value of the expression
+     *
+     * @return mixed
+     */
     public function getValue()
     {
         return $this->value;
     }
 
+    /**
+     * Sets the operator of the expression
+     *
+     * @param $operator
+     * @return ComparisonExpression
+     */
     public function setOperator($operator): ComparisonExpression
     {
         $this->operator = $operator;
         return $this;
     }
 
+    /**
+     * Gets the operator of the expression
+     *
+     * @return string
+     */
     public function getOperator()
     {
         return $this->operator;
