@@ -3,10 +3,10 @@
 
 namespace Phanda\Foundation\Http;
 
+use Exception;
 use Phanda\Conduit\HttpConduit;
 use Phanda\Contracts\Exceptions\ExceptionHandler;
 use Phanda\Contracts\Foundation\Application;
-use Phanda\Contracts\Foundation\Bootstrap\Bootstrap;
 use Phanda\Contracts\Http\Kernel as HttpKernel;
 use Phanda\Contracts\Routing\Router;
 use Phanda\Foundation\Bootstrap\BootstrapConfig;
@@ -15,6 +15,7 @@ use Phanda\Foundation\Bootstrap\BootstrapExceptionHandler;
 use Phanda\Foundation\Bootstrap\BootstrapFacades;
 use Phanda\Foundation\Bootstrap\BootstrapPhanda;
 use Phanda\Foundation\Bootstrap\BootstrapProviders;
+use Symfony\Component\Debug\Exception\FatalThrowableError;
 
 class Kernel implements HttpKernel
 {
@@ -113,8 +114,12 @@ class Kernel implements HttpKernel
     /**
      * @param \Exception $e
      */
-    protected function saveException(\Exception $e)
+    protected function saveException($e)
     {
+        if (! $e instanceof Exception) {
+            $e = new FatalThrowableError($e);
+        }
+
         /** @var ExceptionHandler $exceptionHandler */
         $exceptionHandler = $this->phanda->create(ExceptionHandler::class);
         $exceptionHandler->save($e);

@@ -52,7 +52,7 @@ class ExceptionHandler implements ExceptionHandlerContract
      */
     public function shouldntSave(Exception $e)
     {
-        return is_null(PhandArr::first($this->ignoredExceptions, function ($type) use ($e) {
+        return !is_null(PhandArr::first($this->ignoredExceptions, function ($type) use ($e) {
             return $e instanceof $type;
         }));
     }
@@ -64,6 +64,7 @@ class ExceptionHandler implements ExceptionHandlerContract
     public function save(Exception $e)
     {
         if ($this->shouldntSave($e)) {
+            dd($this->ignoredExceptions);
             return;
         }
 
@@ -71,7 +72,6 @@ class ExceptionHandler implements ExceptionHandlerContract
             $e->save();
         }
 
-        // TODO: Once a logger is implemented, log here.
         return null;
     }
 
@@ -168,7 +168,7 @@ class ExceptionHandler implements ExceptionHandlerContract
      * @param HttpException $e
      * @return Response
      */
-    protected function convertExceptionToRenderableException(HttpException $e)
+    protected function convertExceptionToRenderableException(Exception $e)
     {
         return Response::create(
             $this->renderExceptionContent($e),

@@ -21,8 +21,9 @@ interface DriverRegistry
      * the driver.
      *
      * @param string $name
+     * @param array $configuration
      * @return Driver
      */
-    public function getDriver(string $name);
+    public function getDriver(string $name, array $configuration = []);
 
 }

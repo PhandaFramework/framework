@@ -35,11 +35,12 @@ class DriverRegistry implements DriverRegistryContract
      * Gets a driver by name
      *
      * @param string $name
+     * @param array $configuration
      * @return DriverContract
      *
      * @throws DriverNotRegisteredException
      */
-    public function getDriver(string $name)
+    public function getDriver(string $name, array $configuration = [])
     {
         if(isset($this->resolvedDrivers[$name])) {
             return $this->resolvedDrivers[$name];
@@ -49,7 +50,7 @@ class DriverRegistry implements DriverRegistryContract
             throw new DriverNotRegisteredException("The driver '{$name}' has not been registered with the DriverRegistry.");
         }
 
-        $driver = phanda()->create($this->drivers[$name]);
+        $driver = new $this->drivers[$name]($configuration);
 
         if(!$driver instanceof DriverContract) {
             throw new \LogicException("The driver '{$name}' must be an instance of Phanda\\Contracts\\Database\\Driver\\Driver.");
