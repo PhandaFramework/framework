@@ -2,7 +2,6 @@
 
 namespace Phanda\Database\Util\Driver\Dialect;
 
-use Phanda\Contracts\Database\Driver\Driver;
 use Phanda\Contracts\Database\Query\Query;
 use Phanda\Database\Query\Expression\ComparisonExpression;
 use Phanda\Contracts\Database\Query\Expression\Expression as ExpressionContract;
@@ -10,8 +9,6 @@ use Phanda\Contracts\Database\Query\Expression\Expression as ExpressionContract;
 /**
  * Trait SqlDialectTrait
  * @package Phanda\Database\Util\Driver\Dialect
- *
- * @mixin Driver
  */
 trait SqlDialectTrait
 {

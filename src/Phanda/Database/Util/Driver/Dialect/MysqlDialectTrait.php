@@ -19,4 +19,20 @@ trait MysqlDialectTrait
      * @var string
      */
     protected $endQuote = '`';
+
+    /**
+     * {@inheritDoc}
+     */
+    public function disableForeignKeySQL(): string
+    {
+        return 'SET foreign_key_checks = 0';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function enableForeignKeySQL(): string
+    {
+        return 'SET foreign_key_checks = 1';
+    }
 }
