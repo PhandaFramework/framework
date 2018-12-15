@@ -10,6 +10,7 @@ use Phanda\Database\Query\Expression\OrderByExpression;
 use Phanda\Database\Query\Expression\OrderClauseExpression;
 use Phanda\Database\Query\Expression\QueryExpression;
 use Phanda\Database\Query\Expression\ValuesExpression;
+use Phanda\Database\Statement\CallbackStatement;
 use Phanda\Database\ValueBinder;
 use Phanda\Support\PhandArr;
 use Phanda\Contracts\Database\Query\Query as QueryContract;
@@ -71,6 +72,13 @@ class Query implements QueryContract, \IteratorAggregate
      * @var ValueBinder
      */
     protected $valueBinder;
+
+    /**
+     * Callback functions used to decorate results
+     *
+     * @var array
+     */
+    protected $resultDecorators = [];
 
     /**
      * Query constructor.
@@ -986,6 +994,26 @@ class Query implements QueryContract, \IteratorAggregate
     }
 
     /**
+     * Add a result decorator to be used when returning the results
+     *
+     * @param callable|null $callback
+     * @param bool $overwrite
+     * @return Query
+     */
+    public function decorateResults(?callable $callback, $overwrite = false): Query
+    {
+        if ($overwrite) {
+            $this->resultDecorators = [];
+        }
+
+        if ($callback !== null) {
+            $this->resultDecorators[] = $callback;
+        }
+
+        return $this;
+    }
+
+    /**
      * Marks a query as dirty, and resets any value bindings if need be.
      */
     protected function makeDirty()
@@ -998,15 +1026,18 @@ class Query implements QueryContract, \IteratorAggregate
     }
 
     /**
+     * Decorate statements with the registered result decorators
+     *
      * @param Statement $statement
      * @return Statement
      */
     protected function decorateStatement(Statement $statement): Statement
     {
-        // $driver = $this->getConnection()->getDriver();
+        $driver = $this->getConnection()->getDriver();
 
-        // PossibleTODO: Decorate statement here with callback functions using the
-        //       CallbackStatement decorator.
+        foreach ($this->resultDecorators as $decorator) {
+            $statement = new CallbackStatement($statement, $driver, $decorator);
+        }
 
         return $statement;
     }
