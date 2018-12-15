@@ -1014,6 +1014,40 @@ class Query implements QueryContract, \IteratorAggregate
     }
 
     /**
+     * Gets the type of the current query
+     *
+     * @return string
+     */
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    /**
+     * Retrieve an external iterator
+     *
+     * @return Statement|null
+     */
+    public function getIterator(): ?Statement
+    {
+        if ($this->resultStatement === null || $this->dirty) {
+            $this->resultStatement = $this->execute();
+        }
+
+        return $this->resultStatement;
+    }
+
+    /**
+     * Gets the SQL of the current query
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return $this->toSql();
+    }
+
+    /**
      * Marks a query as dirty, and resets any value bindings if need be.
      */
     protected function makeDirty()
@@ -1115,27 +1149,5 @@ class Query implements QueryContract, \IteratorAggregate
 
         $this->queryKeywords[$part] = $expression;
         $this->makeDirty();
-    }
-
-    /**
-     * @return string
-     */
-    public function getType(): string
-    {
-        return $this->type;
-    }
-
-    /**
-     * Retrieve an external iterator
-     *
-     * @return Statement|null
-     */
-    public function getIterator(): ?Statement
-    {
-        if ($this->resultStatement === null || $this->dirty) {
-            $this->resultStatement = $this->execute();
-        }
-
-        return $this->resultStatement;
     }
 }
