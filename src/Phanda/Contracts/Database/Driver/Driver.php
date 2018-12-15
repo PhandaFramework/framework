@@ -2,8 +2,8 @@
 
 namespace Phanda\Contracts\Database\Driver;
 
+use Phanda\Contracts\Database\Query\Query;
 use Phanda\Contracts\Database\Statement;
-use Phanda\Database\Query\Query;
 use Phanda\Database\ValueBinder;
 
 interface Driver

@@ -19,7 +19,7 @@ class ValuesExpression implements ExpressionContract
     protected $columns = [];
 
     /**
-     * @var Query|null
+     * @var \Phanda\Contracts\Database\Query\Query|null
      */
     protected $query;
 
@@ -31,7 +31,7 @@ class ValuesExpression implements ExpressionContract
     /**
      * Add a row of data to be inserted.
      *
-     * @param array|Query $data
+     * @param array|\Phanda\Contracts\Database\Query\Query $data
      */
     public function add($data)
     {
@@ -156,19 +156,19 @@ class ValuesExpression implements ExpressionContract
     }
 
     /**
-     * @param Query|null $query
+     * @param \Phanda\Contracts\Database\Query\Query|null $query
      * @return ValuesExpression
      */
-    public function setQuery(?Query $query): ValuesExpression
+    public function setQuery(?\Phanda\Contracts\Database\Query\Query $query): ValuesExpression
     {
         $this->query = $query;
         return $this;
     }
 
     /**
-     * @return Query|null
+     * @return \Phanda\Contracts\Database\Query\Query|null
      */
-    public function getQuery(): ?Query
+    public function getQuery(): ?\Phanda\Contracts\Database\Query\Query
     {
         return $this->query;
     }

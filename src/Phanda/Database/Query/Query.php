@@ -13,17 +13,12 @@ use Phanda\Database\Query\Expression\ValuesExpression;
 use Phanda\Database\Statement\CallbackStatement;
 use Phanda\Database\ValueBinder;
 use Phanda\Support\PhandArr;
-use Phanda\Contracts\Database\Query\Query as QueryContract;
 use Phanda\Contracts\Database\Query\Expression\Expression as ExpressionContract;
 use RuntimeException;
+use Phanda\Contracts\Database\Query\Query as QueryContract;
 
-class Query implements QueryContract, \IteratorAggregate
+class Query implements \IteratorAggregate, QueryContract
 {
-    const TYPE_SELECT = 'select';
-    const TYPE_INSERT = 'insert';
-    const TYPE_UPDATE = 'update';
-    const TYPE_DELETE = 'delete';
-
     /**
      * @var Connection
      */
@@ -94,9 +89,9 @@ class Query implements QueryContract, \IteratorAggregate
      * Sets the internal connection instance of this query
      *
      * @param Connection $connection
-     * @return $this
+     * @return QueryContract
      */
-    public function setConnection(Connection $connection): Query
+    public function setConnection(Connection $connection): QueryContract
     {
         $this->makeDirty();
         $this->connection = $connection;
@@ -117,9 +112,9 @@ class Query implements QueryContract, \IteratorAggregate
      * Sets the internal ValueBinder for this query
      *
      * @param ValueBinder $binder
-     * @return Query
+     * @return QueryContract
      */
-    public function setValueBinder(ValueBinder $binder): Query
+    public function setValueBinder(ValueBinder $binder): QueryContract
     {
         $this->valueBinder = $binder;
         return $this;
@@ -189,9 +184,9 @@ class Query implements QueryContract, \IteratorAggregate
      *
      * @param callable $visitor
      * @param array $queryKeywords
-     * @return Query
+     * @return QueryContract
      */
-    public function traverse(callable $visitor, array $queryKeywords = []): Query
+    public function traverse(callable $visitor, array $queryKeywords = []): QueryContract
     {
         $queryKeywords = $queryKeywords ?: array_keys($this->queryKeywords);
         foreach ($queryKeywords as $keyword) {
@@ -205,9 +200,9 @@ class Query implements QueryContract, \IteratorAggregate
      * Does a full-depth traversal of every item in the Query tree
      *
      * @param callable $callback
-     * @return Query
+     * @return QueryContract
      */
-    public function traverseExpressions(callable $callback): Query
+    public function traverseExpressions(callable $callback): QueryContract
     {
         $visitor = function ($expression) use (&$visitor, $callback) {
             if (is_array($expression)) {
@@ -238,9 +233,9 @@ class Query implements QueryContract, \IteratorAggregate
      *
      * @param array|string $fields
      * @param bool $overwrite
-     * @return Query
+     * @return QueryContract
      */
-    public function select($fields = [], $overwrite = false): Query
+    public function select($fields = [], $overwrite = false): QueryContract
     {
         if (!is_string($fields) && is_callable($fields)) {
             $fields = $fields($this);
@@ -265,9 +260,9 @@ class Query implements QueryContract, \IteratorAggregate
      *
      * @param array|string|bool $on
      * @param bool $overwrite
-     * @return Query
+     * @return QueryContract
      */
-    public function distinct($on = [], $overwrite = false): Query
+    public function distinct($on = [], $overwrite = false): QueryContract
     {
         if ($on === []) {
             $on = true;
@@ -292,9 +287,9 @@ class Query implements QueryContract, \IteratorAggregate
      *
      * @param $modifiers
      * @param bool $overwrite
-     * @return Query
+     * @return QueryContract
      */
-    public function modifier($modifiers, $overwrite = false): Query
+    public function modifier($modifiers, $overwrite = false): QueryContract
     {
         $modifiers = PhandArr::makeArray($modifiers);
 
@@ -312,9 +307,9 @@ class Query implements QueryContract, \IteratorAggregate
      *
      * @param string|array $tables
      * @param bool $overwrite
-     * @return Query
+     * @return QueryContract
      */
-    public function from($tables, $overwrite = false): Query
+    public function from($tables, $overwrite = false): QueryContract
     {
         $tables = PhandArr::makeArray($tables);
 
@@ -333,9 +328,9 @@ class Query implements QueryContract, \IteratorAggregate
      *
      * @param array|string|null $tables
      * @param bool $overwrite
-     * @return Query
+     * @return QueryContract
      */
-    public function join($tables, $overwrite = false): Query
+    public function join($tables, $overwrite = false): QueryContract
     {
         $tables = PhandArr::makeArray($tables);
 
@@ -372,9 +367,9 @@ class Query implements QueryContract, \IteratorAggregate
      * Removes a join from this query by name/alias if it exists
      *
      * @param string $joinName
-     * @return $this
+     * @return QueryContract
      */
-    public function removeJoin(string $joinName): Query
+    public function removeJoin(string $joinName): QueryContract
     {
         unset($this->queryKeywords['join'][$joinName]);
         $this->makeDirty();
@@ -390,7 +385,7 @@ class Query implements QueryContract, \IteratorAggregate
      *
      * @param string|array $table
      * @param string|array|ExpressionContract $conditions
-     * @return Query
+     * @return QueryContract
      */
     public function leftJoin($table, $conditions = [])
     {
@@ -411,7 +406,7 @@ class Query implements QueryContract, \IteratorAggregate
      *
      * @param string|array $table
      * @param string|array|ExpressionContract $conditions
-     * @return Query
+     * @return QueryContract
      */
     public function innerJoin($table, $conditions = [])
     {
@@ -432,7 +427,7 @@ class Query implements QueryContract, \IteratorAggregate
      *
      * @param string|array $table
      * @param string|array|ExpressionContract $conditions
-     * @return Query
+     * @return QueryContract
      */
     public function rightJoin($table, $conditions = [])
     {
@@ -450,9 +445,9 @@ class Query implements QueryContract, \IteratorAggregate
      *
      * @param string|array|callable|ExpressionContract|null $conditions
      * @param bool $overwrite
-     * @return Query
+     * @return QueryContract
      */
-    public function where($conditions = null, $overwrite = false): Query
+    public function where($conditions = null, $overwrite = false): QueryContract
     {
         if ($overwrite) {
             $this->queryKeywords['where'] = $this->newExpression();
@@ -467,9 +462,9 @@ class Query implements QueryContract, \IteratorAggregate
      * Adds a condition to check where a field is not null
      *
      * @param array|string|ExpressionContract $fields
-     * @return Query
+     * @return QueryContract
      */
-    public function whereNotNull($fields): Query
+    public function whereNotNull($fields): QueryContract
     {
         $fields = PhandArr::makeArray($fields);
         $expression = $this->newExpression();
@@ -485,9 +480,9 @@ class Query implements QueryContract, \IteratorAggregate
      * Adds a condition to check where a field is null
      *
      * @param array|string|ExpressionContract $fields
-     * @return Query
+     * @return QueryContract
      */
-    public function whereNull($fields): Query
+    public function whereNull($fields): QueryContract
     {
         $fields = PhandArr::makeArray($fields);
         $expression = $this->newExpression();
@@ -505,9 +500,9 @@ class Query implements QueryContract, \IteratorAggregate
      * @param string $field
      * @param array $values
      * @param array $options
-     * @return Query
+     * @return QueryContract
      */
-    public function whereIn(string $field, array $values, array $options = []): Query
+    public function whereIn(string $field, array $values, array $options = []): QueryContract
     {
         $options += [
             'allowEmpty' => false,
@@ -526,9 +521,9 @@ class Query implements QueryContract, \IteratorAggregate
      * @param string $field
      * @param array $values
      * @param array $options
-     * @return Query
+     * @return QueryContract
      */
-    public function whereNotIn(string $field, array $values, array $options = []): Query
+    public function whereNotIn(string $field, array $values, array $options = []): QueryContract
     {
         $options += [
             'allowEmpty' => false,
@@ -545,9 +540,9 @@ class Query implements QueryContract, \IteratorAggregate
      * Connects any previous where queries in this query, and conjugates it with an 'AND'
      *
      * @param string|array|callable|ExpressionContract $conditions
-     * @return Query
+     * @return QueryContract
      */
-    public function andWhere($conditions): Query
+    public function andWhere($conditions): QueryContract
     {
         $this->conjugateQuery('where', $conditions, 'AND');
         return $this;
@@ -561,9 +556,9 @@ class Query implements QueryContract, \IteratorAggregate
      *
      * @param array|string|callable|ExpressionContract $fields
      * @param bool $overwrite
-     * @return Query
+     * @return QueryContract
      */
-    public function orderBy($fields, $overwrite = false): Query
+    public function orderBy($fields, $overwrite = false): QueryContract
     {
         if ($overwrite) {
             $this->queryKeywords['order'] = null;
@@ -586,9 +581,9 @@ class Query implements QueryContract, \IteratorAggregate
      *
      * @param string|QueryExpression $field
      * @param bool $overwrite
-     * @return Query
+     * @return QueryContract
      */
-    public function orderByAsc($field, $overwrite = false): Query
+    public function orderByAsc($field, $overwrite = false): QueryContract
     {
         if ($overwrite) {
             $this->queryKeywords['order'] = null;
@@ -612,9 +607,9 @@ class Query implements QueryContract, \IteratorAggregate
      *
      * @param string|QueryExpression $field
      * @param bool $overwrite
-     * @return Query
+     * @return QueryContract
      */
-    public function orderByDesc($field, $overwrite = false): Query
+    public function orderByDesc($field, $overwrite = false): QueryContract
     {
         if ($overwrite) {
             $this->queryKeywords['order'] = null;
@@ -638,9 +633,9 @@ class Query implements QueryContract, \IteratorAggregate
      *
      * @param string|array|ExpressionContract $fields
      * @param bool $overwrite
-     * @return Query
+     * @return QueryContract
      */
-    public function groupBy($fields, $overwrite = false): Query
+    public function groupBy($fields, $overwrite = false): QueryContract
     {
         if ($overwrite) {
             $this->queryKeywords['group'] = [];
@@ -661,7 +656,7 @@ class Query implements QueryContract, \IteratorAggregate
      *
      * @param string|array|callable|ExpressionContract|null $conditions
      * @param bool $overwrite
-     * @return $this
+     * @return QueryContract
      */
     public function having($conditions = null, $overwrite = false)
     {
@@ -677,9 +672,9 @@ class Query implements QueryContract, \IteratorAggregate
      * Adds a LIMIT to the query
      *
      * @param int|ExpressionContract $limit
-     * @return Query
+     * @return QueryContract
      */
-    public function limit($limit): Query
+    public function limit($limit): QueryContract
     {
         $this->makeDirty();
 
@@ -695,9 +690,9 @@ class Query implements QueryContract, \IteratorAggregate
      * Sets the number of records that should be skipped in the original result set
      *
      * @param int|ExpressionContract $offset
-     * @return Query
+     * @return QueryContract
      */
-    public function offset($offset): Query
+    public function offset($offset): QueryContract
     {
         $this->makeDirty();
 
@@ -721,7 +716,7 @@ class Query implements QueryContract, \IteratorAggregate
      *
      * @param int $page
      * @param int|ExpressionContract|null $limit
-     * @return $this
+     * @return QueryContract
      */
     public function page(int $page, $limit = null)
     {
@@ -754,11 +749,11 @@ class Query implements QueryContract, \IteratorAggregate
     /**
      * Adds a complete query to be used in conjunction with a 'UNION'
      *
-     * @param string|Query $query
+     * @param string|QueryContract $query
      * @param bool $overwrite
-     * @return Query
+     * @return QueryContract
      */
-    public function union($query, $overwrite = false): Query
+    public function union($query, $overwrite = false): QueryContract
     {
         if ($overwrite) {
             $this->queryKeywords['union'] = [];
@@ -777,9 +772,9 @@ class Query implements QueryContract, \IteratorAggregate
     /**
      * Adds a complete query to be used in conjunction with a 'UNION ALL'
      *
-     * @param string|Query $query
+     * @param string|QueryContract $query
      * @param bool $overwrite
-     * @return Query
+     * @return QueryContract
      */
     public function unionAll($query, $overwrite = false)
     {
@@ -801,11 +796,11 @@ class Query implements QueryContract, \IteratorAggregate
      * Creates an insert query
      *
      * @param array $columns
-     * @return Query
+     * @return QueryContract
      *
      * @throws RuntimeException When no columns are given
      */
-    public function insert(array $columns): Query
+    public function insert(array $columns): QueryContract
     {
         if (empty($columns)) {
             throw new RuntimeException('At least 1 column is required to perform an insert query.');
@@ -831,9 +826,9 @@ class Query implements QueryContract, \IteratorAggregate
      * Or $query->into('table')->insert(...)->values(...);
      *
      * @param string $table
-     * @return Query
+     * @return QueryContract
      */
-    public function into(string $table): Query
+    public function into(string $table): QueryContract
     {
         $this->makeDirty();
         $this->type = self::TYPE_INSERT;
@@ -845,8 +840,8 @@ class Query implements QueryContract, \IteratorAggregate
     /**
      * Sets the values for the insert of the query
      *
-     * @param array|Query $data
-     * @return $this
+     * @param array|QueryContract $data
+     * @return QueryContract
      */
     public function values($data)
     {
@@ -869,11 +864,11 @@ class Query implements QueryContract, \IteratorAggregate
      * Creates an update query
      *
      * @param string|ExpressionContract $table
-     * @return Query
+     * @return QueryContract
      *
      * @throws InvalidArgumentException When $table is not a string or ExpressionContract
      */
-    public function update($table): Query
+    public function update($table): QueryContract
     {
         if (!is_string($table) && !($table instanceof ExpressionContract)) {
             $text = 'Table must be of type string or "%s", got "%s"';
@@ -898,9 +893,9 @@ class Query implements QueryContract, \IteratorAggregate
      *
      * @param string|array|callable|QueryExpression $key
      * @param mixed $value
-     * @return Query
+     * @return QueryContract
      */
-    public function set($key, $value = null): Query
+    public function set($key, $value = null): QueryContract
     {
         if (empty($this->queryKeywords['set'])) {
             $this->queryKeywords['set'] = $this->newExpression()->setConjunction(',');
@@ -926,9 +921,9 @@ class Query implements QueryContract, \IteratorAggregate
      * Creates a delete query
      *
      * @param string|null $table
-     * @return Query
+     * @return QueryContract
      */
-    public function delete(?string $table = null): Query
+    public function delete(?string $table = null): QueryContract
     {
         $this->makeDirty();
         $this->type = self::TYPE_DELETE;
@@ -944,9 +939,9 @@ class Query implements QueryContract, \IteratorAggregate
      * Appends an expression to the end of the generated query
      *
      * @param null $expression
-     * @return Query
+     * @return QueryContract
      */
-    public function append($expression = null): Query
+    public function append($expression = null): QueryContract
     {
         $this->makeDirty();
         $this->queryKeywords['append'] = $expression;
@@ -985,9 +980,9 @@ class Query implements QueryContract, \IteratorAggregate
      *
      * @param string|int $param
      * @param mixed $value
-     * @return Query
+     * @return QueryContract
      */
-    public function bind($param, $value): Query
+    public function bind($param, $value): QueryContract
     {
         $this->getValueBinder()->bind($param, $value);
         return $this;
@@ -998,9 +993,9 @@ class Query implements QueryContract, \IteratorAggregate
      *
      * @param callable|null $callback
      * @param bool $overwrite
-     * @return Query
+     * @return QueryContract
      */
-    public function decorateResults(?callable $callback, $overwrite = false): Query
+    public function decorateResults(?callable $callback, $overwrite = false): QueryContract
     {
         if ($overwrite) {
             $this->resultDecorators = [];
