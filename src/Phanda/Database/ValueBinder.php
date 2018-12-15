@@ -26,7 +26,7 @@ class ValueBinder
      */
     public function bind($param, $value)
     {
-        $this->bindings[$param] = PhandArr::makeArray($value) + [
+        $this->bindings[$param] = ['value' => $value] + [
                 'placeholder' => is_int($param) ? $param : substr($param, 1)
             ];
         return $this;

@@ -21,6 +21,7 @@ class MysqlStatement extends PDOStatement
             $connection->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
         }
 
+        $this->executed = true;
         return $result;
     }
 }

@@ -189,6 +189,7 @@ class Query implements \IteratorAggregate, QueryContract
     public function traverse(callable $visitor, array $queryKeywords = []): QueryContract
     {
         $queryKeywords = $queryKeywords ?: array_keys($this->queryKeywords);
+
         foreach ($queryKeywords as $keyword) {
             $visitor($this->queryKeywords[$keyword], $keyword);
         }

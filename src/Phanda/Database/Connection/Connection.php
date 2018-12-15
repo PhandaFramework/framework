@@ -160,6 +160,7 @@ class Connection implements ConnectionContact
     {
         return $this->getRetryConnectionCommand()->run(function() use ($query) {
            $statement = $this->prepareQuery($query);
+           $query->getValueBinder()->attachToStatement($statement);
            $statement->execute();
            return $statement;
         });

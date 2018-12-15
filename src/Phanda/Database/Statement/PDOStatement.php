@@ -26,6 +26,7 @@ class PDOStatement extends StatementDecorator
     public function bindValue($column, $value): StatementContract
     {
         $this->statement->bindValue($column, $value);
+        return $this;
     }
 
     /**
