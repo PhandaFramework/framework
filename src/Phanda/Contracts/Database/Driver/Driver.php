@@ -2,6 +2,7 @@
 
 namespace Phanda\Contracts\Database\Driver;
 
+use PDO;
 use Phanda\Contracts\Database\Query\Query;
 use Phanda\Contracts\Database\Statement;
 use Phanda\Database\ValueBinder;
@@ -46,6 +47,13 @@ interface Driver
     public function isConnected(): bool;
 
     /**
+     * Checks if PHP can use this driver to connect to the database
+     *
+     * @return bool
+     */
+    public function isEnabled(): bool;
+
+    /**
      * Prepares the given SQL into statement to be executed.
      *
      * @param string|Query $query
@@ -77,4 +85,35 @@ interface Driver
      * @return string
      */
     public function quoteIdentifier(string $identifier): string;
+
+    /**
+     * Sets the auto quoting of identifiers in queries.
+     *
+     * @param bool $enable
+     * @return $this
+     */
+    public function enableAutoQuoting(bool $enable = true): self;
+
+    /**
+     * Disable auto quoting of identifiers in queries.
+     *
+     * @return $this
+     */
+    public function disableAutoQuoting(): self;
+
+    /**
+     * @return bool
+     */
+    public function isAutoQuotingEnabled(): bool;
+
+    /**
+     * @return PDO
+     */
+    public function getConnection(): PDO;
+
+    /**
+     * @param PDO $dbConnection
+     * @return self
+     */
+    public function setConnection(PDO $dbConnection): self;
 }
