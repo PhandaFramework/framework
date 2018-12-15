@@ -20,6 +20,7 @@ class Query implements QueryContract
 {
     const TYPE_SELECT = 'select';
     const TYPE_INSERT = 'insert';
+    const TYPE_UPDATE = 'update';
 
     /**
      * @var Connection
@@ -823,6 +824,63 @@ class Query implements QueryContract
         }
 
         $this->queryKeywords['values']->add($data);
+        return $this;
+    }
+
+    /**
+     * Creates an update query
+     *
+     * @param string|ExpressionContract $table
+     * @return Query
+     *
+     * @throws InvalidArgumentException When $table is not a string or ExpressionContract
+     */
+    public function update($table): Query
+    {
+        if (!is_string($table) && !($table instanceof ExpressionContract)) {
+            $text = 'Table must be of type string or "%s", got "%s"';
+            $message = sprintf($text, ExpressionContract::class, gettype($table));
+
+            throw new InvalidArgumentException($message);
+        }
+
+        $this->makeDirty();
+        $this->type = self::TYPE_UPDATE;
+        $this->queryKeywords['update'][0] = $table;
+
+        return $this;
+    }
+
+    /**
+     * Sets one, or many fields of this update query
+     *
+     * Can be used like
+     * $query->update('books')->set('title', 'The Great Gatsby');
+     * $query->update('books')->set(['title' => 'The Great Gatsby', 'author' => 'F. Scott Fitzgerald']);
+     *
+     * @param string|array|callable|QueryExpression $key
+     * @param mixed $value
+     * @return Query
+     */
+    public function set($key, $value = null): Query
+    {
+        if (empty($this->queryKeywords['set'])) {
+            $this->queryKeywords['set'] = $this->newExpression()->setConjunction(',');
+        }
+
+        if ($this->queryKeywords['set']->isCallable($key)) {
+            $exp = $this->newExpression()->setConjunction(',');
+            $this->queryKeywords['set']->addConditions($key($exp));
+            return $this;
+        }
+
+        if (is_array($key) || $key instanceof ExpressionContract) {
+            $this->queryKeywords['set']->addConditions($key);
+            return $this;
+        }
+
+        $this->queryKeywords['set']->equal($key, $value);
+
         return $this;
     }
 
