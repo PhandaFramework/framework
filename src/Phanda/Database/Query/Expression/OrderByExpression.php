@@ -5,8 +5,18 @@ namespace Phanda\Database\Query\Expression;
 use Phanda\Contracts\Database\Query\Expression\Expression as ExpressionContract;
 use Phanda\Database\ValueBinder;
 
-class OrderByExpression implements ExpressionContract
+class OrderByExpression extends QueryExpression
 {
+    /**
+     * OrderByExpression constructor.
+     *
+     * @param array|string|ExpressionContract $conditions
+     * @param string $conjunction
+     */
+    public function __construct($conditions = [], $conjunction = "")
+    {
+        parent::__construct($conditions, $conjunction);
+    }
 
     /**
      * @param ValueBinder $valueBinder
@@ -14,15 +24,24 @@ class OrderByExpression implements ExpressionContract
      */
     public function toSql(ValueBinder $valueBinder)
     {
-        // TODO: Implement toSql() method.
+        $order = [];
+        foreach ($this->conditions as $k => $direction) {
+            if ($direction instanceof ExpressionContract) {
+                $direction = $direction->toSql($valueBinder);
+            }
+
+            $order[] = is_numeric($k) ? $direction : sprintf('%s %s', $k, $direction);
+        }
+
+        return sprintf('ORDER BY %s', implode(', ', $order));
     }
 
     /**
-     * @param callable $visitor
-     * @return $this
+     * @param array $orders
+     * @return QueryExpression
      */
-    public function traverse(callable $visitor)
+    protected function addConditionArray(array $orders): QueryExpression
     {
-        // TODO: Implement traverse() method.
+        $this->conditions = array_merge($this->conditions, $orders);
     }
 }
