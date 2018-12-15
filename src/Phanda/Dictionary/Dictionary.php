@@ -1,10 +1,9 @@
 <?php
 
-namespace Phanda\Support;
+namespace Phanda\Dictionary;
 
 use Phanda\Contracts\Support\Arrayable;
 use Phanda\Contracts\Support\Jsonable;
-use Phanda\Contracts\Support\Repository;
 
 class Dictionary implements Arrayable, \ArrayAccess, \Countable
 {

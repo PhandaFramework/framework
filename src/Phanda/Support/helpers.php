@@ -174,10 +174,10 @@ if(!function_exists('createDictionary')) {
      * Creates a new Dictionary with the given items.
      *
      * @param array $items
-     * @return \Phanda\Support\Dictionary
+     * @return \Phanda\Dictionary\Dictionary
      */
     function createDictionary($items = [])
     {
-        return new \Phanda\Support\Dictionary($items);
+        return new \Phanda\Dictionary\Dictionary($items);
     }
 }
