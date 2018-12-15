@@ -8,14 +8,17 @@ use Phanda\Contracts\Database\Statement;
 use Phanda\Database\Query\Expression\OrderByExpression;
 use Phanda\Database\Query\Expression\OrderClauseExpression;
 use Phanda\Database\Query\Expression\QueryExpression;
+use Phanda\Database\Query\Expression\ValuesExpression;
 use Phanda\Database\ValueBinder;
 use Phanda\Support\PhandArr;
 use Phanda\Contracts\Database\Query\Query as QueryContract;
 use Phanda\Contracts\Database\Query\Expression\Expression as ExpressionContract;
+use RuntimeException;
 
 class Query implements QueryContract
 {
     const TYPE_SELECT = 'select';
+    const TYPE_INSERT = 'insert';
 
     /**
      * @var Connection
@@ -750,6 +753,51 @@ class Query implements QueryContract
         ];
 
         $this->makeDirty();
+
+        return $this;
+    }
+
+    /**
+     * Creates an insert query
+     *
+     * @param array $columns
+     * @return Query
+     *
+     * @throws RuntimeException When no columns are given
+     */
+    public function insert(array $columns): Query
+    {
+        if (empty($columns)) {
+            throw new RuntimeException('At least 1 column is required to perform an insert query.');
+        }
+
+        $this->makeDirty();
+        $this->type = self::TYPE_INSERT;
+        $this->queryKeywords['insert'][1] = $columns;
+
+        if (!$this->queryKeywords['values']) {
+            $this->queryKeywords['values'] = new ValuesExpression($columns);
+        } else {
+            $this->queryKeywords['values']->setColumns($columns);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Sets the table for the insert query to be inserted into
+     *
+     * For example $query->insert(...)->into('table');
+     * Or $query->into('table')->insert(...);
+     *
+     * @param string $table
+     * @return Query
+     */
+    public function into(string $table): Query
+    {
+        $this->makeDirty();
+        $this->type = self::TYPE_INSERT;
+        $this->queryKeywords['insert'][0] = $table;
 
         return $this;
     }
