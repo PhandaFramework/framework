@@ -117,7 +117,7 @@ class QueryCompiler implements QueryCompilerContract
      */
     protected function sqlCompiler(string &$sql, QueryContract $query, ValueBinder $valueBinder): \Closure
     {
-        return function($parts, $name) use (&$sql, $query, $valueBinder) {
+        return function ($parts, $name) use (&$sql, $query, $valueBinder) {
             if (!isset($parts) || ((is_array($parts) || $parts instanceof \Countable) && !count($parts))) {
                 return null;
             }
@@ -279,7 +279,21 @@ class QueryCompiler implements QueryCompilerContract
      */
     protected function buildSetKeyword(array $parts, Query $query, ValueBinder $valueBinder): string
     {
+        $set = [];
 
+        foreach ($parts as $part) {
+            if ($part instanceof ExpressionContract) {
+                $part = $part->toSql($valueBinder);
+            }
+
+            if ($part[0] === '(') {
+                $part = substr($part, 1, -1);
+            }
+
+            $set[] = $part;
+        }
+
+        return ' SET ' . implode('', $set);
     }
 
     /**
@@ -292,7 +306,25 @@ class QueryCompiler implements QueryCompilerContract
      */
     protected function buildUnionKeyword(array $parts, Query $query, ValueBinder $valueBinder): string
     {
+        $parts = array_map(function ($part) use ($valueBinder) {
+            /** @var ExpressionContract $queryPart */
+            $queryPart = $part['query'];
+            $part['query'] = $queryPart->toSql($valueBinder);
+            $part['query'] = $part['query'][0] === '(' ? trim($part['query'], '()') : $part['query'];
+            $prefix = $part['all'] ? 'ALL ' : '';
 
+            if ($this->orderedUnion) {
+                return "{$prefix}({$part['query']})";
+            }
+
+            return $prefix . $part['query'];
+        }, $parts);
+
+        if ($this->orderedUnion) {
+            return sprintf(")\nUNION %s", implode("\nUNION ", $parts));
+        }
+
+        return sprintf("\nUNION %s", implode("\nUNION ", $parts));
     }
 
     /**
