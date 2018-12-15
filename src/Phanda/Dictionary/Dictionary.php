@@ -5,7 +5,7 @@ namespace Phanda\Dictionary;
 use Phanda\Contracts\Support\Arrayable;
 use Phanda\Contracts\Support\Jsonable;
 
-class Dictionary implements Arrayable, \ArrayAccess, \Countable
+class Dictionary implements Arrayable, \ArrayAccess, \Countable, \Phanda\Contracts\Dictionary\Dictionary
 {
     /**
      * @var array
@@ -69,7 +69,7 @@ class Dictionary implements Arrayable, \ArrayAccess, \Countable
      * Run a map over each of the items in the dictionary.
      *
      * @param callable $callback
-     * @return Dictionary
+     * @return \Phanda\Contracts\Dictionary\Dictionary
      */
     public function map(callable $callback)
     {
@@ -82,7 +82,7 @@ class Dictionary implements Arrayable, \ArrayAccess, \Countable
      * Pushes an item to the end of the array
      *
      * @param $value
-     * @return $this
+     * @return \Phanda\Contracts\Dictionary\Dictionary
      */
     public function push($value)
     {

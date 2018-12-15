@@ -174,7 +174,7 @@ if(!function_exists('createDictionary')) {
      * Creates a new Dictionary with the given items.
      *
      * @param array $items
-     * @return \Phanda\Dictionary\Dictionary
+     * @return \Phanda\Contracts\Dictionary\Dictionary
      */
     function createDictionary($items = [])
     {
