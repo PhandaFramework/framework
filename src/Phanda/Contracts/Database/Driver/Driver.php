@@ -68,4 +68,13 @@ interface Driver
      * @return string
      */
     public function compileQuery(Query $query, ValueBinder $valueBinder): string;
+
+    /**
+     * Quotes a database identifier (a column name, table name, etc..) to
+     * be used safely in queries without the risk of using reserved words.
+     *
+     * @param string $identifier
+     * @return string
+     */
+    public function quoteIdentifier(string $identifier): string;
 }
