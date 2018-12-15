@@ -30,8 +30,7 @@ class DatabaseServiceProvider extends AbstractServiceProvider
     {
         $this->phanda->singleton('database.driver_registry', function ($phanda) {
             /** @var Application $phanda */
-            /** @var DriverRegistry $registry */
-            $registry = $phanda->create(DriverRegistry::class);
+            $registry = new DriverRegistry();
 
             $this->registerDrivers($registry);
 
@@ -50,7 +49,9 @@ class DatabaseServiceProvider extends AbstractServiceProvider
     {
         $this->phanda->singleton('database.connection_manager', function ($phanda) {
             /** @var Application $phanda */
-            $connectionManager = $phanda->create(ConnectionManager::class);
+            $configuration = config();
+            $driverRegistry = $phanda->create(DriverRegistryContract::class);
+            $connectionManager = new ConnectionManager($configuration, $driverRegistry);
             return $connectionManager;
         });
 
