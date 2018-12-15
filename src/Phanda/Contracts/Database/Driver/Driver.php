@@ -72,26 +72,6 @@ interface Driver
     public function getLastInsertId($table = null, $column = null);
 
     /**
-     * Sets the auto quoting of identifiers in queries.
-     *
-     * @param bool $enable
-     * @return $this
-     */
-    public function enableAutoQuoting(bool $enable = true);
-
-    /**
-     * Disable auto quoting of identifiers in queries.
-     *
-     * @return $this
-     */
-    public function disableAutoQuoting();
-
-    /**
-     * @return bool
-     */
-    public function isAutoQuotingEnabled(): bool;
-
-    /**
      * @return PDO
      */
     public function getConnection(): PDO;

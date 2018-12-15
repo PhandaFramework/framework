@@ -33,19 +33,13 @@ abstract class AbstractDriver implements DriverContract
     protected $baseConfig = [];
 
     /**
-     * Whether or not the driver is automatically quoting identifiers
+     * AbstractDriver constructor.
      *
-     * @var bool
+     * @param array $config
      */
-    protected $automaticIdentifierQuoting = false;
-
     public function __construct(array $config = [])
     {
         $this->setConfiguration($config);
-
-        if($this->getConfiguration()['quoteIdentifiers']) {
-            $this->enableAutoQuoting();
-        }
     }
 
     /**
@@ -115,37 +109,6 @@ abstract class AbstractDriver implements DriverContract
     public function getConfiguration(): array
     {
         return $this->config;
-    }
-
-    /**
-     * Sets the auto quoting of identifiers in queries.
-     *
-     * @param bool $enable
-     * @return $this
-     */
-    public function enableAutoQuoting(bool $enable = true): self
-    {
-        $this->automaticIdentifierQuoting = $enable;
-        return $this;
-    }
-
-    /**
-     * Disable auto quoting of identifiers in queries.
-     *
-     * @return $this
-     */
-    public function disableAutoQuoting(): self
-    {
-        $this->automaticIdentifierQuoting = false;
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isAutoQuotingEnabled(): bool
-    {
-        return $this->automaticIdentifierQuoting;
     }
 
     /**

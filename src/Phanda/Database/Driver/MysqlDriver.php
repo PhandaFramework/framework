@@ -2,8 +2,12 @@
 
 namespace Phanda\Database\Driver;
 
+use Phanda\Database\Util\Driver\Dialect\MysqlDialectTrait;
+
 class MysqlDriver extends AbstractDriver
 {
+    use MysqlDialectTrait;
+
     /**
      * Base configuration settings for MySQL driver
      *
@@ -22,83 +26,4 @@ class MysqlDriver extends AbstractDriver
         'init' => [],
     ];
 
-    /**
-     * @inheritdoc
-     */
-    public function connect(): bool
-    {
-        // TODO: Implement connect() method.
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function isEnabled(): bool
-    {
-        // TODO: Implement isEnabled() method.
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function releaseSavePointSQL($name): string
-    {
-        // TODO: Implement releaseSavePointSQL() method.
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function savePointSQL($name): string
-    {
-        // TODO: Implement savePointSQL() method.
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function rollbackSavePointSQL($name): string
-    {
-        // TODO: Implement rollbackSavePointSQL() method.
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function disableForeignKeySQL(): string
-    {
-        // TODO: Implement disableForeignKeySQL() method.
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function enableForeignKeySQL(): string
-    {
-        // TODO: Implement enableForeignKeySQL() method.
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function supportsDynamicConstraints(): bool
-    {
-        // TODO: Implement supportsDynamicConstraints() method.
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function queryTranslator($type): callable
-    {
-        // TODO: Implement queryTranslator() method.
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function quoteIdentifier(string $identifier): string
-    {
-        // TODO: Implement quoteIdentifier() method.
-    }
 }
