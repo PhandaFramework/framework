@@ -21,6 +21,7 @@ class Query implements QueryContract
     const TYPE_SELECT = 'select';
     const TYPE_INSERT = 'insert';
     const TYPE_UPDATE = 'update';
+    const TYPE_DELETE = 'delete';
 
     /**
      * @var Connection
@@ -880,6 +881,24 @@ class Query implements QueryContract
         }
 
         $this->queryKeywords['set']->equal($key, $value);
+
+        return $this;
+    }
+
+    /**
+     * Creates a delete query
+     *
+     * @param string|null $table
+     * @return Query
+     */
+    public function delete(?string $table = null): Query
+    {
+        $this->makeDirty();
+        $this->type = self::TYPE_DELETE;
+
+        if ($table !== null) {
+            $this->from($table);
+        }
 
         return $this;
     }
