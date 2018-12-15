@@ -53,7 +53,7 @@ class ValuesExpression implements ExpressionContract
      */
     public function toSql(ValueBinder $valueBinder)
     {
-        if (empty($this->_values) && empty($this->_query)) {
+        if (empty($this->values) && empty($this->query)) {
             return '';
         }
 

@@ -126,7 +126,7 @@ class QueryCompiler implements QueryCompilerContract
                 $parts = [$parts->toSql($valueBinder)];
             }
 
-            if (isset($this->_templates[$name])) {
+            if (isset($this->templates[$name])) {
                 $parts = $this->stringifyExpressions(PhandArr::makeArray($parts), $valueBinder);
                 return $sql .= sprintf($this->templates[$name], implode(', ', $parts));
             }
