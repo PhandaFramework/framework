@@ -8,6 +8,7 @@ use Phanda\Contracts\Database\Driver\Driver;
 use Phanda\Contracts\Database\Query\Query as QueryContract;
 use Phanda\Contracts\Database\Statement;
 use Phanda\Database\Query\Query;
+use Phanda\Database\Schema\SchemaCollection;
 use Phanda\Database\ValueBinder;
 use Phanda\Exceptions\Database\Connection\ConnectionFailedException;
 use Phanda\Support\RetryCommand;
@@ -28,6 +29,11 @@ class Connection implements ConnectionContact
      * @var string
      */
     private $name;
+
+    /**
+     * @var SchemaCollection
+     */
+    protected $schemaCollection;
 
     /**
      * Connection constructor.
@@ -213,5 +219,29 @@ class Connection implements ConnectionContact
     public function newQuery(): Query
     {
         return new Query($this);
+    }
+
+    /**
+     * Gets a Schema\Collection object for this connection.
+     *
+     * @return SchemaCollection
+     */
+    public function getSchemaCollection(): SchemaCollection
+    {
+        if ($this->schemaCollection !== null) {
+            return $this->schemaCollection;
+        }
+
+        return $this->schemaCollection = new SchemaCollection($this);
+    }
+
+    /**
+     * @param SchemaCollection $schemaCollection
+     * @return Connection
+     */
+    public function setSchemaCollection(SchemaCollection $schemaCollection): ConnectionContact
+    {
+        $this->schemaCollection = $schemaCollection;
+        return $this;
     }
 }

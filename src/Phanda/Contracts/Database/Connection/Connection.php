@@ -5,6 +5,7 @@ namespace Phanda\Contracts\Database\Connection;
 use Phanda\Contracts\Database\Driver\Driver;
 use Phanda\Contracts\Database\Query\Query;
 use Phanda\Contracts\Database\Statement;
+use Phanda\Database\Schema\SchemaCollection;
 use Phanda\Database\ValueBinder;
 
 interface Connection
@@ -100,6 +101,22 @@ interface Connection
      */
     public function inTransaction(): bool;
 
+    /**
+     * @return \Phanda\Database\Query\Query
+     */
     public function newQuery(): \Phanda\Database\Query\Query;
+
+    /**
+     * Gets a Schema\Collection object for this connection.
+     *
+     * @return SchemaCollection
+     */
+    public function getSchemaCollection(): SchemaCollection;
+
+    /**
+     * @param SchemaCollection $schemaCollection
+     * @return Connection
+     */
+    public function setSchemaCollection(SchemaCollection $schemaCollection): Connection;
 
 }

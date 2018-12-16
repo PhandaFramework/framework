@@ -540,6 +540,11 @@ class Table implements TableRepository
         return $this->getAlias() . '.' . $field;
     }
 
+    /**
+     * @return TableSchema
+     *
+     * @throws \Phanda\Exceptions\Database\Schema\SchemaException
+     */
     public function getSchema()
     {
         if ($this->schema === null) {
