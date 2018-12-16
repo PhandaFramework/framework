@@ -109,129 +109,6 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
     }
 
     /**
-     * Sets the table repository for this query
-     *
-     * @param TableRepository $repository
-     * @return Builder
-     */
-    public function setRepository(TableRepository $repository): QueryBuilderContract
-    {
-        $this->repository = $repository;
-        return $this;
-    }
-
-    /**
-     * Gets the TableRepository for this query
-     *
-     * @return TableRepository
-     */
-    public function getRepository(): TableRepository
-    {
-        return $this->repository;
-    }
-
-    /**
-     * Sets the internal results of this query
-     *
-     * If this is set, the `execute()` function will be overridden,
-     * and not be executed.
-     *
-     * @param ResultSetContract $results
-     * @return Builder
-     */
-    public function setResults(ResultSetContract $results): QueryBuilderContract
-    {
-        $this->results = $results;
-        return $this;
-    }
-
-    /**
-     * Gets the internal results of this query
-     *
-     * @return ResultSetContract|null
-     */
-    public function getResults(): ?ResultSetContract
-    {
-        return $this->results;
-    }
-
-    /**
-     * Sets the eager loaded status of this query
-     *
-     * @param bool $eagerLoaded
-     * @return Builder
-     */
-    public function setEagerLoaded(bool $eagerLoaded): QueryBuilderContract
-    {
-        $this->eagerLoaded = $eagerLoaded;
-        return $this;
-    }
-
-    /**
-     * Checks if the current query is eager loaded or not.
-     *
-     * @return bool
-     */
-    public function isEagerLoaded(): bool
-    {
-        return $this->eagerLoaded;
-    }
-
-    /**
-     * Sets the alias of a field
-     *
-     * If a field is already aliased, it will not be
-     * overridden by this function.
-     *
-     * @param string $field
-     * @param string|null $alias
-     * @return array
-     */
-    public function aliasField(string $field, ?string $alias): array
-    {
-        $namespaced = strpos($field, '.') !== false;
-        $aliasedField = $field;
-
-        if ($namespaced) {
-            list($alias, $field) = explode('.', $field);
-        }
-
-        if (!$alias) {
-            $alias = $this->getRepository()->getAlias();
-        }
-
-        $key = sprintf('%s__%s', $alias, $field);
-
-        if (!$namespaced) {
-            $aliasedField = $alias . '.' . $field;
-        }
-
-        return [$key => $aliasedField];
-    }
-
-    /**
-     * Sets the alias of multiple fields
-     *
-     * @param array $fields
-     * @param string|null $defaultAlias
-     * @return array
-     */
-    public function aliasFields(array $fields, ?string $defaultAlias): array
-    {
-        $aliased = [];
-
-        foreach ($fields as $alias => $field) {
-            if (is_numeric($alias) && is_string($field)) {
-                $aliased += $this->aliasField($field, $defaultAlias);
-                continue;
-            }
-            $aliased[$alias] = $field;
-        }
-
-        return $aliased;
-    }
-
-    /**
      * Fetch all the results for this query
      *
      * If the internal results have been set prior, the execute
@@ -258,6 +135,92 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
     }
 
     /**
+     * Decorates the queries results
+     *
+     * @param \Traversable $result
+     * @return ResultSetContract
+     */
+    protected function decorateQueryResults(\Traversable $result): ResultSetContract
+    {
+        $decorator = ResultSetDecorator::class;
+
+        foreach ($this->mapReduce as $functions) {
+            $result = new MapReduceIterator($result, $functions['mapper'], $functions['reducer']);
+        }
+
+        if (!empty($this->mapReduce)) {
+            $result = new $decorator($result);
+        }
+
+        foreach ($this->queryFormatters as $formatter) {
+            $result = $formatter($result);
+        }
+
+        if (!empty($this->queryFormatters) && !($result instanceof $decorator)) {
+            $result = new $decorator($result);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Executes the current query and returns the results
+     *
+     * @return ResultSetContract
+     */
+    protected function executeQuery(): ResultSetContract
+    {
+        // TODO: this
+    }
+
+    /**
+     * Gets the internal results of this query
+     *
+     * @return ResultSetContract|null
+     */
+    public function getResults(): ?ResultSetContract
+    {
+        return $this->results;
+    }
+
+    /**
+     * Sets the internal results of this query
+     *
+     * If this is set, the `execute()` function will be overridden,
+     * and not be executed.
+     *
+     * @param ResultSetContract $results
+     * @return Builder
+     */
+    public function setResults(ResultSetContract $results): QueryBuilderContract
+    {
+        $this->results = $results;
+        return $this;
+    }
+
+    /**
+     * Checks if the current query is eager loaded or not.
+     *
+     * @return bool
+     */
+    public function isEagerLoaded(): bool
+    {
+        return $this->eagerLoaded;
+    }
+
+    /**
+     * Sets the eager loaded status of this query
+     *
+     * @param bool $eagerLoaded
+     * @return Builder
+     */
+    public function setEagerLoaded(bool $eagerLoaded): QueryBuilderContract
+    {
+        $this->eagerLoaded = $eagerLoaded;
+        return $this;
+    }
+
+    /**
      * Returns an array representation of the current query
      *
      * @return array
@@ -265,25 +228,6 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
     public function toArray(): array
     {
         return $this->all()->toArray();
-    }
-
-    /**
-     * Adds a map/reducer to the query to be executed when results
-     * are fetched.
-     *
-     * @param callable $mapper
-     * @param callable|null $reducer
-     * @param bool $overwrite
-     * @return Builder
-     */
-    public function addMapReducer(callable $mapper, ?callable $reducer = null, $overwrite = false): QueryBuilderContract
-    {
-        if ($overwrite) {
-            $this->mapReduce = [];
-        }
-
-        $this->mapReduce[] = compact('mapper', 'reducer');
-        return $this;
     }
 
     /**
@@ -305,46 +249,6 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
     }
 
     /**
-     * Adds a query formatter that will be executed when the results are
-     * fetched as part of this query.
-     *
-     * A formatter will get the first parameter being a Dictionary
-     * of the results.
-     *
-     * @param callable $formatter
-     * @param int $mode
-     * @return Builder
-     */
-    public function addQueryFormatter(callable $formatter, $mode = self::OPERATION_PREPEND): QueryBuilderContract
-    {
-        if ($mode === self::OPERATION_OVERWRITE) {
-            $this->queryFormatters = [];
-        }
-
-        if ($mode === self::OPERATION_PREPEND) {
-            array_unshift($this->queryFormatters, $formatter);
-            return $this;
-        }
-
-        $this->queryFormatters[] = $formatter;
-        return $this;
-    }
-
-    /**
-     * Gets the first element of this query
-     *
-     * @return EntityContract|array|null
-     */
-    public function first()
-    {
-        if ($this->dirty) {
-            $this->limit(1);
-        }
-
-        return $this->all()->first();
-    }
-
-    /**
      * Gets the first element of this query, or fail if there is none
      *
      * @return EntityContract|array|null
@@ -360,6 +264,20 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
         }
 
         return $entity;
+    }
+
+    /**
+     * Gets the first element of this query
+     *
+     * @return EntityContract|array|null
+     */
+    public function first()
+    {
+        if ($this->dirty) {
+            $this->limit(1);
+        }
+
+        return $this->all()->first();
     }
 
     /**
@@ -405,93 +323,6 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
     }
 
     /**
-     * Executes the current query and returns the results
-     *
-     * @return ResultSetContract
-     */
-    protected function executeQuery(): ResultSetContract
-    {
-        // TODO: this
-    }
-
-    /**
-     * Decorates the queries results
-     *
-     * @param \Traversable $result
-     * @return ResultSetContract
-     */
-    protected function decorateQueryResults(\Traversable $result): ResultSetContract
-    {
-        $decorator = ResultSetDecorator::class;
-
-        foreach ($this->mapReduce as $functions) {
-            $result = new MapReduceIterator($result, $functions['mapper'], $functions['reducer']);
-        }
-
-        if (!empty($this->mapReduce)) {
-            $result = new $decorator($result);
-        }
-
-        foreach ($this->queryFormatters as $formatter) {
-            $result = $formatter($result);
-        }
-
-        if (!empty($this->queryFormatters) && !($result instanceof $decorator)) {
-            $result = new $decorator($result);
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param EagerLoader $eagerLoader
-     * @return Builder
-     */
-    public function setEagerLoader(EagerLoader $eagerLoader): QueryBuilderContract
-    {
-        $this->eagerLoader = $eagerLoader;
-        return $this;
-    }
-
-    /**
-     * @return EagerLoader
-     */
-    public function getEagerLoader(): EagerLoader
-    {
-        if(!$this->eagerLoader) {
-            $this->eagerLoader = new EagerLoader();
-        }
-
-        return $this->eagerLoader;
-    }
-
-    /**
-     * Creates a clean copy of this query, to be used in sub queries.
-     *
-     * @return Builder
-     */
-    public function cleanCopy()
-    {
-        $clone = clone $this;
-        $clone->setEagerLoader(clone $this->getEagerLoader());
-        $clone->triggerBeforeFindEvent();
-        $clone->setAutoFields(false);
-        $clone->limit(null);
-        $clone->offset(null);
-        $clone->orderBy([], true);
-        $clone->addMapReducer(null, null, true);
-        $clone->addQueryFormatter(null, self::OPERATION_OVERWRITE);
-        $clone->decorateResults(null, true);
-
-        return $clone;
-    }
-
-    public function triggerBeforeFindEvent()
-    {
-
-    }
-
-    /**
      * Clones the ORM Query Builder
      */
     public function __clone()
@@ -500,24 +331,6 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
         if($this->eagerLoader) {
             $this->eagerLoader = clone $this->eagerLoader;
         }
-    }
-
-    /**
-     * @param bool $autoFields
-     * @return Builder
-     */
-    public function setAutoFields(bool $autoFields): QueryBuilderContract
-    {
-        $this->autoFields = $autoFields;
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isAutoFieldsEnabled(): bool
-    {
-        return $this->autoFields;
     }
 
     /**
@@ -589,13 +402,116 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
     }
 
     /**
-     * @param callable|null $counter
+     * Creates a clean copy of this query, to be used in sub queries.
+     *
      * @return Builder
      */
-    public function setCounter(?callable $counter): QueryBuilderContract
+    public function cleanCopy()
     {
-        $this->counter = $counter;
+        $clone = clone $this;
+        $clone->setEagerLoader(clone $this->getEagerLoader());
+        $clone->triggerBeforeFindEvent();
+        $clone->setAutoFields(false);
+        $clone->limit(null);
+        $clone->offset(null);
+        $clone->orderBy([], true);
+        $clone->addMapReducer(null, null, true);
+        $clone->addQueryFormatter(null, self::OPERATION_OVERWRITE);
+        $clone->decorateResults(null, true);
+
+        return $clone;
+    }
+
+    /**
+     * @return EagerLoader
+     */
+    public function getEagerLoader(): EagerLoader
+    {
+        if(!$this->eagerLoader) {
+            $this->eagerLoader = new EagerLoader();
+        }
+
+        return $this->eagerLoader;
+    }
+
+    /**
+     * @param EagerLoader $eagerLoader
+     * @return Builder
+     */
+    public function setEagerLoader(EagerLoader $eagerLoader): QueryBuilderContract
+    {
+        $this->eagerLoader = $eagerLoader;
         return $this;
+    }
+
+    public function triggerBeforeFindEvent()
+    {
+
+    }
+
+    /**
+     * @param bool $autoFields
+     * @return Builder
+     */
+    public function setAutoFields(bool $autoFields): QueryBuilderContract
+    {
+        $this->autoFields = $autoFields;
+        return $this;
+    }
+
+    /**
+     * Adds a map/reducer to the query to be executed when results
+     * are fetched.
+     *
+     * @param callable $mapper
+     * @param callable|null $reducer
+     * @param bool $overwrite
+     * @return Builder
+     */
+    public function addMapReducer(callable $mapper, ?callable $reducer = null, $overwrite = false): QueryBuilderContract
+    {
+        if ($overwrite) {
+            $this->mapReduce = [];
+        }
+
+        $this->mapReduce[] = compact('mapper', 'reducer');
+        return $this;
+    }
+
+    /**
+     * Adds a query formatter that will be executed when the results are
+     * fetched as part of this query.
+     *
+     * A formatter will get the first parameter being a Dictionary
+     * of the results.
+     *
+     * @param callable $formatter
+     * @param int $mode
+     * @return Builder
+     */
+    public function addQueryFormatter(callable $formatter, $mode = self::OPERATION_PREPEND): QueryBuilderContract
+    {
+        if ($mode === self::OPERATION_OVERWRITE) {
+            $this->queryFormatters = [];
+        }
+
+        if ($mode === self::OPERATION_PREPEND) {
+            array_unshift($this->queryFormatters, $formatter);
+            return $this;
+        }
+
+        $this->queryFormatters[] = $formatter;
+        return $this;
+    }
+
+    /**
+     * @param array $fields
+     * @param bool $overwrite
+     * @return Builder
+     */
+    public function select($fields = [], $overwrite = false): QueryContract
+    {
+        return parent::select($fields, $overwrite);
     }
 
     /**
@@ -607,13 +523,23 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
     }
 
     /**
-     * @param array $fields
-     * @param bool $overwrite
+     * @param callable|null $counter
      * @return Builder
      */
-    public function select($fields = [], $overwrite = false): QueryContract
+    public function setCounter(?callable $counter): QueryBuilderContract
     {
-        return parent::select($fields, $overwrite);
+        $this->counter = $counter;
+        return $this;
+    }
+
+    /**
+     * Disables hydration on this query builder
+     *
+     * @return Builder
+     */
+    public function disableHydration(): QueryBuilderContract
+    {
+        return $this->enableHydration(false);
     }
 
     /**
@@ -630,13 +556,13 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
     }
 
     /**
-     * Disables hydration on this query builder
-     *
-     * @return Builder
+     * @inheritdoc
      */
-    public function disableHydration(): QueryBuilderContract
+    protected function makeDirty()
     {
-        return $this->enableHydration(false);
+        $this->results = null;
+        $this->resultMysqlCount = null;
+        parent::makeDirty();
     }
 
     /**
@@ -698,6 +624,90 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
     }
 
     /**
+     * @return bool
+     */
+    public function isAutoFieldsEnabled(): bool
+    {
+        return $this->autoFields;
+    }
+
+    /**
+     * Sets the alias of multiple fields
+     *
+     * @param array $fields
+     * @param string|null $defaultAlias
+     * @return array
+     */
+    public function aliasFields(array $fields, ?string $defaultAlias): array
+    {
+        $aliased = [];
+
+        foreach ($fields as $alias => $field) {
+            if (is_numeric($alias) && is_string($field)) {
+                $aliased += $this->aliasField($field, $defaultAlias);
+                continue;
+            }
+            $aliased[$alias] = $field;
+        }
+
+        return $aliased;
+    }
+
+    /**
+     * Sets the alias of a field
+     *
+     * If a field is already aliased, it will not be
+     * overridden by this function.
+     *
+     * @param string $field
+     * @param string|null $alias
+     * @return array
+     */
+    public function aliasField(string $field, ?string $alias): array
+    {
+        $namespaced = strpos($field, '.') !== false;
+        $aliasedField = $field;
+
+        if ($namespaced) {
+            list($alias, $field) = explode('.', $field);
+        }
+
+        if (!$alias) {
+            $alias = $this->getRepository()->getAlias();
+        }
+
+        $key = sprintf('%s__%s', $alias, $field);
+
+        if (!$namespaced) {
+            $aliasedField = $alias . '.' . $field;
+        }
+
+        return [$key => $aliasedField];
+    }
+
+    /**
+     * Gets the TableRepository for this query
+     *
+     * @return TableRepository
+     */
+    public function getRepository(): TableRepository
+    {
+        return $this->repository;
+    }
+
+    /**
+     * Sets the table repository for this query
+     *
+     * @param TableRepository $repository
+     * @return Builder
+     */
+    public function setRepository(TableRepository $repository): QueryBuilderContract
+    {
+        $this->repository = $repository;
+        return $this;
+    }
+
+    /**
      * Apply custom finds against an existing query object.
      *
      * @param string $finder
@@ -709,16 +719,6 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
         $table = $this->getRepository();
 
         return $table->callFinder($finder, $this, $options);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function makeDirty()
-    {
-        $this->results = null;
-        $this->resultMysqlCount = null;
-        parent::makeDirty();
     }
 
     /**

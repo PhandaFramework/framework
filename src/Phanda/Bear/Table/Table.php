@@ -5,11 +5,57 @@ namespace Phanda\Bear\Table;
 use Phanda\Contracts\Bear\Entity\Entity as EntityContract;
 use Phanda\Contracts\Bear\Query\Builder as QueryBuilder;
 use Phanda\Contracts\Bear\Table\TableRepository;
+use Phanda\Contracts\Database\Connection\Connection;
 use Phanda\Database\Query\Expression\QueryExpression;
 use Phanda\Exceptions\Bear\EntityNotFoundException;
 
 class Table implements TableRepository
 {
+
+    /**
+     * @var string
+     */
+    protected $table;
+
+    /**
+     * @var string
+     */
+    protected $alias;
+
+    /**
+     * @var Connection
+     */
+    protected $connection;
+
+    /**
+     * @var string|array
+     */
+    protected $primaryKey;
+
+    /**
+     * @var string
+     */
+    protected $displayRow;
+
+    /**
+     * @var string
+     */
+    protected $entityClass;
+
+    /**
+     * @var string
+     */
+    protected $registryAlias;
+
+    public function __construct()
+    {
+
+    }
+
+    public function setConfiguration(array $configuration = []): TableRepository
+    {
+
+    }
 
     /**
      * Sets the alias of the table
@@ -248,5 +294,40 @@ class Table implements TableRepository
     public function updateEntities(array $entities, array $data, array $options = []): array
     {
         // TODO: Implement updateEntities() method.
+    }
+
+    /**
+     * Returns the database table name.
+     *
+     * @return string
+     */
+    public function getTableName(): string
+    {
+        // TODO: Implement getTableName() method.
+    }
+
+    /**
+     * Sets the database table name
+     *
+     * @param string $table
+     * @return TableRepository
+     */
+    public function setTableName(string $table): TableRepository
+    {
+        // TODO: Implement setTableName() method.
+    }
+
+    /**
+     * Calls a finder method directly and applies it to the passed query,
+     * if no query is passed a new one will be created and returned
+     *
+     * @param string $type
+     * @param QueryBuilder $query
+     * @param array $options
+     * @return QueryBuilder
+     */
+    public function callFinder(string $type, QueryBuilder $query, array $options = []): QueryBuilder
+    {
+        // TODO: Implement callFinder() method.
     }
 }
