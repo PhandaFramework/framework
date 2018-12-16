@@ -1,14 +1,14 @@
 <?php
 
-namespace Phanda\Contracts\Bear\Table;
+namespace Phanda\Bear\Table;
 
-use Phanda\Contracts\Bear\Query\Builder as QueryBuilder;
 use Phanda\Contracts\Bear\Entity\Entity as EntityContract;
-use Phanda\Contracts\Database\Query\Query as DatabaseQueryContract;
+use Phanda\Contracts\Bear\Query\Builder as QueryBuilder;
+use Phanda\Contracts\Bear\Table\TableRepository;
 use Phanda\Database\Query\Expression\QueryExpression;
 use Phanda\Exceptions\Bear\EntityNotFoundException;
 
-interface TableRepository
+class Table implements TableRepository
 {
 
     /**
@@ -17,14 +17,20 @@ interface TableRepository
      * @param string $alias
      * @return TableRepository
      */
-    public function setAlias(string $alias): self;
+    public function setAlias(string $alias): TableRepository
+    {
+        // TODO: Implement setAlias() method.
+    }
 
     /**
      * Gets the alias of the table
      *
      * @return string
      */
-    public function getAlias(): string;
+    public function getAlias(): string
+    {
+        // TODO: Implement getAlias() method.
+    }
 
     /**
      * Sets the alias of the registry
@@ -32,14 +38,20 @@ interface TableRepository
      * @param string $alias
      * @return TableRepository
      */
-    public function setRegistryAlias(string $alias): self;
+    public function setRegistryAlias(string $alias): TableRepository
+    {
+        // TODO: Implement setRegistryAlias() method.
+    }
 
     /**
      * Gets the alias of the registry
      *
      * @return string
      */
-    public function getRegistryAlias(): string;
+    public function getRegistryAlias(): string
+    {
+        // TODO: Implement getRegistryAlias() method.
+    }
 
     /**
      * Checks if the repository contains a field/column
@@ -47,7 +59,10 @@ interface TableRepository
      * @param string $field
      * @return bool
      */
-    public function hasField(string $field): bool;
+    public function hasField(string $field): bool
+    {
+        // TODO: Implement hasField() method.
+    }
 
     /**
      * Starts a query builder on this repository
@@ -56,7 +71,10 @@ interface TableRepository
      * @param array|\ArrayAccess $options
      * @return QueryBuilder
      */
-    public function find(string $type = 'all', $options = []): QueryBuilder;
+    public function find(string $type = 'all', $options = []): QueryBuilder
+    {
+        // TODO: Implement find() method.
+    }
 
     /**
      * Gets an entity by its primary key
@@ -67,7 +85,10 @@ interface TableRepository
      *
      * @see TableRepository::find()
      */
-    public function get($primaryKey, $options = []): ?EntityContract;
+    public function get($primaryKey, $options = []): ?EntityContract
+    {
+        // TODO: Implement get() method.
+    }
 
     /**
      * Gets an entity by its primary key, or throw an exception if
@@ -81,14 +102,20 @@ interface TableRepository
      *
      * @see TableRepository::get()
      */
-    public function getOrFail($primaryKey, $options = []): EntityContract;
+    public function getOrFail($primaryKey, $options = []): EntityContract
+    {
+        // TODO: Implement getOrFail() method.
+    }
 
     /**
      * Starts a Query on this repository
      *
      * @return QueryBuilder
      */
-    public function query(): QueryBuilder;
+    public function query(): QueryBuilder
+    {
+        // TODO: Implement query() method.
+    }
 
     /**
      * Updates all the values in this repository that matches
@@ -102,7 +129,10 @@ interface TableRepository
      *
      * @see DatabaseQueryContract::where() for available conditions.
      */
-    public function updateAll($fields, $conditions): int;
+    public function updateAll($fields, $conditions): int
+    {
+        // TODO: Implement updateAll() method.
+    }
 
     /**
      * Deletes all the values in this repository that matches
@@ -115,7 +145,10 @@ interface TableRepository
      *
      * @see DatabaseQueryContract::where() for available conditions.
      */
-    public function deleteAll($conditions): int;
+    public function deleteAll($conditions): int
+    {
+        // TODO: Implement deleteAll() method.
+    }
 
     /**
      * Returns true if the current repository contains a record
@@ -124,7 +157,10 @@ interface TableRepository
      * @param array|\ArrayAccess $conditions
      * @return bool
      */
-    public function exists($conditions): bool;
+    public function exists($conditions): bool
+    {
+        // TODO: Implement exists() method.
+    }
 
     /**
      * Saves an entity in this Repository, with the fields that
@@ -135,7 +171,10 @@ interface TableRepository
      * @param array|\ArrayAccess $options
      * @return EntityContract|false
      */
-    public function saveEntity(EntityContract $entity, $options = []);
+    public function saveEntity(EntityContract $entity, $options = [])
+    {
+        // TODO: Implement saveEntity() method.
+    }
 
     /**
      * Deletes an entity in this repository.
@@ -148,7 +187,10 @@ interface TableRepository
      * @param array|\ArrayAccess $options
      * @return bool
      */
-    public function deleteEntity(EntityContract $entity, $options = []): bool;
+    public function deleteEntity(EntityContract $entity, $options = []): bool
+    {
+        // TODO: Implement deleteEntity() method.
+    }
 
     /**
      * Creates a new Entity and its associated relations from
@@ -161,7 +203,10 @@ interface TableRepository
      * @param array $options
      * @return EntityContract
      */
-    public function newEntity(?array $data = null, array $options = []): EntityContract;
+    public function newEntity(?array $data = null, array $options = []): EntityContract
+    {
+        // TODO: Implement newEntity() method.
+    }
 
     /**
      * Creates entities and their associated relations from
@@ -174,7 +219,10 @@ interface TableRepository
      * @param array $options
      * @return EntityContract[]
      */
-    public function newEntities(array $data, array $options = []): array;
+    public function newEntities(array $data, array $options = []): array
+    {
+        // TODO: Implement newEntities() method.
+    }
 
     /**
      * Updates a given entity with the provided data.
@@ -184,7 +232,10 @@ interface TableRepository
      * @param array $options
      * @return EntityContract
      */
-    public function updateEntity(EntityContract $entity, array $data, array $options = []): EntityContract;
+    public function updateEntity(EntityContract $entity, array $data, array $options = []): EntityContract
+    {
+        // TODO: Implement updateEntity() method.
+    }
 
     /**
      * Updates the given entities with the provided data.
@@ -194,32 +245,8 @@ interface TableRepository
      * @param array $options
      * @return EntityContract[]
      */
-    public function updateEntities(array $entities, array $data, array $options = []): array;
-
-    /**
-     * Returns the database table name.
-     *
-     * @return string
-     */
-    public function getTableName(): string;
-
-    /**
-     * Sets the database table name
-     *
-     * @param string $table
-     * @return TableRepository
-     */
-    public function setTableName(string $table): TableRepository;
-
-    /**
-     * Calls a finder method directly and applies it to the passed query,
-     * if no query is passed a new one will be created and returned
-     *
-     * @param string $type
-     * @param QueryBuilder $query
-     * @param array $options
-     * @return QueryBuilder
-     */
-    public function callFinder(string $type, QueryBuilder $query, array $options = []): QueryBuilder;
-
+    public function updateEntities(array $entities, array $data, array $options = []): array
+    {
+        // TODO: Implement updateEntities() method.
+    }
 }

@@ -1146,4 +1146,33 @@ class Query implements \IteratorAggregate, QueryContract
         $this->queryKeywords[$part] = $expression;
         $this->makeDirty();
     }
+
+    /**
+     * Clones this query
+     */
+    public function __clone()
+    {
+        $this->resultStatement = null;
+        if ($this->valueBinder !== null) {
+            $this->valueBinder = clone $this->valueBinder;
+        }
+
+        foreach ($this->queryKeywords as $name => $part) {
+            if (empty($part)) {
+                continue;
+            }
+
+            if (is_array($part)) {
+                foreach ($part as $i => $piece) {
+                    if ($piece instanceof ExpressionContract) {
+                        $this->queryKeywords[$name][$i] = clone $piece;
+                    }
+                }
+            }
+
+            if ($part instanceof ExpressionContract) {
+                $this->queryKeywords[$name] = clone $part;
+            }
+        }
+    }
 }

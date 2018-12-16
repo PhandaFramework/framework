@@ -6,12 +6,16 @@ use Phanda\Bear\Results\ResultSetDecorator;
 use Phanda\Contracts\Bear\Entity\Entity as EntityContract;
 use Phanda\Contracts\Bear\Query\ResultSet as ResultSetContract;
 use Phanda\Contracts\Bear\Table\TableRepository;
+use Phanda\Contracts\Database\Connection\Connection;
+use Phanda\Contracts\Database\Query\Query as QueryContract;
 use Phanda\Contracts\Database\Statement;
 use Phanda\Database\Query\Query as DatabaseQueryBuilder;
 use Phanda\Contracts\Bear\Query\Builder as QueryBuilderContract;
+use Phanda\Database\ValueBinder;
 use Phanda\Dictionary\Iterator\MapReduceIterator;
 use Phanda\Exceptions\Bear\EntityNotFoundException;
 use RuntimeException;
+use Phanda\Contracts\Database\Query\Expression\Expression as ExpressionContract;
 
 class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \JsonSerializable
 {
@@ -49,6 +53,55 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
      * @var bool
      */
     protected $eagerLoaded = false;
+
+    /**
+     * @var bool
+     */
+    protected $hasFields;
+
+    /**
+     * @var bool
+     */
+    protected $autoFields;
+
+    /**
+     * Whether or not to convert results to Entities
+     *
+     * @var bool
+     */
+    protected $hydrate = true;
+
+    /**
+     * @var callable
+     */
+    protected $counter;
+
+    /**
+     * @var EagerLoader
+     */
+    protected $eagerLoader;
+
+    /**
+     * @var bool
+     */
+    protected $beforeFindEventFired = false;
+
+    /**
+     * @var int|null
+     */
+    protected $resultMysqlCount;
+
+    /**
+     * Builder constructor.
+     *
+     * @param Connection $connection
+     * @param TableRepository $tableRepository
+     */
+    public function __construct(Connection $connection, TableRepository $tableRepository)
+    {
+        parent::__construct($connection);
+        $this->setRepository($tableRepository);
+    }
 
     /**
      * Specify data which should be serialized to JSON
@@ -307,9 +360,8 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
         $entity = $this->first();
 
         if (!$entity) {
-            // TODO: Implement saying what table name.
-            //$table = $this->getRepository();
-            throw new EntityNotFoundException("Entity not found");
+            $table = $this->getRepository();
+            throw new EntityNotFoundException("Entity not found in table: '{$table->getTableName()}'");
         }
 
         return $entity;
@@ -357,6 +409,8 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
         return $this;
     }
 
+
+
     /**
      * Executes the current query and returns the results
      *
@@ -394,5 +448,325 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
         }
 
         return $result;
+    }
+
+    /**
+     * @param EagerLoader $eagerLoader
+     * @return Builder
+     */
+    public function setEagerLoader(EagerLoader $eagerLoader): Builder
+    {
+        $this->eagerLoader = $eagerLoader;
+        return $this;
+    }
+
+    /**
+     * @return EagerLoader
+     */
+    public function getEagerLoader(): EagerLoader
+    {
+        if(!$this->eagerLoader) {
+            $this->eagerLoader = new EagerLoader();
+        }
+
+        return $this->eagerLoader;
+    }
+
+    /**
+     * Creates a clean copy of this query, to be used in sub queries.
+     *
+     * @return Builder
+     */
+    public function cleanCopy()
+    {
+        $clone = clone $this;
+        $clone->setEagerLoader(clone $this->getEagerLoader());
+        $clone->triggerBeforeFindEvent();
+        $clone->setAutoFields(false);
+        $clone->limit(null);
+        $clone->offset(null);
+        $clone->orderBy([], true);
+        $clone->addMapReducer(null, null, true);
+        $clone->addQueryFormatter(null, self::OPERATION_OVERWRITE);
+        $clone->decorateResults(null, true);
+
+        return $clone;
+    }
+
+    public function triggerBeforeFindEvent()
+    {
+
+    }
+
+    /**
+     * Clones the ORM Query Builder
+     */
+    public function __clone()
+    {
+        parent::__clone();
+        if($this->eagerLoader) {
+            $this->eagerLoader = clone $this->eagerLoader;
+        }
+    }
+
+    /**
+     * @param bool $autoFields
+     * @return Builder
+     */
+    public function setAutoFields(bool $autoFields): Builder
+    {
+        $this->autoFields = $autoFields;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAutoFieldsEnabled(): bool
+    {
+        return $this->autoFields;
+    }
+
+    /**
+     * @return int
+     */
+    public function count(): int
+    {
+        if($this->resultMysqlCount === null) {
+            $this->resultMysqlCount = $this->performCount();
+        }
+
+        return $this->resultMysqlCount;
+    }
+
+    /**
+     * Performs a count(*) on the current query
+     *
+     * @return int
+     */
+    protected function performCount(): int
+    {
+        $query = $this->cleanCopy();
+        $counter = $this->counter;
+
+        if($counter) {
+            $query->setCounter(null);
+            return (int)$counter($query);
+        }
+
+        $complex = (
+            $query->getClause('distinct') ||
+            count($query->getClause('group')) ||
+            count($query->getClause('union')) ||
+            $query->getClause('having')
+        );
+
+        if (!$complex) {
+            foreach ($query->getClause('select') as $field) {
+                if ($field instanceof ExpressionContract) {
+                    $complex = true;
+                    break;
+                }
+            }
+        }
+
+        if (!$complex && $this->valueBinder !== null) {
+            $order = $this->getClause('order');
+            $complex = $order === null ? false : $order->hasNestedExpression();
+        }
+
+        $count = ['count' => 'count(*)'];
+
+        if(!$complex) {
+            $statement = $query->select($count, true)
+                ->setAutoFields(false)
+                ->execute();
+        } else {
+            $statement = $this->getConnection()
+                ->newQuery()
+                ->select($count)
+                ->from(['count_source' => $query])
+                ->execute();
+        }
+
+        $result = $statement->fetch(Statement::FETCH_TYPE_ASSOC)['count'];
+        $statement->closeCursor();
+
+        return (int)$result;
+    }
+
+    /**
+     * @param callable|null $counter
+     * @return Builder
+     */
+    public function setCounter(?callable $counter): Builder
+    {
+        $this->counter = $counter;
+        return $this;
+    }
+
+    /**
+     * @return callable
+     */
+    public function getCounter(): callable
+    {
+        return $this->counter;
+    }
+
+    /**
+     * @param array $fields
+     * @param bool $overwrite
+     * @return Builder
+     */
+    public function select($fields = [], $overwrite = false): QueryContract
+    {
+        return parent::select($fields, $overwrite);
+    }
+
+    /**
+     * Sets the hydration status of this query builder. (Whether or not to convert to entity)
+     *
+     * @param bool $hydrate
+     * @return Builder
+     */
+    public function enableHydration(bool $hydrate = true): Builder
+    {
+        $this->makeDirty();
+        $this->hydrate = $hydrate;
+        return $this;
+    }
+
+    /**
+     * Disables hydration on this query builder
+     *
+     * @return Builder
+     */
+    public function disableHydration(): Builder
+    {
+        return $this->enableHydration(false);
+    }
+
+    /**
+     * Checks if hydration is enabled on this query builder
+     *
+     * @return bool
+     */
+    public function isHydrationEnabled(): bool
+    {
+        return $this->hydrate;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function toSql(ValueBinder $generator = null): string
+    {
+        $this->triggerBeforeFindEvent();
+        $this->transformQuery();
+        return parent::toSql($generator);
+    }
+
+    /**
+     * Transforms the query by applying some default values
+     */
+    protected function transformQuery()
+    {
+        if (!$this->dirty || $this->type !== self::TYPE_SELECT) {
+            return;
+        }
+
+        $repository = $this->getRepository();
+
+        if(empty($this->queryKeywords['from'])) {
+            $this->from([$repository->getAlias() => $repository->getTableName()]);
+        }
+
+        $this->selectDefaultFields();
+    }
+
+    /**
+     * Adds the default selection fields to this query if none has been specified
+     */
+    protected function selectDefaultFields()
+    {
+        $select = $this->getClause('select');
+        $this->hasFields = true;
+        $repository = $this->getRepository();
+
+        if(!count($select) || $this->isAutoFieldsEnabled()) {
+            $this->hasFields = false;
+            // TODO: select schema columns here and then remove what's below
+            $this->select('*');
+            $select = $this->getClause('select');
+        }
+
+        $aliased = $this->aliasFields($select, $repository->getAlias());
+        $this->select($aliased, true);
+    }
+
+    /**
+     * Apply custom finds against an existing query object.
+     *
+     * @param string $finder
+     * @param array $options
+     * @return Builder
+     */
+    public function find(string $finder, array $options = []): QueryBuilderContract
+    {
+        $table = $this->getRepository();
+
+        return $table->callFinder($finder, $this, $options);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function makeDirty()
+    {
+        $this->results = null;
+        $this->resultMysqlCount = null;
+        parent::makeDirty();
+    }
+
+    /**
+     * @param null|string $table
+     * @return Builder
+     */
+    public function update($table = null): QueryContract
+    {
+        if(!$table) {
+            $table = $this->getRepository()->getTableName();
+        }
+
+        return parent::update($table);
+    }
+
+    /**
+     * Deletes a record from the table
+     *
+     * The parameter $table is unused.
+     *
+     * @param string|null $table
+     * @return Builder
+     */
+    public function delete(?string $table = null): QueryContract
+    {
+        $repository = $this->getRepository();
+        $this->from([$repository->getAlias() => $repository->getTableName()]);
+
+        return parent::delete();
+    }
+
+    /**
+     * Inserts a record into a table
+     *
+     * @param array $columns
+     * @return Builder
+     */
+    public function insert(array $columns): QueryContract
+    {
+        $repository = $this->getRepository();
+        $this->into($repository->getTableName());
+        return parent::insert($columns);
     }
 }
