@@ -147,4 +147,12 @@ class MysqlDriver extends AbstractDriver
 
         return $this->supportsNativeJson = version_compare($this->version, '5.7.0', '>=');
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function schemaDialect()
+    {
+        // TODO: Implement schemaDialect() method.
+    }
 }

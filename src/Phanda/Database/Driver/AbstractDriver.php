@@ -93,6 +93,11 @@ abstract class AbstractDriver implements DriverContract
     abstract public function quoteIdentifier(string $identifier): string;
 
     /**
+     * {@inheritdoc}
+     */
+    abstract public function schemaDialect();
+
+    /**
      * @param array $config
      * @return DriverContract
      */

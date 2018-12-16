@@ -4,7 +4,6 @@ namespace Phanda\Database\Schema;
 
 use Phanda\Exceptions\Database\Schema\SchemaException as Exception;
 use Phanda\Contracts\Database\Connection\Connection;
-use Phanda\Contracts\Database\Schema\Schema;
 use Phanda\Contracts\Database\Schema\TableSchema as TableSchemaContract;
 use Phanda\Contracts\Database\Schema\SqlGenerator as SqlGeneratorContract;
 
@@ -180,7 +179,22 @@ class TableSchema implements TableSchemaContract, SqlGeneratorContract
      */
     public function createSql(Connection $connection): array
     {
-        // TODO: Implement createSql() method.
+        $dialect = $connection->getDriver()->schemaDialect();
+        $columns = $constraints = $indexes = [];
+
+        foreach (array_keys($this->columns) as $name) {
+            $columns[] = $dialect->columnSql($this, $name);
+        }
+
+        foreach (array_keys($this->constraints) as $name) {
+            $constraints[] = $dialect->constraintSql($this, $name);
+        }
+
+        foreach (array_keys($this->indexes) as $name) {
+            $indexes[] = $dialect->indexSql($this, $name);
+        }
+
+        return $dialect->createTableSql($this, $columns, $constraints, $indexes);
     }
 
     /**
@@ -191,7 +205,8 @@ class TableSchema implements TableSchemaContract, SqlGeneratorContract
      */
     public function dropSql(Connection $connection): array
     {
-        // TODO: Implement dropSql() method.
+        $dialect = $connection->getDriver()->schemaDialect();
+        return $dialect->dropTableSql($this);
     }
 
     /**
@@ -202,7 +217,8 @@ class TableSchema implements TableSchemaContract, SqlGeneratorContract
      */
     public function truncateSql(Connection $connection): array
     {
-        // TODO: Implement truncateSql() method.
+        $dialect = $connection->getDriver()->schemaDialect();
+        return $dialect->truncateTableSql($this);
     }
 
     /**
@@ -213,7 +229,8 @@ class TableSchema implements TableSchemaContract, SqlGeneratorContract
      */
     public function addConstraintSql(Connection $connection): array
     {
-        // TODO: Implement addConstraintSql() method.
+        $dialect = $connection->getDriver()->schemaDialect();
+        return $dialect->addConstraintSql($this);
     }
 
     /**
@@ -224,7 +241,8 @@ class TableSchema implements TableSchemaContract, SqlGeneratorContract
      */
     public function dropConstraintSql(Connection $connection): array
     {
-        // TODO: Implement dropConstraintSql() method.
+        $dialect = $connection->getDriver()->schemaDialect();
+        return $dialect->dropConstraintSql($this);
     }
 
     /**

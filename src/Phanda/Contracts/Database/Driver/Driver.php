@@ -6,11 +6,11 @@ use PDO;
 use Phanda\Contracts\Database\Query\Query;
 use Phanda\Contracts\Database\Statement;
 use Phanda\Database\Query\QueryCompiler;
+use Phanda\Database\Schema\AbstractSchema;
 use Phanda\Database\ValueBinder;
 
 interface Driver
 {
-
     /**
      * Gets the current configuration for a given driver.
      *
@@ -201,4 +201,11 @@ interface Driver
      * @return QueryCompiler
      */
     public function newQueryCompiler(): QueryCompiler;
+
+    /**
+     * Get the schema dialect.
+     *
+     * @return AbstractSchema
+     */
+    public function schemaDialect();
 }
