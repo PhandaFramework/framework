@@ -95,7 +95,7 @@ abstract class AbstractDriver implements DriverContract
     /**
      * {@inheritdoc}
      */
-    abstract public function schemaDialect();
+    abstract public function getSchemaDialect();
 
     /**
      * @param array $config

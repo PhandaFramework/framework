@@ -179,7 +179,7 @@ class TableSchema implements TableSchemaContract, SqlGeneratorContract
      */
     public function createSql(Connection $connection): array
     {
-        $dialect = $connection->getDriver()->schemaDialect();
+        $dialect = $connection->getDriver()->getSchemaDialect();
         $columns = $constraints = $indexes = [];
 
         foreach (array_keys($this->columns) as $name) {
@@ -205,7 +205,7 @@ class TableSchema implements TableSchemaContract, SqlGeneratorContract
      */
     public function dropSql(Connection $connection): array
     {
-        $dialect = $connection->getDriver()->schemaDialect();
+        $dialect = $connection->getDriver()->getSchemaDialect();
         return $dialect->dropTableSql($this);
     }
 
@@ -217,7 +217,7 @@ class TableSchema implements TableSchemaContract, SqlGeneratorContract
      */
     public function truncateSql(Connection $connection): array
     {
-        $dialect = $connection->getDriver()->schemaDialect();
+        $dialect = $connection->getDriver()->getSchemaDialect();
         return $dialect->truncateTableSql($this);
     }
 
@@ -229,7 +229,7 @@ class TableSchema implements TableSchemaContract, SqlGeneratorContract
      */
     public function addConstraintSql(Connection $connection): array
     {
-        $dialect = $connection->getDriver()->schemaDialect();
+        $dialect = $connection->getDriver()->getSchemaDialect();
         return $dialect->addConstraintSql($this);
     }
 
@@ -241,7 +241,7 @@ class TableSchema implements TableSchemaContract, SqlGeneratorContract
      */
     public function dropConstraintSql(Connection $connection): array
     {
-        $dialect = $connection->getDriver()->schemaDialect();
+        $dialect = $connection->getDriver()->getSchemaDialect();
         return $dialect->dropConstraintSql($this);
     }
 

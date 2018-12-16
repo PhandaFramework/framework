@@ -5,6 +5,7 @@ namespace Phanda\Database\Driver;
 use PDO;
 use Phanda\Contracts\Database\Query\Query;
 use Phanda\Contracts\Database\Statement as StatementContract;
+use Phanda\Database\Schema\MysqlSchema;
 use Phanda\Database\Statement\MysqlStatement;
 use Phanda\Database\Util\Driver\Dialect\MysqlDialectTrait;
 
@@ -43,6 +44,11 @@ class MysqlDriver extends AbstractDriver
      * @var bool
      */
     protected $supportsNativeJson;
+
+    /**
+     * @var MysqlSchema
+     */
+    protected $schemaDialect;
 
     /**
      * @inheritdoc
@@ -151,8 +157,12 @@ class MysqlDriver extends AbstractDriver
     /**
      * {@inheritdoc}
      */
-    public function schemaDialect()
+    public function getSchemaDialect()
     {
-        // TODO: Implement schemaDialect() method.
+        if (!$this->schemaDialect) {
+            $this->schemaDialect = new MysqlSchema($this);
+        }
+
+        return $this->schemaDialect;
     }
 }

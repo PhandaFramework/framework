@@ -207,5 +207,5 @@ interface Driver
      *
      * @return AbstractSchema
      */
-    public function schemaDialect();
+    public function getSchemaDialect();
 }
