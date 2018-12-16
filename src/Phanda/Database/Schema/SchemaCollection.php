@@ -1,4 +1,6 @@
-<?php
+<?php /** @noinspection PhpDocMissingThrowsInspection */
+
+/** @noinspection PhpUnhandledExceptionInspection */
 
 namespace Phanda\Database\Schema;
 
@@ -92,8 +94,6 @@ class SchemaCollection
      * @param string $name The name of the table to describe.
      * @param array $options The options to use, see above.
      * @return TableSchema Object with column metadata.
-     *
-     * @throws Exception
      */
     public function describe(string $name, array $options = []): TableSchema
     {

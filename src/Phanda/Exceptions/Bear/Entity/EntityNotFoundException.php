@@ -1,6 +1,6 @@
 <?php
 
-namespace Phanda\Exceptions\Bear;
+namespace Phanda\Exceptions\Bear\Entity;
 
 class EntityNotFoundException extends \Exception
 {

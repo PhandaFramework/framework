@@ -392,7 +392,7 @@ interface Query
      * @param string|null $table
      * @return Query
      */
-    public function delete(?string $table = null): Query;
+    public function delete(?string $table = null);
 
     /**
      * Appends an expression to the end of the generated query

@@ -13,7 +13,7 @@ use Phanda\Database\Query\Query as DatabaseQueryBuilder;
 use Phanda\Contracts\Bear\Query\Builder as QueryBuilderContract;
 use Phanda\Database\ValueBinder;
 use Phanda\Dictionary\Iterator\MapReduceIterator;
-use Phanda\Exceptions\Bear\EntityNotFoundException;
+use Phanda\Exceptions\Bear\Entity\EntityNotFoundException;
 use RuntimeException;
 use Phanda\Contracts\Database\Query\Expression\Expression as ExpressionContract;
 
@@ -57,7 +57,7 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
     /**
      * @var bool
      */
-    protected $autoFields;
+    protected $autoFields = false;
 
     /**
      * Whether or not to convert results to Entities
@@ -614,8 +614,7 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
 
         if(!count($select) || $this->isAutoFieldsEnabled()) {
             $this->hasFields = false;
-            // TODO: select schema columns here and then remove what's below
-            $this->select('*');
+            $this->select($repository->getSchema()->columns());
             $select = $this->getClause('select');
         }
 

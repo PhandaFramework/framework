@@ -7,7 +7,7 @@ use Phanda\Contracts\Bear\Table\TableRepository;
 use Phanda\Contracts\Database\Query\Query as QueryContract;
 use Phanda\Contracts\Bear\Query\ResultSet as ResultSetContract;
 use Phanda\Database\ValueBinder;
-use Phanda\Exceptions\Bear\EntityNotFoundException;
+use Phanda\Exceptions\Bear\Entity\EntityNotFoundException;
 use Phanda\Contracts\Bear\Entity\Entity as EntityContract;
 
 interface Builder extends QueryContract
@@ -279,7 +279,7 @@ interface Builder extends QueryContract
      * @param string|null $table
      * @return Builder
      */
-    public function delete(?string $table = null): QueryContract;
+    public function delete(?string $table = null);
 
     /**
      * Inserts a record into a table

@@ -5,8 +5,9 @@ namespace Phanda\Contracts\Bear\Table;
 use Phanda\Contracts\Bear\Query\Builder as QueryBuilder;
 use Phanda\Contracts\Bear\Entity\Entity as EntityContract;
 use Phanda\Contracts\Database\Query\Query as DatabaseQueryContract;
+use Phanda\Contracts\Database\Schema\TableSchema;
 use Phanda\Database\Query\Expression\QueryExpression;
-use Phanda\Exceptions\Bear\EntityNotFoundException;
+use Phanda\Exceptions\Bear\Entity\EntityNotFoundException;
 
 interface TableRepository
 {
@@ -221,5 +222,16 @@ interface TableRepository
      * @return QueryBuilder
      */
     public function callFinder(string $type, QueryBuilder $query, array $options = []): QueryBuilder;
+
+    /**
+     * @return TableSchema
+     */
+    public function getSchema();
+
+    /**
+     * @param $schema
+     * @return $this
+     */
+    public function setSchema($schema);
 
 }

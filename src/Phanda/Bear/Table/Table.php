@@ -2,6 +2,7 @@
 
 namespace Phanda\Bear\Table;
 
+use Phanda\Bear\Entity\Entity;
 use Phanda\Bear\Events\TableEvent;
 use Phanda\Bear\Query\Builder;
 use Phanda\Contracts\Bear\Entity\Entity as EntityContract;
@@ -11,8 +12,10 @@ use Phanda\Contracts\Database\Connection\Connection;
 use Phanda\Contracts\Events\Dispatcher;
 use Phanda\Database\Query\Expression\QueryExpression;
 use Phanda\Database\Schema\TableSchema;
-use Phanda\Exceptions\Bear\EntityNotFoundException;
+use Phanda\Exceptions\Bear\Entity\EntityNotFoundException;
+use Phanda\Exceptions\Bear\Entity\MissingEntityException;
 use Phanda\Support\PhandaInflector;
+use Phanda\Support\PhandArr;
 
 class Table implements TableRepository
 {
@@ -40,7 +43,7 @@ class Table implements TableRepository
     /**
      * @var string
      */
-    protected $displayRow;
+    protected $displayField;
 
     /**
      * @var string
@@ -176,7 +179,8 @@ class Table implements TableRepository
      */
     public function hasField(string $field): bool
     {
-        // TODO: Implement hasField() method.
+        $schema = $this->getSchema();
+        return $schema->getColumn($field) !== null;
     }
 
     /**
@@ -447,25 +451,49 @@ class Table implements TableRepository
      */
     public function getPrimaryKey()
     {
+        if ($this->primaryKey === null) {
+            $key = $this->getSchema()->primaryKey();
+
+            if (count($key) === 1) {
+                $key = $key[0];
+            }
+
+            $this->primaryKey = $key;
+        }
+
         return $this->primaryKey;
     }
 
     /**
-     * @param string $displayRow
+     * @param string $displayField
      * @return Table
      */
-    public function setDisplayRow(string $displayRow): Table
+    public function setDisplayField(string $displayField): Table
     {
-        $this->displayRow = $displayRow;
+        $this->displayField = $displayField;
         return $this;
     }
 
     /**
      * @return string
      */
-    public function getDisplayRow(): string
+    public function getDisplayField(): string
     {
-        return $this->displayRow;
+        if ($this->displayField === null) {
+            $schema = $this->getSchema();
+            $primary = PhandArr::makeArray($this->getPrimaryKey());
+            $this->displayField = array_shift($primary);
+
+            if ($schema->getColumn('title')) {
+                $this->displayField = 'title';
+            }
+
+            if ($schema->getColumn('name')) {
+                $this->displayField = 'name';
+            }
+        }
+
+        return $this->displayField;
     }
 
     /**
@@ -474,6 +502,15 @@ class Table implements TableRepository
      */
     public function setEntityClass(string $entityClass): Table
     {
+        if(!class_exists($entityClass)) {
+            throw new MissingEntityException("Entity class does not exist at {$entityClass}");
+        }
+
+        if(!is_subclass_of($entityClass, EntityContract::class)) {
+            $entityContract = EntityContract::class;
+            throw new MissingEntityException("Class '{$entityClass}' does not inherit the Entity contract '{$entityContract}'");
+        }
+
         $this->entityClass = $entityClass;
         return $this;
     }
@@ -483,6 +520,30 @@ class Table implements TableRepository
      */
     public function getEntityClass(): string
     {
+        if(!$this->entityClass) {
+            $default = Entity::class;
+            $self = get_called_class();
+            $parts = explode('\\', $self);
+
+            if ($self === __CLASS__ || count($parts) < 3) {
+                return $this->entityClass = $default;
+            }
+
+            $alias = PhandaInflector::classify(PhandaInflector::underscore(substr(array_pop($parts), 0, -5)));
+            $name = implode('\\', array_slice($parts, 0, -1)) . '\\Entity\\' . $alias;
+
+            if (!class_exists($name)) {
+                return $this->entityClass = $default;
+            }
+
+            if (!is_subclass_of($name, EntityContract::class)) {
+                $entityContract = EntityContract::class;
+                throw new MissingEntityException("Found Entity Class '{$name}', however it does not inherit the Entity contract '{$entityContract}'.");
+            }
+
+            $this->entityClass = $name;
+        }
+
         return $this->entityClass;
     }
 
@@ -542,8 +603,6 @@ class Table implements TableRepository
 
     /**
      * @return TableSchema
-     *
-     * @throws \Phanda\Exceptions\Database\Schema\SchemaException
      */
     public function getSchema()
     {
