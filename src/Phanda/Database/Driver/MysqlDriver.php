@@ -107,15 +107,19 @@ class MysqlDriver extends AbstractDriver
         return true;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function prepare($query): StatementContract
+	/**
+	 * @param string|Query $query
+	 * @return StatementContract
+	 */
+	public function prepare($query): StatementContract
     {
         $this->connect();
         $isObject = $query instanceof Query;
         $statement = $this->dbConnection->prepare($isObject ? $query->toSql() : $query);
         $result = new MysqlStatement($statement, $this);
+        if($isObject && $query->isBufferedResultsEnabled() === false) {
+        	$result->setBufferResults(false);
+		}
 
         return $result;
     }
