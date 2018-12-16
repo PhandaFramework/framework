@@ -303,4 +303,32 @@ abstract class AbstractDriver implements DriverContract
         $this->dbConnection = null;
     }
 
+    /**
+     * @param $value
+     * @return string
+     */
+    public function schemaValue($value): string
+    {
+        if ($value === null) {
+            return 'NULL';
+        }
+        if ($value === false) {
+            return 'FALSE';
+        }
+        if ($value === true) {
+            return 'TRUE';
+        }
+        if (is_float($value)) {
+            return str_replace(',', '.', (string)$value);
+        }
+        if ((is_int($value) || $value === '0') || (
+                is_numeric($value) && strpos($value, ',') === false &&
+                $value[0] !== '0' && strpos($value, 'e') === false)
+        ) {
+            return (string)$value;
+        }
+
+        return $this->dbConnection->quote($value, PDO::PARAM_STR);
+    }
+
 }
