@@ -164,7 +164,7 @@ class Dictionary extends \IteratorIterator implements Arrayable, \ArrayAccess, \
      */
     public function first()
     {
-        return $this->items[0];
+        return $this->items[0] ?? [];
     }
 
     public function combine($keyPath, $valuePath, $groupPath = null)

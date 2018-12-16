@@ -2,6 +2,7 @@
 
 namespace Phanda\Bear\Table;
 
+use BadMethodCallException;
 use Phanda\Bear\Entity\Entity;
 use Phanda\Bear\Events\TableEvent;
 use Phanda\Bear\Query\Builder;
@@ -326,17 +327,18 @@ class Table implements TableRepository
      * @return EntityContract|null
      *
      * @see TableRepository::find()
-     *
-     * @throws EntityNotFoundException
      */
     public function get($primaryKey, $options = []): ?EntityContract
     {
         $key = PhandArr::makeArray($this->getPrimaryKey());
         $alias = $this->getAlias();
+
         foreach ($key as $index => $keyName) {
             $key[$index] = $alias . '.' . $keyName;
         }
-        $primaryKey = (array)$primaryKey;
+
+        $primaryKey = PhandArr::makeArray($primaryKey);
+
         if (count($key) !== count($primaryKey)) {
             $primaryKey = $primaryKey ?: [null];
             $primaryKey = array_map(function ($key) {
@@ -349,6 +351,7 @@ class Table implements TableRepository
                 implode($primaryKey, ', ')
             ));
         }
+
         $conditions = array_combine($key, $primaryKey);
 
         $finder = isset($options['finder']) ? $options['finder'] : 'all';
@@ -356,7 +359,7 @@ class Table implements TableRepository
 
         $query = $this->find($finder, $options)->where($conditions);
 
-        return $query->firstOrFail();
+        return $query->first();
     }
 
     /**
@@ -373,7 +376,13 @@ class Table implements TableRepository
      */
     public function getOrFail($primaryKey, $options = []): EntityContract
     {
-        // TODO: Implement getOrFail() method.
+        $results = $this->get($primaryKey, $options);
+
+        if (!$results) {
+            throw new EntityNotFoundException("Finding an entity with Primary Key: '{$primaryKey}' failed. This entity doesn't exist.");
+        }
+
+        return $results;
     }
 
     /**
@@ -400,7 +409,16 @@ class Table implements TableRepository
      */
     public function updateAll($fields, $conditions): int
     {
-        // TODO: Implement updateAll() method.
+        $query = $this->query();
+
+        $query->update()
+            ->set($fields)
+            ->where($conditions);
+
+        $statement = $query->execute();
+        $statement->closeCursor();
+
+        return $statement->getRowCount();
     }
 
     /**
@@ -416,7 +434,14 @@ class Table implements TableRepository
      */
     public function deleteAll($conditions): int
     {
-        // TODO: Implement deleteAll() method.
+        $query = $this->query()
+            ->delete()
+            ->where($conditions);
+
+        $statement = $query->execute();
+        $statement->closeCursor();
+
+        return $statement->getRowCount();
     }
 
     /**
@@ -428,7 +453,14 @@ class Table implements TableRepository
      */
     public function exists($conditions): bool
     {
-        // TODO: Implement exists() method.
+        return (bool)count(
+            $this->find('all')
+                ->select(['existing' => 1])
+                ->where($conditions)
+                ->limit(1)
+                ->disableHydration()
+                ->toArray()
+        );
     }
 
     /**
@@ -561,7 +593,17 @@ class Table implements TableRepository
      */
     public function callFinder(string $type, QueryBuilder $query, array $options = []): QueryBuilder
     {
-        // TODO: Implement callFinder() method.
+        $query->applyOptions($options);
+        $options = $query->getOptions();
+        $finder = 'find' . $type;
+
+        if (method_exists($this, $finder)) {
+            return $this->{$finder}($query, $options);
+        }
+
+        throw new BadMethodCallException(
+            sprintf('Unknown finder method "%s"', $type)
+        );
     }
 
     /**
