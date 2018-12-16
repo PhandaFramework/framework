@@ -62,6 +62,38 @@ class Entity implements EntityContract
 	 */
 	public function __construct(array $properties = [], array $options = [])
 	{
+		$options += [
+			'useSetters' => true,
+			'markClean' => false,
+			'markNew' => null,
+			'guard' => false,
+			'source' => null
+		];
+
+		if (!empty($options['source'])) {
+			$this->setSource($options['source']);
+		}
+
+		if ($options['markNew'] !== null) {
+			$this->isNew($options['markNew']);
+		}
+
+		if (!empty($properties) && $options['markClean'] && !$options['useSetters']) {
+			$this->properties = $properties;
+
+			return;
+		}
+
+		if (!empty($properties)) {
+			$this->set($properties, [
+				'setter' => $options['useSetters'],
+				'guard' => $options['guard']
+			]);
+		}
+
+		if ($options['markClean']) {
+			$this->clean();
+		}
 	}
 
 	/**

@@ -2,7 +2,7 @@
 
 namespace Phanda\Contracts\Bear\Entity;
 
-interface Entity
+interface Entity extends \ArrayAccess, \JsonSerializable
 {
 	/**
 	 * Gets all original values of the entity.
