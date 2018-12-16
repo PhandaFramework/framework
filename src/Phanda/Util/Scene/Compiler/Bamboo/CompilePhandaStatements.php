@@ -5,7 +5,7 @@ namespace Phanda\Util\Scene\Compiler\Bamboo;
 trait CompilePhandaStatements
 {
     /**
-     * Compile the inject statements into valid PHP.
+     * Compile the create statements into valid PHP.
      *
      * @param  string  $expression
      * @return string
