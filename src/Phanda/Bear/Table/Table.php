@@ -11,6 +11,7 @@ use Phanda\Contracts\Database\Connection\Connection;
 use Phanda\Contracts\Events\Dispatcher;
 use Phanda\Database\Query\Expression\QueryExpression;
 use Phanda\Exceptions\Bear\EntityNotFoundException;
+use Phanda\Support\PhandaInflector;
 
 class Table implements TableRepository
 {
@@ -122,6 +123,12 @@ class Table implements TableRepository
      */
     public function getAlias(): string
     {
+        if($this->alias === null) {
+            $alias = stripNamespace(get_class($this));
+            $alias = substr($alias, 0, -5) ?: $this->table;
+            $this->alias = $alias;
+        }
+
         return $this->alias;
     }
 
@@ -144,6 +151,10 @@ class Table implements TableRepository
      */
     public function getRegistryAlias(): string
     {
+        if($this->registryAlias === null) {
+            $this->registryAlias = $this->getAlias();
+        }
+
         return $this->registryAlias;
     }
 
@@ -357,6 +368,7 @@ class Table implements TableRepository
             if(!$table) {
                 $table = $this->getAlias();
             }
+            $this->table = PhandaInflector::underscore($table);
         }
 
         return $this->table;
@@ -499,5 +511,32 @@ class Table implements TableRepository
         $event = new TableEvent($this, $data);
         $eventDispatcher->dispatch($name, $event);
         return $event;
+    }
+
+    /**
+     * Aliases a field with the current table name/alias
+     *
+     * If the field is already aliased, it gets ignored.
+     *
+     * @param string $field
+     * @return string
+     */
+    public function aliasField(string $field): string
+    {
+        if (strpos($field, '.') !== false) {
+            return $field;
+        }
+
+        return $this->getAlias() . '.' . $field;
+    }
+
+    public function getSchema()
+    {
+        // TODO: This
+    }
+
+    public function setSchema()
+    {
+        // TODO: This
     }
 }
