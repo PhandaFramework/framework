@@ -26,9 +26,9 @@ interface Query
      * Sets the internal connection instance of this query
      *
      * @param Connection $connection
-     * @return Query
+     * @return $this
      */
-    public function setConnection(Connection $connection): Query;
+    public function setConnection(Connection $connection);
 
     /**
      * Gets the connection instance of this query
@@ -41,9 +41,9 @@ interface Query
      * Sets the internal ValueBinder for this query
      *
      * @param ValueBinder $binder
-     * @return Query
+     * @return $this
      */
-    public function setValueBinder(ValueBinder $binder): Query;
+    public function setValueBinder(ValueBinder $binder);
 
     /**
      * Gets the internal ValueBinder for this query
@@ -79,17 +79,17 @@ interface Query
      *
      * @param callable $visitor
      * @param array $queryKeywords
-     * @return Query
+     * @return $this
      */
-    public function traverse(callable $visitor, array $queryKeywords = []): Query;
+    public function traverse(callable $visitor, array $queryKeywords = []);
 
     /**
      * Does a full-depth traversal of every item in the Query tree
      *
      * @param callable $callback
-     * @return Query
+     * @return $this
      */
-    public function traverseExpressions(callable $callback): Query;
+    public function traverseExpressions(callable $callback);
 
     /**
      * Adds fields to be returned by the execution of this query with a `SELECT` statement.
@@ -99,53 +99,53 @@ interface Query
      *
      * @param array|string $fields
      * @param bool $overwrite
-     * @return Query
+     * @return $this
      */
-    public function select($fields = [], $overwrite = false): Query;
+    public function select($fields = [], $overwrite = false);
 
     /**
      * Adds a distinct to fields in the current query
      *
      * @param array|string|bool $on
      * @param bool $overwrite
-     * @return Query
+     * @return $this
      */
-    public function distinct($on = [], $overwrite = false): Query;
+    public function distinct($on = [], $overwrite = false);
 
     /**
      * Adds a modifer to be performed after a `SELECT`
      *
      * @param $modifiers
      * @param bool $overwrite
-     * @return Query
+     * @return $this
      */
-    public function modifier($modifiers, $overwrite = false): Query;
+    public function modifier($modifiers, $overwrite = false);
 
     /**
      * Adds a table(s) to the `FROM` clause of this statement
      *
      * @param string|array $tables
      * @param bool $overwrite
-     * @return Query
+     * @return $this
      */
-    public function from($tables, $overwrite = false): Query;
+    public function from($tables, $overwrite = false);
 
     /**
      * Adds a single or multiple tables to be used as JOIN clauses to this query.
      *
      * @param array|string|null $tables
      * @param bool $overwrite
-     * @return Query
+     * @return $this
      */
-    public function join($tables, $overwrite = false): Query;
+    public function join($tables, $overwrite = false);
 
     /**
      * Removes a join from this query by name/alias if it exists
      *
      * @param string $joinName
-     * @return Query
+     * @return $this
      */
-    public function removeJoin(string $joinName): Query;
+    public function removeJoin(string $joinName);
 
     /**
      * Adds a single left join to this query.
@@ -155,7 +155,7 @@ interface Query
      *
      * @param string|array $table
      * @param string|array|ExpressionContract $conditions
-     * @return Query
+     * @return $this
      */
     public function leftJoin($table, $conditions = []);
 
@@ -167,7 +167,7 @@ interface Query
      *
      * @param string|array $table
      * @param string|array|ExpressionContract $conditions
-     * @return Query
+     * @return $this
      */
     public function innerJoin($table, $conditions = []);
 
@@ -179,7 +179,7 @@ interface Query
      *
      * @param string|array $table
      * @param string|array|ExpressionContract $conditions
-     * @return Query
+     * @return $this
      */
     public function rightJoin($table, $conditions = []);
 
@@ -188,25 +188,25 @@ interface Query
      *
      * @param string|array|callable|ExpressionContract|null $conditions
      * @param bool $overwrite
-     * @return Query
+     * @return $this
      */
-    public function where($conditions = null, $overwrite = false): Query;
+    public function where($conditions = null, $overwrite = false);
 
     /**
      * Adds a condition to check where a field is not null
      *
      * @param array|string|ExpressionContract $fields
-     * @return Query
+     * @return $this
      */
-    public function whereNotNull($fields): Query;
+    public function whereNotNull($fields);
 
     /**
      * Adds a condition to check where a field is null
      *
      * @param array|string|ExpressionContract $fields
-     * @return Query
+     * @return $this
      */
-    public function whereNull($fields): Query;
+    public function whereNull($fields);
 
     /**
      * Adds a condition to check where a field is in a list
@@ -214,9 +214,9 @@ interface Query
      * @param string $field
      * @param array $values
      * @param array $options
-     * @return Query
+     * @return $this
      */
-    public function whereIn(string $field, array $values, array $options = []): Query;
+    public function whereIn(string $field, array $values, array $options = []);
 
     /**
      * Adds a condition to check where a field is not in a list
@@ -224,17 +224,17 @@ interface Query
      * @param string $field
      * @param array $values
      * @param array $options
-     * @return Query
+     * @return $this
      */
-    public function whereNotIn(string $field, array $values, array $options = []): Query;
+    public function whereNotIn(string $field, array $values, array $options = []);
 
     /**
      * Connects any previous where queries in this query, and conjugates it with an 'AND'
      *
      * @param string|array|callable|ExpressionContract $conditions
-     * @return Query
+     * @return $this
      */
-    public function andWhere($conditions): Query;
+    public function andWhere($conditions);
 
     /**
      * Performs an order by on fields in this query
@@ -244,43 +244,43 @@ interface Query
      *
      * @param array|string|callable|ExpressionContract $fields
      * @param bool $overwrite
-     * @return Query
+     * @return $this
      */
-    public function orderBy($fields, $overwrite = false): Query;
+    public function orderBy($fields, $overwrite = false);
 
     /**
      * Add an ORDER BY clause with an ASC direction.
      *
      * @param string|QueryExpression $field
      * @param bool $overwrite
-     * @return Query
+     * @return $this
      */
-    public function orderByAsc($field, $overwrite = false): Query;
+    public function orderByAsc($field, $overwrite = false);
 
     /**
      * Add an ORDER BY clause with an DESC direction.
      *
      * @param string|QueryExpression $field
      * @param bool $overwrite
-     * @return Query
+     * @return $this
      */
-    public function orderByDesc($field, $overwrite = false): Query;
+    public function orderByDesc($field, $overwrite = false);
 
     /**
      * Adds a GROUP BY clause to this query
      *
      * @param string|array|ExpressionContract $fields
      * @param bool $overwrite
-     * @return Query
+     * @return $this
      */
-    public function groupBy($fields, $overwrite = false): Query;
+    public function groupBy($fields, $overwrite = false);
 
     /**
      * Adds a 'HAVING' clause to this query
      *
      * @param string|array|callable|ExpressionContract|null $conditions
      * @param bool $overwrite
-     * @return Query
+     * @return $this
      */
     public function having($conditions = null, $overwrite = false);
 
@@ -288,17 +288,17 @@ interface Query
      * Adds a LIMIT to the query
      *
      * @param int|ExpressionContract $limit
-     * @return Query
+     * @return $this
      */
-    public function limit($limit): Query;
+    public function limit($limit);
 
     /**
      * Sets the number of records that should be skipped in the original result set
      *
      * @param int|ExpressionContract $offset
-     * @return Query
+     * @return $this
      */
-    public function offset($offset): Query;
+    public function offset($offset);
 
     /**
      * A helper function to handle the LIMIT and OFFSET calls for you.
@@ -312,7 +312,7 @@ interface Query
      *
      * @param int $page
      * @param int|ExpressionContract|null $limit
-     * @return Query
+     * @return $this
      */
     public function page(int $page, $limit = null);
 
@@ -321,16 +321,16 @@ interface Query
      *
      * @param string|Query $query
      * @param bool $overwrite
-     * @return Query
+     * @return $this
      */
-    public function union($query, $overwrite = false): Query;
+    public function union($query, $overwrite = false);
 
     /**
      * Adds a complete query to be used in conjunction with a 'UNION ALL'
      *
      * @param string|Query $query
      * @param bool $overwrite
-     * @return Query
+     * @return $this
      */
     public function unionAll($query, $overwrite = false);
 
@@ -338,11 +338,11 @@ interface Query
      * Creates an insert query
      *
      * @param array $columns
-     * @return Query
+     * @return $this
      *
      * @throws RuntimeException When no columns are given
      */
-    public function insert(array $columns): Query;
+    public function insert(array $columns);
 
     /**
      * Sets the table for the insert query to be inserted into
@@ -351,15 +351,15 @@ interface Query
      * Or $query->into('table')->insert(...)->values(...);
      *
      * @param string $table
-     * @return Query
+     * @return $this
      */
-    public function into(string $table): Query;
+    public function into(string $table);
 
     /**
      * Sets the values for the insert of the query
      *
      * @param array|Query $data
-     * @return Query
+     * @return $this
      */
     public function values($data);
 
@@ -367,11 +367,11 @@ interface Query
      * Creates an update query
      *
      * @param string|ExpressionContract $table
-     * @return Query
+     * @return $this
      *
      * @throws InvalidArgumentException When $table is not a string or ExpressionContract
      */
-    public function update($table): Query;
+    public function update($table);
 
     /**
      * Sets one, or many fields of this update query
@@ -382,15 +382,15 @@ interface Query
      *
      * @param string|array|callable|QueryExpression $key
      * @param mixed $value
-     * @return Query
+     * @return $this
      */
-    public function set($key, $value = null): Query;
+    public function set($key, $value = null);
 
     /**
      * Creates a delete query
      *
      * @param string|null $table
-     * @return Query
+     * @return $this
      */
     public function delete(?string $table = null);
 
@@ -398,9 +398,9 @@ interface Query
      * Appends an expression to the end of the generated query
      *
      * @param null $expression
-     * @return Query
+     * @return $this
      */
-    public function append($expression = null): Query;
+    public function append($expression = null);
 
     /**
      * Creates an identifier from a string
@@ -423,18 +423,18 @@ interface Query
      *
      * @param string|int $param
      * @param mixed $value
-     * @return Query
+     * @return $this
      */
-    public function bind($param, $value): Query;
+    public function bind($param, $value);
 
     /**
      * Add a result decorator to be used when returning the results
      *
      * @param callable|null $callback
      * @param bool $overwrite
-     * @return Query
+     * @return $this
      */
-    public function decorateResults(?callable $callback, $overwrite = false): Query;
+    public function decorateResults(?callable $callback, $overwrite = false);
 
     /**
      * Gets the type of the current query

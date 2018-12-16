@@ -227,7 +227,7 @@ interface Builder extends QueryContract
      * @param bool $overwrite
      * @return Builder
      */
-    public function select($fields = [], $overwrite = false): QueryContract;
+    public function select($fields = [], $overwrite = false);
 
     /**
      * Sets the hydration status of this query builder. (Whether or not to convert to entity)
@@ -269,7 +269,7 @@ interface Builder extends QueryContract
      * @param null|string $table
      * @return Builder
      */
-    public function update($table = null): QueryContract;
+    public function update($table = null);
 
     /**
      * Deletes a record from the table
@@ -287,5 +287,5 @@ interface Builder extends QueryContract
      * @param array $columns
      * @return Builder
      */
-    public function insert(array $columns): QueryContract;
+    public function insert(array $columns);
 }

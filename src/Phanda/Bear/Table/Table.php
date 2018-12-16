@@ -9,11 +9,13 @@ use Phanda\Contracts\Bear\Entity\Entity as EntityContract;
 use Phanda\Contracts\Bear\Query\Builder as QueryBuilder;
 use Phanda\Contracts\Bear\Table\TableRepository;
 use Phanda\Contracts\Database\Connection\Connection;
+use Phanda\Contracts\Dictionary\Dictionary;
 use Phanda\Contracts\Events\Dispatcher;
 use Phanda\Database\Query\Expression\QueryExpression;
 use Phanda\Database\Schema\TableSchema;
 use Phanda\Exceptions\Bear\Entity\EntityNotFoundException;
 use Phanda\Exceptions\Bear\Entity\MissingEntityException;
+use Phanda\Exceptions\Bear\Table\InvalidPrimaryKeyException;
 use Phanda\Support\PhandaInflector;
 use Phanda\Support\PhandArr;
 
@@ -192,7 +194,128 @@ class Table implements TableRepository
      */
     public function find(string $type = 'all', $options = []): QueryBuilder
     {
-        // TODO: Implement find() method.
+        $query = $this->query();
+        $query->select();
+        return $this->callFinder($type, $query, $options);
+    }
+
+    /**
+     * Returns the query as passed.
+     *
+     * @param QueryBuilder $query The query to find with
+     * @param array $options The options to use for the find
+     * @return QueryBuilder The query builder
+     */
+    public function findAll(QueryBuilder $query, array $options): QueryBuilder
+    {
+        return $query;
+    }
+
+    /**
+     * Sets up a query object so results appear as an indexed array
+     *
+     * @param QueryBuilder $query The query to find with
+     * @param array $options The options for the find
+     * @return QueryBuilder The query builder
+     */
+    public function findList(QueryBuilder $query, array $options): QueryBuilder
+    {
+        $options += [
+            'keyField' => $this->getPrimaryKey(),
+            'valueField' => $this->getDisplayField(),
+            'groupField' => null
+        ];
+
+        if (!$query->getClause('select') &&
+            !is_object($options['keyField']) &&
+            !is_object($options['valueField']) &&
+            !is_object($options['groupField'])
+        ) {
+            $fields = array_merge(
+                (array)$options['keyField'],
+                (array)$options['valueField'],
+                (array)$options['groupField']
+            );
+
+            $columns = $this->getSchema()->columns();
+
+            if (count($fields) === count(array_intersect($fields, $columns))) {
+                $query->select($fields);
+            }
+        }
+
+        $options = $this->setFieldMatchers(
+            $options,
+            ['keyField', 'valueField', 'groupField']
+        );
+
+        return $query->addQueryFormatter(function ($results) use ($options) {
+            /** @var Dictionary $results */
+            return $results->combine(
+                $options['keyField'],
+                $options['valueField'],
+                $options['groupField']
+            );
+        });
+    }
+
+    /**
+     * Results for this finder will be a nested array, and is appropriate if you want
+     * to use the parent_id field of your model data to build nested results.
+     *
+     * @param QueryBuilder $query The query to find with
+     * @param array $options The options to find with
+     * @return QueryBuilder The query builder
+     */
+    public function findThreaded(QueryBuilder $query, array $options): QueryBuilder
+    {
+        $options += [
+            'keyField' => $this->getPrimaryKey(),
+            'parentField' => 'parent_id',
+            'nestingKey' => 'children'
+        ];
+
+        $options = $this->setFieldMatchers($options, ['keyField', 'parentField']);
+
+        return $query->addQueryFormatter(function ($results) use ($options) {
+            /** @var Dictionary $results */
+            return $results->nest($options['keyField'], $options['parentField'], $options['nestingKey']);
+        });
+    }
+
+    /**
+     * Out of an options array, check if the keys described in `$keys` are arrays
+     * and change the values for closures that will concatenate the each of the
+     * properties in the value array when passed a row.
+     *
+     * @param array $options
+     * @param array $keys
+     * @return array
+     */
+    protected function setFieldMatchers(array $options, array $keys): array
+    {
+        foreach ($keys as $field) {
+            if (!is_array($options[$field])) {
+                continue;
+            }
+
+            if (count($options[$field]) === 1) {
+                $options[$field] = current($options[$field]);
+                continue;
+            }
+
+            $fields = $options[$field];
+            $options[$field] = function ($row) use ($fields) {
+                $matches = [];
+                foreach ($fields as $field) {
+                    $matches[] = $row[$field];
+                }
+
+                return implode(';', $matches);
+            };
+        }
+
+        return $options;
     }
 
     /**
@@ -203,10 +326,37 @@ class Table implements TableRepository
      * @return EntityContract|null
      *
      * @see TableRepository::find()
+     *
+     * @throws EntityNotFoundException
      */
     public function get($primaryKey, $options = []): ?EntityContract
     {
-        // TODO: Implement get() method.
+        $key = PhandArr::makeArray($this->getPrimaryKey());
+        $alias = $this->getAlias();
+        foreach ($key as $index => $keyName) {
+            $key[$index] = $alias . '.' . $keyName;
+        }
+        $primaryKey = (array)$primaryKey;
+        if (count($key) !== count($primaryKey)) {
+            $primaryKey = $primaryKey ?: [null];
+            $primaryKey = array_map(function ($key) {
+                return var_export($key, true);
+            }, $primaryKey);
+
+            throw new InvalidPrimaryKeyException(sprintf(
+                'Record not found in table "%s" with primary key [%s]',
+                $this->getTableName(),
+                implode($primaryKey, ', ')
+            ));
+        }
+        $conditions = array_combine($key, $primaryKey);
+
+        $finder = isset($options['finder']) ? $options['finder'] : 'all';
+        unset($options['key'], $options['cache'], $options['finder']);
+
+        $query = $this->find($finder, $options)->where($conditions);
+
+        return $query->firstOrFail();
     }
 
     /**
@@ -502,11 +652,11 @@ class Table implements TableRepository
      */
     public function setEntityClass(string $entityClass): Table
     {
-        if(!class_exists($entityClass)) {
+        if (!class_exists($entityClass)) {
             throw new MissingEntityException("Entity class does not exist at {$entityClass}");
         }
 
-        if(!is_subclass_of($entityClass, EntityContract::class)) {
+        if (!is_subclass_of($entityClass, EntityContract::class)) {
             $entityContract = EntityContract::class;
             throw new MissingEntityException("Class '{$entityClass}' does not inherit the Entity contract '{$entityContract}'");
         }
@@ -520,7 +670,7 @@ class Table implements TableRepository
      */
     public function getEntityClass(): string
     {
-        if(!$this->entityClass) {
+        if (!$this->entityClass) {
             $default = Entity::class;
             $self = get_called_class();
             $parts = explode('\\', $self);

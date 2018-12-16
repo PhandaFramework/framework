@@ -7,10 +7,10 @@ use Phanda\Contracts\Bear\Entity\Entity as EntityContract;
 use Phanda\Contracts\Bear\Query\ResultSet as ResultSetContract;
 use Phanda\Contracts\Bear\Table\TableRepository;
 use Phanda\Contracts\Database\Connection\Connection;
-use Phanda\Contracts\Database\Query\Query as QueryContract;
 use Phanda\Contracts\Database\Statement;
 use Phanda\Database\Query\Query as DatabaseQueryBuilder;
 use Phanda\Contracts\Bear\Query\Builder as QueryBuilderContract;
+use Phanda\Database\Query\Query;
 use Phanda\Database\ValueBinder;
 use Phanda\Dictionary\Iterator\MapReduceIterator;
 use Phanda\Exceptions\Bear\Entity\EntityNotFoundException;
@@ -509,7 +509,7 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
      * @param bool $overwrite
      * @return Builder
      */
-    public function select($fields = [], $overwrite = false): QueryContract
+    public function select($fields = [], $overwrite = false): Query
     {
         return parent::select($fields, $overwrite);
     }
@@ -724,13 +724,14 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
      * @param null|string $table
      * @return Builder
      */
-    public function update($table = null): QueryContract
+    public function update($table = null)
     {
         if(!$table) {
             $table = $this->getRepository()->getTableName();
         }
 
-        return parent::update($table);
+        parent::update($table);
+        return $this;
     }
 
     /**
@@ -741,24 +742,27 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
      * @param string|null $table
      * @return Builder
      */
-    public function delete(?string $table = null): QueryContract
+    public function delete(?string $table = null)
     {
         $repository = $this->getRepository();
         $this->from([$repository->getAlias() => $repository->getTableName()]);
 
-        return parent::delete();
+        parent::delete();
+        return $this;
     }
 
     /**
      * Inserts a record into a table
      *
      * @param array $columns
-     * @return Builder
+     * @return $this
      */
-    public function insert(array $columns): QueryContract
+    public function insert(array $columns)
     {
         $repository = $this->getRepository();
         $this->into($repository->getTableName());
-        return parent::insert($columns);
+
+        parent::insert($columns);
+        return $this;
     }
 }
