@@ -48,12 +48,12 @@ if (!function_exists('data_get')) {
     }
 }
 
-if (! function_exists('environment')) {
+if (!function_exists('environment')) {
     /**
      * Gets the value of an environment variable.
      *
-     * @param  string  $key
-     * @param  mixed   $default
+     * @param  string $key
+     * @param  mixed $default
      * @return mixed
      */
     function environment($key = null, $default = null)
@@ -61,7 +61,7 @@ if (! function_exists('environment')) {
         /** @var \Phanda\Environment\Repository $environment */
         $environment = phanda('environment');
 
-        if(is_null($key)) {
+        if (is_null($key)) {
             return $environment;
         }
 
@@ -96,8 +96,7 @@ if (! function_exists('environment')) {
 }
 
 
-
-if (! function_exists('config')) {
+if (!function_exists('config')) {
     /**
      * @param null|string|array $key
      * @param mixed $default
@@ -121,12 +120,12 @@ if (! function_exists('config')) {
     }
 }
 
-if (! function_exists('modify')) {
+if (!function_exists('modify')) {
     /**
      * Call the given Closure with the given value then return the value.
      *
-     * @param  mixed  $value
-     * @param  callable|null  $callback
+     * @param  mixed $value
+     * @param  callable|null $callback
      * @return mixed
      */
     function modify($value, $callback)
@@ -149,12 +148,12 @@ if (!function_exists('value')) {
     }
 }
 
-if (! function_exists('e')) {
+if (!function_exists('e')) {
     /**
      * Escape HTML special characters in a string.
      *
-     * @param  Htmlable|string  $value
-     * @param  bool  $doubleEncode
+     * @param  Htmlable|string $value
+     * @param  bool $doubleEncode
      * @return string
      */
     function e($value, $doubleEncode = true)
@@ -167,9 +166,7 @@ if (! function_exists('e')) {
     }
 }
 
-
-
-if(!function_exists('createDictionary')) {
+if (!function_exists('createDictionary')) {
     /**
      * Creates a new Dictionary with the given items.
      *
@@ -179,5 +176,37 @@ if(!function_exists('createDictionary')) {
     function createDictionary($items = [])
     {
         return new \Phanda\Dictionary\Dictionary($items);
+    }
+}
+
+if (!function_exists('splitNamespace')) {
+    /**
+     * Splits a FQN of a class into an array where the first index
+     * is the namespace, and the second is the class.
+     *
+     * @param string $class
+     * @return array
+     */
+    function splitNamespace(string $class): array
+    {
+        $pos = strrpos($class, '\\');
+        if ($pos === false) {
+            return ['', $class];
+        }
+
+        return [substr($class, 0, $pos), substr($class, $pos + 1)];
+    }
+}
+
+if (!function_exists('stripNamespace')) {
+    /**
+     * Splits a FQN of a class into just the class name.
+     *
+     * @param string $class
+     * @return string
+     */
+    function stripNamespace(string $class): string
+    {
+        return splitNamespace($class)[1];
     }
 }

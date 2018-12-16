@@ -2,6 +2,8 @@
 
 namespace Phanda\Bear\Table;
 
+use Phanda\Bear\Events\TableEvent;
+use Phanda\Bear\Query\Builder;
 use Phanda\Contracts\Bear\Entity\Entity as EntityContract;
 use Phanda\Contracts\Bear\Query\Builder as QueryBuilder;
 use Phanda\Contracts\Bear\Table\TableRepository;
@@ -53,6 +55,11 @@ class Table implements TableRepository
      */
     protected $eventDispatcher;
 
+    /**
+     * Table constructor.
+     *
+     * @param array $config
+     */
     public function __construct(array $config = [])
     {
         if(!empty($config['registry_alias'])) {
@@ -80,6 +87,7 @@ class Table implements TableRepository
         }
 
         $this->initialize($config);
+        $this->dispatchEvent('table.initialize');
     }
 
     /**
@@ -103,7 +111,8 @@ class Table implements TableRepository
      */
     public function setAlias(string $alias): TableRepository
     {
-        // TODO: Implement setAlias() method.
+        $this->alias = $alias;
+        return $this;
     }
 
     /**
@@ -113,7 +122,7 @@ class Table implements TableRepository
      */
     public function getAlias(): string
     {
-        // TODO: Implement getAlias() method.
+        return $this->alias;
     }
 
     /**
@@ -124,7 +133,8 @@ class Table implements TableRepository
      */
     public function setRegistryAlias(string $alias): TableRepository
     {
-        // TODO: Implement setRegistryAlias() method.
+        $this->registryAlias = $alias;
+        return $this;
     }
 
     /**
@@ -134,7 +144,7 @@ class Table implements TableRepository
      */
     public function getRegistryAlias(): string
     {
-        // TODO: Implement getRegistryAlias() method.
+        return $this->registryAlias;
     }
 
     /**
@@ -198,7 +208,7 @@ class Table implements TableRepository
      */
     public function query(): QueryBuilder
     {
-        // TODO: Implement query() method.
+        return new Builder($this->getConnection(), $this);
     }
 
     /**
@@ -341,6 +351,14 @@ class Table implements TableRepository
      */
     public function getTableName(): string
     {
+        if($this->table === null) {
+            $table = stripNamespace(get_class($this));
+            $table = substr($table, 0, -5);
+            if(!$table) {
+                $table = $this->getAlias();
+            }
+        }
+
         return $this->table;
     }
 
@@ -385,6 +403,10 @@ class Table implements TableRepository
      */
     public function getConnection(): Connection
     {
+        if($this->connection === null) {
+            $this->connection = phanda()->create(Connection::class);
+        }
+
         return $this->connection;
     }
 
@@ -462,5 +484,20 @@ class Table implements TableRepository
         }
 
         return $this->eventDispatcher;
+    }
+
+    /**
+     * Helper function that helps to dispatch table events
+     *
+     * @param string $name
+     * @param array|null $data
+     * @return TableEvent
+     */
+    public function dispatchEvent(string $name, ?array $data = null): TableEvent
+    {
+        $eventDispatcher = $this->getEventDispatcher();
+        $event = new TableEvent($this, $data);
+        $eventDispatcher->dispatch($name, $event);
+        return $event;
     }
 }
