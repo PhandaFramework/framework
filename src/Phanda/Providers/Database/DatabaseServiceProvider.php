@@ -12,6 +12,7 @@ use Phanda\Contracts\Database\Connection\Manager as ConnectionManagerContract;
 use Phanda\Database\Driver\DriverRegistry;
 use Phanda\Database\Driver\MysqlDriver;
 use Phanda\Database\Query\Query;
+use Phanda\Database\Schema\SchemaCollection;
 use Phanda\Providers\AbstractServiceProvider;
 
 class DatabaseServiceProvider extends AbstractServiceProvider
@@ -25,6 +26,7 @@ class DatabaseServiceProvider extends AbstractServiceProvider
         $this->registerDriverRegistry();
         $this->registerConnectionManager();
         $this->registerDefaultConnection();
+        $this->registerSchemaCollection();
         $this->registerDatabaseQueryBuilder();
     }
 
@@ -76,6 +78,20 @@ class DatabaseServiceProvider extends AbstractServiceProvider
         });
 
         $this->phanda->alias(ConnectionContract::class, Connection::class);
+    }
+
+    /**
+     * Registers the SchemaCollection to ensure it's getting it from the
+     * current connection
+     */
+    protected function registerSchemaCollection()
+    {
+        $this->phanda->attach(SchemaCollection::class, function($phanda) {
+            /** @var Application $phanda */
+            /** @var Connection $connection */
+            $connection = $phanda->create(Connection::class);
+            return $connection->getSchemaCollection();
+        });
     }
 
     protected function registerDatabaseQueryBuilder()
