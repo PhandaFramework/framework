@@ -166,17 +166,17 @@ class Query implements \IteratorAggregate, QueryContract
     /**
      * Returns the current query to the domain-specific sql.
      *
-     * @param ValueBinder|null $generator
+     * @param ValueBinder|null $valueBinder
      * @return string
      */
-    public function toSql(ValueBinder $generator = null): string
+    public function toSql(ValueBinder $valueBinder = null): string
     {
-        if (!$generator) {
-            $generator = $this->getValueBinder();
-            $generator->reset();
+        if (!$valueBinder) {
+            $valueBinder = $this->getValueBinder();
+            $valueBinder->reset();
         }
 
-        return $this->getConnection()->compileQuery($this, $generator);
+        return $this->getConnection()->compileQuery($this, $valueBinder);
     }
 
     /**

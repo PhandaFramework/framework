@@ -69,10 +69,10 @@ interface Query
     /**
      * Returns the current query to the domain-specific sql.
      *
-     * @param ValueBinder|null $generator
+     * @param ValueBinder|null $valueBinder
      * @return string
      */
-    public function toSql(ValueBinder $generator = null): string;
+    public function toSql(ValueBinder $valueBinder = null): string;
 
     /**
      * Iterate over each keyword on the query, calling back the visitor function

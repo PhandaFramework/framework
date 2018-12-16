@@ -19,11 +19,6 @@ use Phanda\Contracts\Database\Query\Expression\Expression as ExpressionContract;
 
 class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \JsonSerializable
 {
-
-    const OPERATION_PREPEND = 0;
-    const OPERATION_APPEND = 1;
-    const OPERATION_OVERWRITE = 2;
-
     /**
      * @var TableRepository
      */
@@ -119,7 +114,7 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
      * @param TableRepository $repository
      * @return Builder
      */
-    public function setRepository(TableRepository $repository): Builder
+    public function setRepository(TableRepository $repository): QueryBuilderContract
     {
         $this->repository = $repository;
         return $this;
@@ -144,7 +139,7 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
      * @param ResultSetContract $results
      * @return Builder
      */
-    public function setResults(ResultSetContract $results): Builder
+    public function setResults(ResultSetContract $results): QueryBuilderContract
     {
         $this->results = $results;
         return $this;
@@ -166,7 +161,7 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
      * @param bool $eagerLoaded
      * @return Builder
      */
-    public function setEagerLoaded(bool $eagerLoaded): Builder
+    public function setEagerLoaded(bool $eagerLoaded): QueryBuilderContract
     {
         $this->eagerLoaded = $eagerLoaded;
         return $this;
@@ -281,7 +276,7 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
      * @param bool $overwrite
      * @return Builder
      */
-    public function addMapReducer(callable $mapper, ?callable $reducer = null, $overwrite = false): Builder
+    public function addMapReducer(callable $mapper, ?callable $reducer = null, $overwrite = false): QueryBuilderContract
     {
         if ($overwrite) {
             $this->mapReduce = [];
@@ -320,7 +315,7 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
      * @param int $mode
      * @return Builder
      */
-    public function addQueryFormatter(callable $formatter, $mode = self::OPERATION_PREPEND): Builder
+    public function addQueryFormatter(callable $formatter, $mode = self::OPERATION_PREPEND): QueryBuilderContract
     {
         if ($mode === self::OPERATION_OVERWRITE) {
             $this->queryFormatters = [];
@@ -381,7 +376,7 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
      * @param array $options
      * @return Builder
      */
-    public function applyOptions(array $options): Builder
+    public function applyOptions(array $options): QueryBuilderContract
     {
         $valid = [
             'fields' => 'select',
@@ -408,8 +403,6 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
 
         return $this;
     }
-
-
 
     /**
      * Executes the current query and returns the results
@@ -454,7 +447,7 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
      * @param EagerLoader $eagerLoader
      * @return Builder
      */
-    public function setEagerLoader(EagerLoader $eagerLoader): Builder
+    public function setEagerLoader(EagerLoader $eagerLoader): QueryBuilderContract
     {
         $this->eagerLoader = $eagerLoader;
         return $this;
@@ -513,7 +506,7 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
      * @param bool $autoFields
      * @return Builder
      */
-    public function setAutoFields(bool $autoFields): Builder
+    public function setAutoFields(bool $autoFields): QueryBuilderContract
     {
         $this->autoFields = $autoFields;
         return $this;
@@ -599,7 +592,7 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
      * @param callable|null $counter
      * @return Builder
      */
-    public function setCounter(?callable $counter): Builder
+    public function setCounter(?callable $counter): QueryBuilderContract
     {
         $this->counter = $counter;
         return $this;
@@ -629,7 +622,7 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
      * @param bool $hydrate
      * @return Builder
      */
-    public function enableHydration(bool $hydrate = true): Builder
+    public function enableHydration(bool $hydrate = true): QueryBuilderContract
     {
         $this->makeDirty();
         $this->hydrate = $hydrate;
@@ -641,7 +634,7 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
      *
      * @return Builder
      */
-    public function disableHydration(): Builder
+    public function disableHydration(): QueryBuilderContract
     {
         return $this->enableHydration(false);
     }
@@ -659,11 +652,11 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
     /**
      * @inheritdoc
      */
-    public function toSql(ValueBinder $generator = null): string
+    public function toSql(ValueBinder $valueBinder = null): string
     {
         $this->triggerBeforeFindEvent();
         $this->transformQuery();
-        return parent::toSql($generator);
+        return parent::toSql($valueBinder);
     }
 
     /**
