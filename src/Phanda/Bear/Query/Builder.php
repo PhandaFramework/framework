@@ -11,6 +11,7 @@ use Phanda\Database\Query\Query as DatabaseQueryBuilder;
 use Phanda\Contracts\Bear\Query\Builder as QueryBuilderContract;
 use Phanda\Dictionary\Iterator\MapReduceIterator;
 use Phanda\Exceptions\Bear\EntityNotFoundException;
+use RuntimeException;
 
 class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \JsonSerializable
 {
@@ -194,6 +195,12 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
      */
     public function all(): ResultSetContract
     {
+        if ($this->type !== self::TYPE_SELECT && $this->type !== null) {
+            throw new RuntimeException(
+                'You cannot call all() on a non-select query. Use execute() instead.'
+            );
+        }
+
         if ($this->results !== null) {
             return $this->results;
         }
@@ -262,7 +269,7 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
      */
     public function addQueryFormatter(callable $formatter, $mode = self::OPERATION_PREPEND): Builder
     {
-        if($mode === self::OPERATION_OVERWRITE) {
+        if ($mode === self::OPERATION_OVERWRITE) {
             $this->queryFormatters = [];
         }
 
@@ -282,7 +289,7 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
      */
     public function first()
     {
-        if($this->dirty) {
+        if ($this->dirty) {
             $this->limit(1);
         }
 
@@ -299,7 +306,7 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
     {
         $entity = $this->first();
 
-        if(!$entity) {
+        if (!$entity) {
             // TODO: Implement saying what table name.
             //$table = $this->getRepository();
             throw new EntityNotFoundException("Entity not found");
@@ -324,7 +331,30 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
      */
     public function applyOptions(array $options): Builder
     {
+        $valid = [
+            'fields' => 'select',
+            'conditions' => 'where',
+            'join' => 'join',
+            'order' => 'order',
+            'limit' => 'limit',
+            'offset' => 'offset',
+            'group' => 'group',
+            'having' => 'having',
+            'contain' => 'contain',
+            'page' => 'page',
+        ];
 
+        ksort($options);
+
+        foreach ($options as $option => $values) {
+            if (isset($valid[$option], $values)) {
+                $this->{$valid[$option]}($values);
+            } else {
+                $this->options[$option] = $values;
+            }
+        }
+
+        return $this;
     }
 
     /**
