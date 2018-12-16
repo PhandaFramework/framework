@@ -75,9 +75,10 @@ class SchemaCollection
     {
         list($sql, $params) = $this->schema->listTablesSql($this->connection->getConfiguration());
         $result = [];
+
         $statement = $this->connection->executeSqlWithParams($sql, $params);
 
-        while ($row = $statement->fetch()) {
+        while ($row = $statement->fetch(Statement::FETCH_TYPE_NUMERIC)) {
             $result[] = $row[0];
         }
         $statement->closeCursor();
