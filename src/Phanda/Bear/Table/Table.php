@@ -6,6 +6,7 @@ use Phanda\Contracts\Bear\Entity\Entity as EntityContract;
 use Phanda\Contracts\Bear\Query\Builder as QueryBuilder;
 use Phanda\Contracts\Bear\Table\TableRepository;
 use Phanda\Contracts\Database\Connection\Connection;
+use Phanda\Contracts\Events\Dispatcher;
 use Phanda\Database\Query\Expression\QueryExpression;
 use Phanda\Exceptions\Bear\EntityNotFoundException;
 
@@ -47,14 +48,51 @@ class Table implements TableRepository
      */
     protected $registryAlias;
 
-    public function __construct()
-    {
+    /**
+     * @var Dispatcher
+     */
+    protected $eventDispatcher;
 
+    public function __construct(array $config = [])
+    {
+        if(!empty($config['registry_alias'])) {
+            $this->setRegistryAlias($config['registry_alias']);
+        }
+
+        if(!empty($config['table'])) {
+            $this->setTableName($config['table']);
+        }
+
+        if(!empty($config['alias'])) {
+            $this->setAlias($config['alias']);
+        }
+
+        if(!empty($config['connection'])) {
+            $this->setConnection($config['connection']);
+        }
+
+        if(!empty($config['entity_class'])) {
+            $this->setEntityClass($config['entity_class']);
+        }
+
+        if(!empty($config['event_dispatcher'])) {
+            $this->setEventDispatcher($config['event_dispatcher']);
+        }
+
+        $this->initialize($config);
     }
 
-    public function setConfiguration(array $configuration = []): TableRepository
+    /**
+     * Initialize a table instance. Called after the constructor.
+     *
+     * You can use this method to define associations, attach behaviors
+     * define validation and do any other initialization logic you need.
+     *
+     * @param array $config
+     * @return void
+     */
+    public function initialize(array $config)
     {
-
     }
 
     /**
@@ -303,7 +341,7 @@ class Table implements TableRepository
      */
     public function getTableName(): string
     {
-        // TODO: Implement getTableName() method.
+        return $this->table;
     }
 
     /**
@@ -314,7 +352,8 @@ class Table implements TableRepository
      */
     public function setTableName(string $table): TableRepository
     {
-        // TODO: Implement setTableName() method.
+        $this->table = $table;
+        return $this;
     }
 
     /**
@@ -329,5 +368,99 @@ class Table implements TableRepository
     public function callFinder(string $type, QueryBuilder $query, array $options = []): QueryBuilder
     {
         // TODO: Implement callFinder() method.
+    }
+
+    /**
+     * @param Connection $connection
+     * @return Table
+     */
+    public function setConnection(Connection $connection): Table
+    {
+        $this->connection = $connection;
+        return $this;
+    }
+
+    /**
+     * @return Connection
+     */
+    public function getConnection(): Connection
+    {
+        return $this->connection;
+    }
+
+    /**
+     * @param array|string $primaryKey
+     * @return Table
+     */
+    public function setPrimaryKey($primaryKey)
+    {
+        $this->primaryKey = $primaryKey;
+        return $this;
+    }
+
+    /**
+     * @return array|string
+     */
+    public function getPrimaryKey()
+    {
+        return $this->primaryKey;
+    }
+
+    /**
+     * @param string $displayRow
+     * @return Table
+     */
+    public function setDisplayRow(string $displayRow): Table
+    {
+        $this->displayRow = $displayRow;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDisplayRow(): string
+    {
+        return $this->displayRow;
+    }
+
+    /**
+     * @param string $entityClass
+     * @return Table
+     */
+    public function setEntityClass(string $entityClass): Table
+    {
+        $this->entityClass = $entityClass;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEntityClass(): string
+    {
+        return $this->entityClass;
+    }
+
+    /**
+     * @param Dispatcher $eventDispatcher
+     * @return Table
+     */
+    public function setEventDispatcher(Dispatcher $eventDispatcher): Table
+    {
+        $this->eventDispatcher = $eventDispatcher;
+        return $this;
+    }
+
+    /**
+     * @return Dispatcher
+     */
+    public function getEventDispatcher(): Dispatcher
+    {
+        if($this->eventDispatcher === null) {
+            $this->eventDispatcher = phanda()->create(Dispatcher::class);
+        }
+
+        return $this->eventDispatcher;
     }
 }
