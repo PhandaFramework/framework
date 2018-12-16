@@ -4,6 +4,9 @@ namespace Phanda\Providers\Bear;
 
 use Phanda\Providers\AbstractServiceProvider;
 
+use Phanda\Contracts\Bear\Query\Builder as QueryBuilderContact;
+use Phanda\Bear\Query\Builder as QueryBuilder;
+
 class BearServiceProvider extends AbstractServiceProvider
 {
 
@@ -17,7 +20,7 @@ class BearServiceProvider extends AbstractServiceProvider
 
     public function registerBearQueryBuilder()
     {
-
+        $this->phanda->attach(QueryBuilderContact::class, QueryBuilder::class);
     }
 
 }
