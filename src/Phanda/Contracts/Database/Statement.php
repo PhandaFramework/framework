@@ -36,6 +36,14 @@ interface Statement
     public function bindValue($column, $value): Statement;
 
     /**
+     * Binds a set of values to statement object with corresponding type
+     *
+     * @param array $params list of values to be bound
+     * @return void
+     */
+    public function bindParams(array $params);
+
+    /**
      * Closes the current cursor on the database.
      *
      * You should not have to call this as it is called automatically

@@ -167,6 +167,30 @@ class Connection implements ConnectionContact
     }
 
     /**
+     * Executes a snippet of SQL
+     *
+     * @param string $sql
+     * @param array $params
+     * @return Statement
+     *
+     * @throws Exception
+     */
+    public function executeSql(string $sql, $params = [])
+    {
+        return $this->getRetryConnectionCommand()->run(function() use($sql, $params) {
+            if(!empty($params)) {
+                $statement = $this->prepareQuery($sql);
+                $statement->bindParams($params);
+                $statement->execute();
+            } else {
+                $statement = $this->executeQuery($sql);
+            }
+
+            return $statement;
+        });
+    }
+
+    /**
      * @param QueryContract $query
      * @param ValueBinder $valueBinder
      * @return string

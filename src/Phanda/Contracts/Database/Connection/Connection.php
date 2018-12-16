@@ -72,10 +72,19 @@ interface Connection
     /**
      * Runs the given SQL and returns the executed statement
      *
-     * @param $query
+     * @param string|Query $query
      * @return Statement
      */
     public function executeQuery($query): Statement;
+
+    /**
+     * Executes a snippet of SQL
+     *
+     * @param string $sql
+     * @param array $params
+     * @return Statement
+     */
+    public function executeSql(string $sql, $params = []);
 
     /**
      * @param Query $query

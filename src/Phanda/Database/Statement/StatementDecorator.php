@@ -83,6 +83,27 @@ class StatementDecorator implements StatementContract, \Countable, \IteratorAggr
     }
 
     /**
+     * @inheritdoc
+     */
+    public function bindParams(array $params)
+    {
+        if (empty($params)) {
+            return;
+        }
+
+        $anonymousParams = is_int(key($params)) ? true : false;
+        $offset = 1;
+
+        foreach ($params as $index => $value) {
+            if ($anonymousParams) {
+                $index += $offset;
+            }
+
+            $this->bindValue($index, $value);
+        }
+    }
+
+    /**
      * Closes the current cursor on the database.
      *
      * You should not have to call this as it is called automatically

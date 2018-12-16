@@ -10,6 +10,7 @@ use Phanda\Contracts\Bear\Table\TableRepository;
 use Phanda\Contracts\Database\Connection\Connection;
 use Phanda\Contracts\Events\Dispatcher;
 use Phanda\Database\Query\Expression\QueryExpression;
+use Phanda\Database\Schema\TableSchema;
 use Phanda\Exceptions\Bear\EntityNotFoundException;
 use Phanda\Support\PhandaInflector;
 
@@ -57,33 +58,42 @@ class Table implements TableRepository
     protected $eventDispatcher;
 
     /**
+     * @var TableSchema
+     */
+    protected $schema;
+
+    /**
      * Table constructor.
      *
      * @param array $config
      */
     public function __construct(array $config = [])
     {
-        if(!empty($config['registry_alias'])) {
+        if (!empty($config['registry_alias'])) {
             $this->setRegistryAlias($config['registry_alias']);
         }
 
-        if(!empty($config['table'])) {
+        if (!empty($config['table'])) {
             $this->setTableName($config['table']);
         }
 
-        if(!empty($config['alias'])) {
+        if (!empty($config['alias'])) {
             $this->setAlias($config['alias']);
         }
 
-        if(!empty($config['connection'])) {
+        if (!empty($config['schema'])) {
+            $this->setSchema($config['schema']);
+        }
+
+        if (!empty($config['connection'])) {
             $this->setConnection($config['connection']);
         }
 
-        if(!empty($config['entity_class'])) {
+        if (!empty($config['entity_class'])) {
             $this->setEntityClass($config['entity_class']);
         }
 
-        if(!empty($config['event_dispatcher'])) {
+        if (!empty($config['event_dispatcher'])) {
             $this->setEventDispatcher($config['event_dispatcher']);
         }
 
@@ -123,7 +133,7 @@ class Table implements TableRepository
      */
     public function getAlias(): string
     {
-        if($this->alias === null) {
+        if ($this->alias === null) {
             $alias = stripNamespace(get_class($this));
             $alias = substr($alias, 0, -5) ?: $this->table;
             $this->alias = $alias;
@@ -151,7 +161,7 @@ class Table implements TableRepository
      */
     public function getRegistryAlias(): string
     {
-        if($this->registryAlias === null) {
+        if ($this->registryAlias === null) {
             $this->registryAlias = $this->getAlias();
         }
 
@@ -362,10 +372,10 @@ class Table implements TableRepository
      */
     public function getTableName(): string
     {
-        if($this->table === null) {
+        if ($this->table === null) {
             $table = stripNamespace(get_class($this));
             $table = substr($table, 0, -5);
-            if(!$table) {
+            if (!$table) {
                 $table = $this->getAlias();
             }
             $this->table = PhandaInflector::underscore($table);
@@ -415,7 +425,7 @@ class Table implements TableRepository
      */
     public function getConnection(): Connection
     {
-        if($this->connection === null) {
+        if ($this->connection === null) {
             $this->connection = phanda()->create(Connection::class);
         }
 
@@ -491,7 +501,7 @@ class Table implements TableRepository
      */
     public function getEventDispatcher(): Dispatcher
     {
-        if($this->eventDispatcher === null) {
+        if ($this->eventDispatcher === null) {
             $this->eventDispatcher = phanda()->create(Dispatcher::class);
         }
 
@@ -532,11 +542,53 @@ class Table implements TableRepository
 
     public function getSchema()
     {
-        // TODO: This
+        if ($this->schema === null) {
+            $this->schema = $this->initializeSchema(
+                $this->getConnection()
+                    ->getSchemaCollection()
+                    ->describe($this->getTableName())
+            );
+        }
+
+        return $this->schema;
     }
 
-    public function setSchema()
+    /**
+     * @param $schema
+     * @return $this
+     *
+     * @throws \Phanda\Exceptions\Database\Schema\SchemaException
+     */
+    public function setSchema($schema)
     {
-        // TODO: This
+        if (is_array($schema)) {
+            $constraints = [];
+
+            if (isset($schema['_constraints'])) {
+                $constraints = $schema['_constraints'];
+                unset($schema['_constraints']);
+            }
+
+            $schema = new TableSchema($this->getTableName(), $schema);
+
+            foreach ($constraints as $name => $value) {
+                $schema->addConstraint($name, $value);
+            }
+        }
+
+        $this->schema = $schema;
+        return $this;
+    }
+
+    /**
+     * This function can be extended in children classes to
+     * modify the table schema.
+     *
+     * @param TableSchema $schema
+     * @return TableSchema
+     */
+    protected function initializeSchema(TableSchema $schema): TableSchema
+    {
+        return $schema;
     }
 }
