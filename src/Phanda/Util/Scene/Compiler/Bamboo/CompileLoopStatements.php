@@ -81,7 +81,7 @@ trait CompileLoopStatements
      */
     protected function compileEndforeach()
     {
-        return '<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>';
+        return '<?php endforeach; ?>';
     }
 
     /**

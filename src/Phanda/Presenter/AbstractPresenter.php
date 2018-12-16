@@ -38,6 +38,10 @@ abstract class AbstractPresenter
 	 * A presenter should be used strictly for handling view logic, and is a way to avoid including raw PHP in your
 	 * scene files.
 	 *
+	 * It's import to note however, that in the current version of Phanda, any variables that you define by using
+	 * $this->scene->share('variable', 'value'), can only be accessed in the scene by using `$this->variable`.
+	 * Currently there is no global way of sharing a variable after the scene has started rendering.
+	 *
 	 * @return void
 	 */
 	abstract protected function initialize();

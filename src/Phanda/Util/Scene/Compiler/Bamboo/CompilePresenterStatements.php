@@ -27,5 +27,10 @@ trait CompilePresenterStatements
 	 */
 	protected function compilePresent($expression)
 	{
+		$segments = explode(',', preg_replace("/[\(\)\\\"\']/", '', $expression));
+		$presenter = trim($segments[0]);
+		$method = trim($segments[1]);
+
+		return "<?php echo \${$presenter}->{$method}(); ?>";
 	}
 }
