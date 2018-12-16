@@ -339,9 +339,9 @@ class ResultSet implements ResultSetContract
 	 * Hydrates the results if enabled.
 	 *
 	 * @param array $row
-	 * @return array Results
+	 * @return array|object Results
 	 */
-	protected function groupResult($row): array
+	protected function groupResult($row)
 	{
 		$defaultAlias = $this->defaultAlias;
 		$results = $presentAliases = [];

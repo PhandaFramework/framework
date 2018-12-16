@@ -80,7 +80,7 @@ class Entity implements EntityContract
 
 		if (!empty($properties) && $options['markClean'] && !$options['useSetters']) {
 			$this->properties = $properties;
-
+			$this->initialize();
 			return;
 		}
 
@@ -94,6 +94,20 @@ class Entity implements EntityContract
 		if ($options['markClean']) {
 			$this->clean();
 		}
+		
+		$this->initialize();
+	}
+
+	/**
+	 * Initialize a entity instance. Called after the constructor
+	 *
+	 * You can use this method to perform any customizations to the entity that you wish,
+	 * if you rather do it in a fluent way than expose arrays.
+	 *
+	 * @return void
+	 */
+	public function initialize()
+	{
 	}
 
 	/**
