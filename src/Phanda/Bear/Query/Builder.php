@@ -2,6 +2,7 @@
 
 namespace Phanda\Bear\Query;
 
+use Phanda\Bear\Results\ResultSet;
 use Phanda\Bear\Results\ResultSetDecorator;
 use Phanda\Contracts\Bear\Entity\Entity as EntityContract;
 use Phanda\Contracts\Bear\Query\ResultSet as ResultSetContract;
@@ -170,7 +171,15 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
      */
     protected function executeQuery(): ResultSetContract
     {
-        // TODO: this
+        $this->triggerBeforeFindEvent();
+
+        if ($this->results) {
+            $decorator = ResultSetDecorator::class;
+            return new $decorator($this->results);
+        }
+
+        $statement = $this->execute();
+        return new ResultSet($this, $statement);
     }
 
     /**
