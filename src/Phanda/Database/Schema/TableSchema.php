@@ -553,7 +553,7 @@ class TableSchema implements TableSchemaContract, SqlGeneratorContract
         return $column;
     }
 
-    /**
+    /**`
      * Returns true if a column exists in the schema.
      *
      * @param string $name Column name.
@@ -561,7 +561,7 @@ class TableSchema implements TableSchemaContract, SqlGeneratorContract
      */
     public function hasColumn(string $name): bool
     {
-        return isset($this->_columns[$name]);
+        return isset($this->columns[$name]);
     }
 
     /**
