@@ -75,7 +75,7 @@ class SchemaCollection
     {
         list($sql, $params) = $this->schema->listTablesSql($this->connection->getConfiguration());
         $result = [];
-        $statement = $this->connection->executeSql($sql, $params);
+        $statement = $this->connection->executeSqlWithParams($sql, $params);
 
         while ($row = $statement->fetch()) {
             $result[] = $row[0];
@@ -140,7 +140,7 @@ class SchemaCollection
         }
 
         try {
-            $statement = $this->connection->executeSql($sql, $params);
+            $statement = $this->connection->executeSqlWithParams($sql, $params);
         } catch (PDOException $e) {
             throw new Exception($e->getMessage(), 500, $e);
         }

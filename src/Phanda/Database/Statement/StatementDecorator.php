@@ -114,7 +114,8 @@ class StatementDecorator implements StatementContract, \Countable, \IteratorAggr
      */
     public function closeCursor(): StatementContract
     {
-        return $this->statement->closeCursor();
+        $this->statement->closeCursor();
+        return $this;
     }
 
     /**

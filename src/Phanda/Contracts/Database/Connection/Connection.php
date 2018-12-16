@@ -79,13 +79,21 @@ interface Connection
     public function executeQuery($query): Statement;
 
     /**
+     * Executes SQL with not parameter bindings.
+     *
+     * @param string $sql
+     * @return Statement
+     */
+    public function executeSql(string $sql);
+
+    /**
      * Executes a snippet of SQL
      *
      * @param string $sql
      * @param array $params
      * @return Statement
      */
-    public function executeSql(string $sql, $params = []);
+    public function executeSqlWithParams(string $sql, $params = []);
 
     /**
      * @param Query $query

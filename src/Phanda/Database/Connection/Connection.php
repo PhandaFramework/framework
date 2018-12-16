@@ -173,6 +173,23 @@ class Connection implements ConnectionContact
     }
 
     /**
+     * Executes SQL with not parameter bindings.
+     *
+     * @param string $sql
+     * @return Statement
+     *
+     * @throws Exception
+     */
+    public function executeSql(string $sql)
+    {
+        return $this->getRetryConnectionCommand()->run(function() use ($sql) {
+            $statement = $this->prepareQuery($sql);
+            $statement->execute();
+            return $statement;
+        });
+    }
+
+    /**
      * Executes a snippet of SQL
      *
      * @param string $sql
@@ -181,7 +198,7 @@ class Connection implements ConnectionContact
      *
      * @throws Exception
      */
-    public function executeSql(string $sql, $params = [])
+    public function executeSqlWithParams(string $sql, $params = [])
     {
         return $this->getRetryConnectionCommand()->run(function() use($sql, $params) {
             if(!empty($params)) {
@@ -189,7 +206,7 @@ class Connection implements ConnectionContact
                 $statement->bindParams($params);
                 $statement->execute();
             } else {
-                $statement = $this->executeQuery($sql);
+                $statement = $this->executeSql($sql);
             }
 
             return $statement;
