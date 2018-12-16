@@ -16,6 +16,7 @@ class MysqlStatement extends PDOStatement
 
         try {
             $connection->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
+            $connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
             $result = $this->statement->execute($params);
         } finally {
             $connection->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
