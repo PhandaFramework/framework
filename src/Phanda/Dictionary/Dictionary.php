@@ -5,7 +5,7 @@ namespace Phanda\Dictionary;
 use Phanda\Contracts\Support\Arrayable;
 use Phanda\Contracts\Support\Jsonable;
 
-class Dictionary implements Arrayable, \ArrayAccess, \Countable, \Phanda\Contracts\Dictionary\Dictionary
+class Dictionary extends \IteratorIterator implements Arrayable, \ArrayAccess, \Countable, \Phanda\Contracts\Dictionary\Dictionary
 {
     /**
      * @var array
@@ -145,5 +145,15 @@ class Dictionary implements Arrayable, \ArrayAccess, \Countable, \Phanda\Contrac
     public function count()
     {
         return count($this->items);
+    }
+
+    /**
+     * Returns the first result in this dictionary
+     *
+     * @return mixed The first value in the dictionary will be returned.
+     */
+    public function first()
+    {
+        return $this->items[0];
     }
 }

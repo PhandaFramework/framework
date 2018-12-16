@@ -2,7 +2,7 @@
 
 namespace Phanda\Contracts\Dictionary;
 
-interface Dictionary
+interface Dictionary extends \Iterator
 {
     /**
      * Gets all the items in the collection
@@ -71,4 +71,11 @@ interface Dictionary
      * @return int
      */
     public function count();
+
+    /**
+     * Returns the first result in this dictionary
+     *
+     * @return mixed The first value in the dictionary will be returned.
+     */
+    public function first();
 }

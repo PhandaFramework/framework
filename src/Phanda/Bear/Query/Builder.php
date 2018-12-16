@@ -2,14 +2,22 @@
 
 namespace Phanda\Bear\Query;
 
+use Phanda\Bear\Results\ResultSetDecorator;
+use Phanda\Contracts\Bear\Entity\Entity as EntityContract;
 use Phanda\Contracts\Bear\Query\ResultSet as ResultSetContract;
 use Phanda\Contracts\Bear\Table\TableRepository;
 use Phanda\Contracts\Database\Statement;
 use Phanda\Database\Query\Query as DatabaseQueryBuilder;
 use Phanda\Contracts\Bear\Query\Builder as QueryBuilderContract;
+use Phanda\Dictionary\Iterator\MapReduceIterator;
+use Phanda\Exceptions\Bear\EntityNotFoundException;
 
 class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \JsonSerializable
 {
+
+    const OPERATION_PREPEND = 0;
+    const OPERATION_APPEND = 1;
+    const OPERATION_OVERWRITE = 2;
 
     /**
      * @var TableRepository
@@ -48,7 +56,7 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
      */
     public function jsonSerialize()
     {
-        // TODO: Implement jsonSerialize() method.
+        return $this->all();
     }
 
     /**
@@ -186,13 +194,137 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
      */
     public function all(): ResultSetContract
     {
-        if($this->results !== null) {
+        if ($this->results !== null) {
             return $this->results;
         }
 
-
-
+        $this->setResults($this->decorateQueryResults($this->executeQuery()));
         return $this->results;
+    }
+
+    /**
+     * Returns an array representation of the current query
+     *
+     * @return array
+     */
+    public function toArray(): array
+    {
+        return $this->all()->toArray();
+    }
+
+    /**
+     * Adds a map/reducer to the query to be executed when results
+     * are fetched.
+     *
+     * @param callable $mapper
+     * @param callable|null $reducer
+     * @param bool $overwrite
+     * @return Builder
+     */
+    public function addMapReducer(callable $mapper, ?callable $reducer = null, $overwrite = false): Builder
+    {
+        if ($overwrite) {
+            $this->mapReduce = [];
+        }
+
+        $this->mapReduce[] = compact('mapper', 'reducer');
+        return $this;
+    }
+
+    /**
+     * Gets the map/reducers for the query
+     *
+     * @return array
+     */
+    public function getMapReducers(): array
+    {
+        return $this->mapReduce;
+    }
+
+    /**
+     * @return callable[]
+     */
+    public function getQueryFormatters(): array
+    {
+        return $this->queryFormatters;
+    }
+
+    /**
+     * Adds a query formatter that will be executed when the results are
+     * fetched as part of this query.
+     *
+     * A formatter will get the first parameter being a Dictionary
+     * of the results.
+     *
+     * @param callable $formatter
+     * @param int $mode
+     * @return Builder
+     */
+    public function addQueryFormatter(callable $formatter, $mode = self::OPERATION_PREPEND): Builder
+    {
+        if($mode === self::OPERATION_OVERWRITE) {
+            $this->queryFormatters = [];
+        }
+
+        if ($mode === self::OPERATION_PREPEND) {
+            array_unshift($this->queryFormatters, $formatter);
+            return $this;
+        }
+
+        $this->queryFormatters[] = $formatter;
+        return $this;
+    }
+
+    /**
+     * Gets the first element of this query
+     *
+     * @return EntityContract|array|null
+     */
+    public function first()
+    {
+        if($this->dirty) {
+            $this->limit(1);
+        }
+
+        return $this->all()->first();
+    }
+
+    /**
+     * Gets the first element of this query, or fail if there is none
+     *
+     * @return EntityContract|array|null
+     * @throws EntityNotFoundException
+     */
+    public function firstOrFail()
+    {
+        $entity = $this->first();
+
+        if(!$entity) {
+            // TODO: Implement saying what table name.
+            //$table = $this->getRepository();
+            throw new EntityNotFoundException("Entity not found");
+        }
+
+        return $entity;
+    }
+
+    /**
+     * @return array
+     */
+    public function getOptions(): array
+    {
+        return $this->options;
+    }
+
+    /**
+     * Applies options to this query
+     *
+     * @param array $options
+     * @return Builder
+     */
+    public function applyOptions(array $options): Builder
+    {
+
     }
 
     /**
@@ -213,6 +345,24 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
      */
     protected function decorateQueryResults(\Traversable $result): ResultSetContract
     {
+        $decorator = ResultSetDecorator::class;
 
+        foreach ($this->mapReduce as $functions) {
+            $result = new MapReduceIterator($result, $functions['mapper'], $functions['reducer']);
+        }
+
+        if (!empty($this->mapReduce)) {
+            $result = new $decorator($result);
+        }
+
+        foreach ($this->queryFormatters as $formatter) {
+            $result = $formatter($result);
+        }
+
+        if (!empty($this->queryFormatters) && !($result instanceof $decorator)) {
+            $result = new $decorator($result);
+        }
+
+        return $result;
     }
 }
