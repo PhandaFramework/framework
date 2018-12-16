@@ -2,7 +2,44 @@
 
 namespace Phanda\Presenter;
 
-class AbstractPresenter
+use Phanda\Scene\Factory;
+
+abstract class AbstractPresenter
 {
+	/**
+	 * @var Factory
+	 */
+	protected $scene;
+
+	/**
+	 * AbstractPresenter constructor.
+	 *
+	 * @param Factory $scene
+	 */
+	public function __construct(Factory $scene)
+	{
+		$this->scene = $scene;
+		$this->initialize();
+	}
+
+	/**
+	 * As Phanda configures and handles all the dependencies for providers, we provide this function which gets called
+	 * immediately after the constructor has completed resolving. You can use this function to configure further any
+	 * specific customization needs you might have for your presenter.
+	 *
+	 * We do this as to avoid accidental logic mistakes when updating/overriding the constructor.
+	 *
+	 * Being a presenter, this class has a property set on it called $scene which can be used to modify, and affect the
+	 * scene as needed. You can simply access this by calling `$this->scene` at any time. Any public functions defined
+	 * in this presenter can also be called by using `@present` in the bamboo file. These functions can either return
+	 * content which will be injected into the scene, or alternatively can inject variables and other data into the
+	 * scene, for the scene to be able to use.
+	 *
+	 * A presenter should be used strictly for handling view logic, and is a way to avoid including raw PHP in your
+	 * scene files.
+	 *
+	 * @return void
+	 */
+	abstract protected function initialize();
 
 }

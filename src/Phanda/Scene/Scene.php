@@ -8,6 +8,7 @@ use Phanda\Contracts\Scene\Factory;
 use Phanda\Contracts\Scene\Scene as SceneContract;
 use Phanda\Contracts\Support\Arrayable;
 use Phanda\Contracts\Support\Renderable;
+use Phanda\Scene\Engine\SceneCompilerEngine;
 use Phanda\Scene\Events\RenderingSceneEvent;
 use Phanda\Support\PhandaStr;
 
@@ -19,7 +20,7 @@ class Scene implements SceneContract
     private $factory;
 
     /**
-     * @var Engine
+     * @var SceneCompilerEngine
      */
     private $engine;
 
@@ -51,6 +52,7 @@ class Scene implements SceneContract
     {
         $this->factory = $factory;
         $this->engine = $engine;
+        $this->engine->setScene($this);
         $this->scene = $scene;
         $this->path = $path;
         $this->data = $data instanceof Arrayable ? $data->toArray() : (array)$data;

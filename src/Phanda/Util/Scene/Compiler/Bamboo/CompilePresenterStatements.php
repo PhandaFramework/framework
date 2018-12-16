@@ -12,6 +12,11 @@ trait CompilePresenterStatements
 	 */
 	protected function compilePresenter($expression)
 	{
+		$segments = explode(',', preg_replace("/[\(\)\\\"\']/", '', $expression));
+		$variable = trim($segments[0]);
+		$presenter = trim(explode('::class', $segments[1])[0]);
+
+		return "<?php \${$variable} = new {$presenter}(\$__scene); ?>";
 	}
 
 	/**

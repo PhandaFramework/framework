@@ -58,6 +58,11 @@ class Factory implements FactoryContract
      */
     protected $renderCount = 0;
 
+	/**
+	 * @var Scene
+	 */
+    protected $currentScene;
+
     /**
      * The Scene Factory constructor.
      *
@@ -211,7 +216,7 @@ class Factory implements FactoryContract
      */
     protected function sceneInstance($view, $path, $data)
     {
-        return new \Phanda\Scene\Scene(
+        return $this->currentScene = new \Phanda\Scene\Scene(
             $this,
             $this->getEngineFromPath($path),
             $view,

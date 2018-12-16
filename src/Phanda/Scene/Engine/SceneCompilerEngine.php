@@ -5,6 +5,8 @@ namespace Phanda\Scene\Engine;
 use ErrorException;
 use Exception;
 use Phanda\Contracts\Scene\Compiler\Compiler;
+use Phanda\Exceptions\Scene\SceneException;
+use Phanda\Scene\Scene;
 
 class SceneCompilerEngine extends PhpEngine
 {
@@ -22,6 +24,11 @@ class SceneCompilerEngine extends PhpEngine
      * @var array
      */
     protected $lastCompiled = [];
+
+	/**
+	 * @var Scene
+	 */
+    protected $scene;
 
     /**
      * Create a new Scene engine instance.
@@ -57,7 +64,25 @@ class SceneCompilerEngine extends PhpEngine
         return $compiledScene;
     }
 
-    /**
+	/**
+	 * @param Scene $scene
+	 * @return SceneCompilerEngine
+	 */
+	public function setScene(Scene $scene): SceneCompilerEngine
+	{
+		$this->scene = $scene;
+		return $this;
+	}
+
+	/**
+	 * @return Scene
+	 */
+	public function getScene(): Scene
+	{
+		return $this->scene;
+	}
+
+	/**
      * Handle a scene exception.
      *
      * @param  \Exception  $e
@@ -92,5 +117,16 @@ class SceneCompilerEngine extends PhpEngine
     {
         return $this->compiler;
     }
+
+    public function __get($name)
+	{
+		$data = $this->scene->getFactory()->getSharedData();
+
+		if(!isset($data[$name])) {
+			throw new SceneException("['{$name}'] does not exist in the current scene. Either register it with a presenter, or define it before rendering.");
+		}
+
+		return $data[$name];
+	}
 
 }
