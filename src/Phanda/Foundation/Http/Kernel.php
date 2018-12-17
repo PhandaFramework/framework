@@ -130,8 +130,12 @@ class Kernel implements HttpKernel
      * @param \Exception $e
      * @return Response
      */
-    protected function renderException(Request $request, \Exception $e)
+    protected function renderException(Request $request, $e)
     {
+		if (! $e instanceof Exception) {
+			$e = new FatalThrowableError($e);
+		}
+
         /** @var ExceptionHandler $exceptionHandler */
         $exceptionHandler = $this->phanda->create(ExceptionHandler::class);
         return $exceptionHandler->render($request, $e);
