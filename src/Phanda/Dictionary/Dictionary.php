@@ -4,8 +4,10 @@ namespace Phanda\Dictionary;
 
 use ArrayIterator;
 use InvalidArgumentException;
+use JsonSerializable;
 use Phanda\Contracts\Dictionary\Dictionary as DictionaryContract;
 use Phanda\Contracts\Support\Arrayable;
+use Phanda\Contracts\Support\Jsonable;
 use Phanda\Dictionary\Util\DictionaryTrait;
 use Traversable;
 
@@ -25,11 +27,28 @@ class Dictionary extends \IteratorIterator implements DictionaryContract, \Seria
 		}
 
 		if (!($items instanceof Traversable)) {
-			$msg = 'Only an array or \Traversable is allowed for Dictionary';
-			throw new InvalidArgumentException($msg);
+			$items = $this->makeItemsArray($items);
 		}
 
 		parent::__construct($items);
+	}
+
+	protected function makeItemsArray($items)
+	{
+		if (is_array($items)) {
+			return $items;
+		} elseif ($items instanceof self) {
+			return $items->all();
+		} elseif ($items instanceof Arrayable) {
+			return $items->toArray();
+		} elseif ($items instanceof Jsonable) {
+			return json_decode($items->toJson(), true);
+		} elseif ($items instanceof JsonSerializable) {
+			return $items->jsonSerialize();
+		} elseif ($items instanceof Traversable) {
+			return iterator_to_array($items);
+		}
+		return (array) $items;
 	}
 
 	/**
