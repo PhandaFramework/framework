@@ -2,7 +2,9 @@
 
 namespace Phanda\Exceptions\Bear\Entity;
 
-class EntityNotFoundException extends \Exception
+use Phanda\Exceptions\Bear\BearException;
+
+class EntityNotFoundException extends BearException
 {
     //
 }

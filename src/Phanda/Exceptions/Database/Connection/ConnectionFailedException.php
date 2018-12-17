@@ -2,9 +2,9 @@
 
 namespace Phanda\Exceptions\Database\Connection;
 
-use Exception;
+use Phanda\Exceptions\Database\DatabaseException;
 
-class ConnectionFailedException extends Exception
+class ConnectionFailedException extends DatabaseException
 {
     //
 }

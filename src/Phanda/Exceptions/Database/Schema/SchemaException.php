@@ -2,7 +2,9 @@
 
 namespace Phanda\Exceptions\Database\Schema;
 
-class SchemaException extends \RuntimeException
+use Phanda\Exceptions\Database\DatabaseException;
+
+class SchemaException extends DatabaseException
 {
     //
 }

@@ -2,7 +2,9 @@
 
 namespace Phanda\Exceptions\Database\Query\Expression;
 
-class QueryExpressionException extends \Exception
+use Phanda\Exceptions\Database\DatabaseException;
+
+class QueryExpressionException extends DatabaseException
 {
 
 }

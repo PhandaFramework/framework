@@ -11,6 +11,7 @@ use Phanda\Database\Query\Query;
 use Phanda\Database\Schema\SchemaCollection;
 use Phanda\Database\ValueBinder;
 use Phanda\Exceptions\Database\Connection\ConnectionFailedException;
+use Phanda\Exceptions\Database\Connection\TransactionFailedException;
 use Phanda\Support\RetryCommand;
 
 class Connection implements ConnectionContact
@@ -34,6 +35,27 @@ class Connection implements ConnectionContact
      * @var SchemaCollection
      */
     protected $schemaCollection;
+
+	/**
+	 * Contains how many nested transactions have been started.
+	 *
+	 * @var int
+	 */
+	protected $transactionLevel = 0;
+
+	/**
+	 * Whether a transaction is active in this connection.
+	 *
+	 * @var bool
+	 */
+	protected $transactionStarted = false;
+
+	/**
+	 * @var bool
+	 */
+	protected $useSavePoints = false;
+
+	protected $failedTransactionException;
 
     /**
      * Connection constructor.
@@ -230,7 +252,7 @@ class Connection implements ConnectionContact
      */
     public function inTransaction(): bool
     {
-        // TODO: Implement inTransaction() method.
+		return $this->transactionStarted;
     }
 
     public function newQuery(): Query
@@ -261,4 +283,216 @@ class Connection implements ConnectionContact
         $this->schemaCollection = $schemaCollection;
         return $this;
     }
+
+	/**
+	 * Executes a callable function inside a transaction, if any exception occurs
+	 * while executing the passed callable, the transaction will be rolled back
+	 * If the result of the callable function is `false`, the transaction will
+	 * also be rolled back. Otherwise the transaction is committed after executing
+	 * the callback.
+	 *
+	 * The callback will receive the connection instance as its first argument.
+	 *
+	 * @param callable $transaction
+	 * @return mixed The return value of the callback.
+	 *
+	 * @throws \Exception
+	 */
+	public function transactional(callable $transaction)
+	{
+		$this->begin();
+
+		try {
+			$result = $transaction($this);
+		} catch (Exception $e) {
+			$this->rollback(false);
+			throw $e;
+		}
+
+		if ($result === false) {
+			$this->rollback(false);
+
+			return false;
+		}
+
+		try {
+			$this->commit();
+		} catch (Exception $e) {
+			$this->rollback(false);
+			throw $e;
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Starts a transaction.
+	 *
+	 * @throws Exception
+	 */
+	public function begin()
+	{
+		if (!$this->transactionStarted) {
+
+			$this->getRetryConnectionCommand()->run(function () {
+				$this->driver->beginTransaction();
+			});
+
+			$this->transactionLevel = 0;
+			$this->transactionStarted = true;
+			$this->failedTransactionException = null;
+
+			return;
+		}
+
+		$this->transactionLevel++;
+		if ($this->isSavePointsEnabled()) {
+			$this->createSavePoint((string)$this->transactionLevel);
+		}
+	}
+
+	/**
+	 * Rolls back the current transaction
+	 *
+	 * @param bool|null $toBeginning
+	 * @return bool
+	 * @throws Exception
+	 */
+	public function rollback(?bool $toBeginning = null)
+	{
+		if (!$this->transactionStarted) {
+			return false;
+		}
+
+		$useSavePoint = $this->isSavePointsEnabled();
+		if ($toBeginning === null) {
+			$toBeginning = !$useSavePoint;
+		}
+		if ($this->transactionLevel === 0 || $toBeginning) {
+			$this->transactionLevel = 0;
+			$this->transactionStarted = false;
+			$this->failedTransactionException = null;
+			$this->driver->rollbackTransaction();
+
+			return true;
+		}
+
+		$savePoint = $this->transactionLevel--;
+		if ($useSavePoint) {
+			$this->rollbackSavepoint($savePoint);
+		} elseif ($this->failedTransactionException === null) {
+			$this->failedTransactionException = new TransactionFailedException("Cannot commit transaction - rollback() has been already called in the nested transaction");
+		}
+
+		return true;
+	}
+
+	/**
+	 * Commits current transaction.
+	 *
+	 * @return bool true on success, false otherwise
+	 * @throws Exception
+	 */
+	public function commit()
+	{
+		if (!$this->transactionStarted) {
+			return false;
+		}
+
+		if ($this->transactionLevel === 0) {
+			if ($this->wasNestedTransactionRolledback()) {
+				$e = $this->failedTransactionException;
+				$this->failedTransactionException = null;
+				throw $e;
+			}
+
+			$this->transactionStarted = false;
+			$this->failedTransactionException = null;
+
+			return $this->driver->commitTransaction();
+		}
+		if ($this->isSavePointsEnabled()) {
+			$this->releaseSavePoint((string)$this->transactionLevel);
+		}
+
+		$this->transactionLevel--;
+
+		return true;
+	}
+
+	/**
+	 * Creates a new save point for nested transactions.
+	 *
+	 * @param string $name The save point name.
+	 * @return void
+	 *
+	 * @throws Exception
+	 */
+	public function createSavePoint($name)
+	{
+		$this->executeSql($this->driver->savePointSQL($name))->closeCursor();
+	}
+
+	/**
+	 * Rolls back to a savepoint
+	 *
+	 * @param $name
+	 * @throws Exception
+	 */
+	public function rollbackSavepoint($name)
+	{
+		$this->executeSql($this->driver->rollbackSavePointSQL($name))->closeCursor();
+	}
+
+	/**
+	 * Releases a savepoint
+	 *
+	 * @param $name
+	 * @throws Exception
+	 */
+	public function releaseSavepoint($name)
+	{
+		$this->executeSql($this->driver->releaseSavePointSQL($name))->closeCursor();
+	}
+
+	public function enableSavePoints($enable)
+	{
+		if ($enable === false) {
+			$this->useSavePoints = false;
+		} else {
+			$this->useSavePoints = $this->driver->supportsSavePoints();
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Disables the usage of savepoints.
+	 *
+	 * @return $this
+	 */
+	public function disableSavePoints()
+	{
+		$this->useSavePoints = false;
+
+		return $this;
+	}
+
+	/**
+	 * Returns whether this connection is using savepoints for nested transactions
+	 *
+	 * @return bool true if enabled, false otherwise
+	 */
+	public function isSavePointsEnabled()
+	{
+		return $this->useSavePoints;
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function wasNestedTransactionRolledback(): bool
+	{
+		return $this->failedTransactionException instanceof TransactionFailedException;
+	}
 }

@@ -2,7 +2,9 @@
 
 namespace Phanda\Exceptions\Database\Driver;
 
-class DriverNotRegisteredException extends \Exception
+use Phanda\Exceptions\Database\DatabaseException;
+
+class DriverNotRegisteredException extends DatabaseException
 {
     //
 }

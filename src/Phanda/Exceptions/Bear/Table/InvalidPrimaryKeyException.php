@@ -2,7 +2,9 @@
 
 namespace Phanda\Exceptions\Bear\Table;
 
-class InvalidPrimaryKeyException extends \RuntimeException
+use Phanda\Exceptions\Bear\BearException;
+
+class InvalidPrimaryKeyException extends BearException
 {
 
 }

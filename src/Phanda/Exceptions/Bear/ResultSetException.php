@@ -2,7 +2,7 @@
 
 namespace Phanda\Exceptions\Bear;
 
-class ResultSetException extends \RuntimeException
+class ResultSetException extends BearException
 {
 
 }

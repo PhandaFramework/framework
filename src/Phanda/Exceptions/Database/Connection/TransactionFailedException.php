@@ -4,7 +4,7 @@ namespace Phanda\Exceptions\Database\Connection;
 
 use Phanda\Exceptions\Database\DatabaseException;
 
-class ConnectionNotRegisteredException extends DatabaseException
+class TransactionFailedException extends DatabaseException
 {
-    //
+
 }

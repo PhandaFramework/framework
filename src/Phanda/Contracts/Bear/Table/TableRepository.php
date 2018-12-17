@@ -8,6 +8,7 @@ use Phanda\Contracts\Database\Query\Query as DatabaseQueryContract;
 use Phanda\Contracts\Database\Schema\TableSchema;
 use Phanda\Database\Query\Expression\QueryExpression;
 use Phanda\Exceptions\Bear\Entity\EntityNotFoundException;
+use Phanda\Exceptions\Bear\Entity\EntityPersistenceException;
 
 interface TableRepository
 {
@@ -138,6 +139,19 @@ interface TableRepository
      */
     public function saveEntity(EntityContract $entity, $options = []);
 
+	/**
+	 * Saves an entity in this Repository, with the fields that
+	 * are marked dirty. Returns the same entity throw an exception
+	 * on failure.
+	 *
+	 * @param EntityContract     $entity
+	 * @param array|\ArrayAccess $options
+	 * @return EntityContract|false
+	 *
+	 * @throws EntityPersistenceException
+	 */
+	public function saveEntityOrFail(EntityContract $entity, $options = []);
+
     /**
      * Deletes an entity in this repository.
      *
@@ -151,6 +165,17 @@ interface TableRepository
      */
     public function deleteEntity(EntityContract $entity, $options = []): bool;
 
+	/**
+	 * Deletes an entity in this repository or fail.
+	 *
+	 * @param EntityContract     $entity
+	 * @param array|\ArrayAccess $options
+	 * @return bool
+	 *
+	 * @throws EntityPersistenceException
+	 */
+	public function deleteEntityOrFail(EntityContract $entity, $options = []): bool;
+
     /**
      * Creates a new Entity and its associated relations from
      * an array.
@@ -158,44 +183,9 @@ interface TableRepository
      * The entity created will be separated from the table
      * until the save() function is called on the entity.
      *
-     * @param array|null $data
-     * @param array $options
      * @return EntityContract
      */
-    public function newEntity(?array $data = null, array $options = []): EntityContract;
-
-    /**
-     * Creates entities and their associated relations from
-     * an array.
-     *
-     * The entities created will be separated from the table
-     * until the save() function is called on each entity.
-     *
-     * @param array $data
-     * @param array $options
-     * @return EntityContract[]
-     */
-    public function newEntities(array $data, array $options = []): array;
-
-    /**
-     * Updates a given entity with the provided data.
-     *
-     * @param EntityContract $entity
-     * @param array $data
-     * @param array $options
-     * @return EntityContract
-     */
-    public function updateEntity(EntityContract $entity, array $data, array $options = []): EntityContract;
-
-    /**
-     * Updates the given entities with the provided data.
-     *
-     * @param EntityContract[] $entities
-     * @param array $data
-     * @param array $options
-     * @return EntityContract[]
-     */
-    public function updateEntities(array $entities, array $data, array $options = []): array;
+    public function newEntity(): EntityContract;
 
     /**
      * Returns the database table name.
