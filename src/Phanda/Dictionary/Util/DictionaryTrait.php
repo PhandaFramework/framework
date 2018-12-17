@@ -512,6 +512,16 @@ trait DictionaryTrait
 	/**
 	 * Returns an array representation of the results
 	 *
+	 * @return array
+	 */
+	public function all()
+	{
+		return $this->toArray();
+	}
+
+	/**
+	 * Returns an array representation of the results
+	 *
 	 * @param bool $preserveKeys
 	 * @return array
 	 */

@@ -323,6 +323,13 @@ interface Dictionary extends Iterator, \JsonSerializable
 	public function toList();
 
 	/**
+	 * Returns an array representation of the results
+	 *
+	 * @return array
+	 */
+	public function all();
+
+	/**
 	 * Convert a result set into JSON.
 	 *
 	 * Part of JsonSerializable interface.
