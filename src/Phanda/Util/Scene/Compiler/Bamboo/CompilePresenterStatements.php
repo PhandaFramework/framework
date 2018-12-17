@@ -16,7 +16,7 @@ trait CompilePresenterStatements
 		$variable = trim($segments[0]);
 		$presenter = trim(explode('::class', $segments[1])[0]);
 
-		return "<?php \${$variable} = new {$presenter}(\$__scene); ?>";
+		return "<?php \${$variable} = new {$presenter}(\$this); ?>";
 	}
 
 	/**

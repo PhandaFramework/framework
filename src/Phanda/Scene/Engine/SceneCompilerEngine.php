@@ -120,13 +120,11 @@ class SceneCompilerEngine extends PhpEngine
 
     public function __get($name)
 	{
-		$data = $this->scene->getFactory()->getSharedData();
-
-		if(!isset($data[$name])) {
+		if(!isset($this->scene->{$name})) {
 			throw new SceneException("['{$name}'] does not exist in the current scene. Either register it with a presenter, or define it before rendering.");
 		}
 
-		return $data[$name];
+		return $this->scene->{$name};
 	}
 
 }

@@ -2,23 +2,30 @@
 
 namespace Phanda\Presenter;
 
+use Phanda\Scene\Engine\SceneCompilerEngine;
 use Phanda\Scene\Factory;
 
 abstract class AbstractPresenter
 {
 	/**
-	 * @var Factory
+	 * @var SceneCompilerEngine
 	 */
 	protected $scene;
 
 	/**
+	 * @var \Phanda\Scene\Factory
+	 */
+	protected $sceneFactory;
+
+	/**
 	 * AbstractPresenter constructor.
 	 *
-	 * @param Factory $scene
+	 * @param SceneCompilerEngine $scene
 	 */
-	public function __construct(Factory $scene)
+	public function __construct(SceneCompilerEngine $scene)
 	{
 		$this->scene = $scene;
+		$this->sceneFactory = $this->scene->getScene()->getFactory();
 		$this->initialize();
 	}
 
@@ -45,5 +52,10 @@ abstract class AbstractPresenter
 	 * @return void
 	 */
 	abstract protected function initialize();
+
+	protected final function share($key, $value)
+	{
+		$this->scene->getScene()->attach($key, $value);
+	}
 
 }

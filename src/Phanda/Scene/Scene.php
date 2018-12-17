@@ -39,6 +39,11 @@ class Scene implements SceneContract
      */
     private $data;
 
+	/**
+	 * @var bool
+	 */
+    protected $startedRender = false;
+
     /**
      * Scene constructor.
      *
@@ -95,6 +100,7 @@ class Scene implements SceneContract
     public function render(callable $callback = null)
     {
         try {
+        	$this->startedRender = true;
             $contents = $this->renderContents();
             $response = isset($callback) ? $callback($this, $contents) : null;
             $this->factory->clearStateIfDoneRendering();
