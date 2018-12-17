@@ -91,4 +91,14 @@ class PDOStatement extends StatementDecorator
         return $this->statement->rowCount();
     }
 
+	/**
+	 * Gets the last error code
+	 *
+	 * @return int|string
+	 */
+    public function getLastErrorCode()
+	{
+		return $this->statement->errorCode();
+	}
+
 }
