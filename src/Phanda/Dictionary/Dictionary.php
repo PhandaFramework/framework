@@ -22,12 +22,8 @@ class Dictionary extends \IteratorIterator implements DictionaryContract, \Seria
      */
 	public function __construct($items)
 	{
-		if (is_array($items)) {
-			$items = new ArrayIterator($items);
-		}
-
 		if (!($items instanceof Traversable)) {
-			$items = $this->makeItemsArray($items);
+			$items = new ArrayIterator($this->makeItemsArray($items));
 		}
 
 		parent::__construct($items);
