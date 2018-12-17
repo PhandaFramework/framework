@@ -265,10 +265,24 @@ interface Dictionary extends Iterator, \JsonSerializable
 	 */
 	public function append($items);
 
+	/**
+	 * @param mixed  $item
+	 * @param string $key
+	 * @return $this
+	 */
 	public function appendItem($item, $key = null);
 
+	/**
+	 * @param mixed $items
+	 * @return $this
+	 */
 	public function prepend($items);
 
+	/**
+	 * @param mixed  $item
+	 * @param string $key
+	 * @return $this
+	 */
 	public function prependItem($item, $key = null);
 
 	/**
