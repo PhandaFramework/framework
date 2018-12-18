@@ -28,7 +28,7 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 class Application extends Container implements ApplicationContract, HttpKernelInterface
 {
-    const VERSION = '0.0.0';
+    const VERSION = '0.1.0';
 
     /**
      * @var string
