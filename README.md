@@ -2,7 +2,7 @@
 
 To learn more about how to use Phanda, please go to the [Documentation](https://phandaframework.com/docs)
 
-## Installation {#installation}
+## Installation
 Phanda uses [Composer](https://getcomposer.org/) to manage all of it's dependencies.
 It also provides an easy way for you to manage your projects being built with Phanda. Make sure that you have composer installed before continuing.
 
