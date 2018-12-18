@@ -9,27 +9,27 @@ use Phanda\Support\Facades\Facade;
  * The base RouteBuilder facade
  *
  * @package Phanda\Support\Facades\Routing
- * @see RouteBuilder
+ * @see \Phanda\Routing\RouteBuilder
  *
- * @method static RouteBuilder setUrl(string $url)
- * @method static RouteBuilder anyMethod()
- * @method static RouteBuilder addMethod(string $method)
- * @method static RouteBuilder setMethod(string $method)
- * @method static RouteBuilder setController(string $controller)
- * @method static RouteBuilder setControllerMethod(string $method)
- * @method static RouteBuilder setAction(string $action)
- * @method static RouteBuilder setCallbackAction(\Closure $callback)
- * @method static RouteBuilder setName(string $name)
- * @method static RouteBuilder allowGet()
- * @method static RouteBuilder allowPost()
- * @method static RouteBuilder allowHead()
- * @method static RouteBuilder allowPut()
- * @method static RouteBuilder allowPatch()
- * @method static RouteBuilder allowDelete()
- * @method static RouteBuilder allowOptions()
- * @method static RouteBuilder setScene(string $scene, array $data = [])
- * @method static RouteBuilder build()
- * @method static RouteBuilder newRoute()
+ * @method static \Phanda\Routing\RouteBuilder setUrl(string $url)
+ * @method static \Phanda\Routing\RouteBuilder anyMethod()
+ * @method static \Phanda\Routing\RouteBuilder addMethod(string $method)
+ * @method static \Phanda\Routing\RouteBuilder setMethod(string $method)
+ * @method static \Phanda\Routing\RouteBuilder setController(string $controller)
+ * @method static \Phanda\Routing\RouteBuilder setControllerMethod(string $method)
+ * @method static \Phanda\Routing\RouteBuilder setAction(string $action)
+ * @method static \Phanda\Routing\RouteBuilder setCallbackAction(\Closure $callback)
+ * @method static \Phanda\Routing\RouteBuilder setName(string $name)
+ * @method static \Phanda\Routing\RouteBuilder allowGet()
+ * @method static \Phanda\Routing\RouteBuilder allowPost()
+ * @method static \Phanda\Routing\RouteBuilder allowHead()
+ * @method static \Phanda\Routing\RouteBuilder allowPut()
+ * @method static \Phanda\Routing\RouteBuilder allowPatch()
+ * @method static \Phanda\Routing\RouteBuilder allowDelete()
+ * @method static \Phanda\Routing\RouteBuilder allowOptions()
+ * @method static \Phanda\Routing\RouteBuilder setScene(string $scene, array $data = [])
+ * @method static \Phanda\Routing\RouteBuilder build()
+ * @method static \Phanda\Routing\RouteBuilder newRoute()
  */
 class RouteBuilder extends Facade
 {
