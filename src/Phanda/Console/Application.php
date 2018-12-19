@@ -31,216 +31,224 @@ use Symfony\Component\Console\Command\Command as SymfonyCommand;
 
 class Application extends SymfonyApplication implements ConsoleApplicationContract
 {
-    /**
-     * @var \Phanda\Contracts\Foundation\Application
-     */
-    protected $phanda;
+	/**
+	 * @var \Phanda\Contracts\Foundation\Application
+	 */
+	protected $phanda;
 
-    /**
-     * @var BufferedOutput
-     */
-    protected $lastOutput;
+	/**
+	 * @var BufferedOutput
+	 */
+	protected $lastOutput;
 
-    /**
-     * @var Bootstrap[]
-     */
-    protected $bootstrapers = [];
+	/**
+	 * @var Bootstrap[]
+	 */
+	protected $bootstrapers = [];
 
-    /**
-     * @var array
-     */
-    protected static $bootstrapCallbacks = [];
+	/**
+	 * @var array
+	 */
+	protected static $bootstrapCallbacks = [];
 
-    /**
-     * @var Dispatcher
-     */
-    protected $eventDispatcher;
+	/**
+	 * @var Dispatcher
+	 */
+	protected $eventDispatcher;
 
-    /**
-     * Application constructor.
-     * @param Container $phanda
-     * @param Dispatcher $eventDispatcher
-     * @param $version
-     */
-    public function __construct(Container $phanda, Dispatcher $eventDispatcher, $version)
-    {
-        parent::__construct('Phanda Framework', $version);
+	/**
+	 * Whether or not the console has started bootstrapping
+	 *
+	 * @var bool
+	 */
+	protected $hasStarted = false;
 
-        $this->phanda = $phanda;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->setAutoExit(false);
-        $this->setCatchExceptions(false);
+	/**
+	 * Application constructor.
+	 *
+	 * @param Container  $phanda
+	 * @param Dispatcher $eventDispatcher
+	 * @param            $version
+	 */
+	public function __construct(Container $phanda, Dispatcher $eventDispatcher, $version)
+	{
+		parent::__construct('Phanda Framework', $version);
 
-        $this->eventDispatcher->dispatch('kungfuStarting', new KungfuStartingEvent($this));
+		$this->phanda = $phanda;
+		$this->eventDispatcher = $eventDispatcher;
+		$this->setAutoExit(false);
+		$this->setCatchExceptions(false);
 
-        $this->bootstrap();
-    }
+		$this->eventDispatcher->dispatch('kungfuStarting', new KungfuStartingEvent($this));
 
-    /**
-     * @param InputInterface|null $input
-     * @param OutputInterface|null $output
-     * @return int
-     *
-     * @throws \Exception
-     */
-    public function run(InputInterface $input = null, OutputInterface $output = null)
-    {
-        $commandName = $this->getCommandName(
-            $input = $input ?: new ArgvInput
-        );
+		$this->bootstrap();
+	}
 
-        $this->eventDispatcher->dispatch('commandStarting', new CommandStartingEvent(
-            $commandName,
-            $input,
-            $output = $output ?: new ConsoleOutput
-        ));
+	/**
+	 * @param InputInterface|null  $input
+	 * @param OutputInterface|null $output
+	 * @return int
+	 *
+	 * @throws \Exception
+	 */
+	public function run(InputInterface $input = null, OutputInterface $output = null)
+	{
+		$commandName = $this->getCommandName(
+			$input = $input ?: new ArgvInput
+		);
 
-        $exitCode = parent::run($input, $output);
+		$this->eventDispatcher->dispatch('commandStarting', new CommandStartingEvent(
+			$commandName,
+			$input,
+			$output = $output ?: new ConsoleOutput
+		));
 
-        $this->eventDispatcher->dispatch('commandFinished', new CommandFinishedEvent(
-            $commandName,
-            $input,
-            $output,
-            $exitCode
-        ));
+		$exitCode = parent::run($input, $output);
 
-        return $exitCode;
-    }
+		$this->eventDispatcher->dispatch('commandFinished', new CommandFinishedEvent(
+			$commandName,
+			$input,
+			$output,
+			$exitCode
+		));
 
-    /**
-     * @return string
-     */
-    public static function phpBinary()
-    {
-        return ProcessUtils::escapeArgument((new PhpExecutableFinder)->find(false));
-    }
+		return $exitCode;
+	}
 
-    /**
-     * @return string
-     */
-    public static function artisanBinary()
-    {
-        return defined('KUNGFU_BINARY') ? ProcessUtils::escapeArgument(KUNGFU_BINARY) : 'kungfu';
-    }
+	/**
+	 * @return string
+	 */
+	public static function phpBinary()
+	{
+		return ProcessUtils::escapeArgument((new PhpExecutableFinder)->find(false));
+	}
 
-    /**
-     * @param $string
-     * @return string
-     */
-    public static function formatCommandString($string)
-    {
-        return sprintf('%s %s %s', static::phpBinary(), static::artisanBinary(), $string);
-    }
+	/**
+	 * @return string
+	 */
+	public static function kungfuBinary()
+	{
+		return defined('KUNGFU_BINARY') ? ProcessUtils::escapeArgument(KUNGFU_BINARY) : 'kungfu';
+	}
 
-    /**
-     * @param Closure $callback
-     */
-    public static function starting(Closure $callback)
-    {
-        static::$bootstrapCallbacks[] = $callback;
-    }
+	/**
+	 * @param $string
+	 * @return string
+	 */
+	public static function formatCommandString($string)
+	{
+		return sprintf('%s %s %s', static::phpBinary(), static::kungfuBinary(), $string);
+	}
 
-    /**
-     * Bootstraps the console application
-     */
-    protected function bootstrap()
-    {
-        foreach (static::$bootstrapCallbacks as $callback) {
-            $callback($this);
-        }
-    }
+	/**
+	 * @param Closure $callback
+	 */
+	public static function starting(Closure $callback)
+	{
+		static::$bootstrapCallbacks[] = $callback;
+	}
 
-    public static function clearBootstrapCallbacks()
-    {
-        static::$bootstrapCallbacks = [];
-    }
+	/**
+	 * Bootstraps the console application
+	 */
+	protected function bootstrap()
+	{
+		$this->hasStarted = true;
 
-    /**
-     * Run an Kungfu console command by name.
-     *
-     * @param  string $command
-     * @param  array $parameters
-     * @param  \Symfony\Component\Console\Output\OutputInterface|null $outputBuffer
-     * @return int
-     *
-     * @throws \Exception
-     */
-    public function call($command, array $parameters = [], $outputBuffer = null)
-    {
-        if (is_subclass_of($command, SymfonyCommand::class)) {
-            $command = $this->phanda->create($command)->getName();
-        }
+		foreach (static::$bootstrapCallbacks as $callback) {
+			$callback($this);
+		}
+	}
 
-        if (!$this->has($command)) {
-            throw new CommandNotFoundException(sprintf('The command "%s" does not exist.', $command));
-        }
+	public static function clearBootstrapCallbacks()
+	{
+		static::$bootstrapCallbacks = [];
+	}
 
-        array_unshift($parameters, $command);
-        $this->lastOutput = $outputBuffer ?: new BufferedOutput;
-        $this->setCatchExceptions(false);
-        $result = $this->run(new ArrayInput($parameters), $this->lastOutput);
-        $this->setCatchExceptions(true);
+	/**
+	 * Run an Kungfu console command by name.
+	 *
+	 * @param  string                                                 $command
+	 * @param  array                                                  $parameters
+	 * @param  \Symfony\Component\Console\Output\OutputInterface|null $outputBuffer
+	 * @return int
+	 *
+	 * @throws \Exception
+	 */
+	public function call($command, array $parameters = [], $outputBuffer = null)
+	{
+		if (is_subclass_of($command, SymfonyCommand::class)) {
+			$command = $this->phanda->create($command)->getName();
+		}
 
-        return $result;
-    }
+		if (!$this->has($command)) {
+			throw new CommandNotFoundException(sprintf('The command "%s" does not exist.', $command));
+		}
 
-    /**
-     * Get the output from the last command.
-     *
-     * @return string
-     */
-    public function output()
-    {
-        return $this->lastOutput && method_exists($this->lastOutput, 'fetch')
-            ? $this->lastOutput->fetch()
-            : '';
-    }
+		array_unshift($parameters, $command);
+		$this->lastOutput = $outputBuffer ?: new BufferedOutput;
+		$this->setCatchExceptions(false);
+		$result = $this->run(new ArrayInput($parameters), $this->lastOutput);
+		$this->setCatchExceptions(true);
 
-    /**
-     * @param SymfonyCommand $command
-     * @return null|SymfonyCommand
-     */
-    public function add(SymfonyCommand $command)
-    {
-        if ($command instanceof ConsoleCommand) {
-            $command->setPhanda($this->phanda);
-        }
+		return $result;
+	}
 
-        return $this->addToParent($command);
-    }
+	/**
+	 * Get the output from the last command.
+	 *
+	 * @return string
+	 */
+	public function output()
+	{
+		return $this->lastOutput && method_exists($this->lastOutput, 'fetch')
+			? $this->lastOutput->fetch()
+			: '';
+	}
 
-    /**
-     * @param SymfonyCommand $command
-     * @return null|SymfonyCommand
-     */
-    protected function addToParent(SymfonyCommand $command)
-    {
-        return parent::add($command);
-    }
+	/**
+	 * @param SymfonyCommand $command
+	 * @return null|SymfonyCommand
+	 */
+	public function add(SymfonyCommand $command)
+	{
+		if ($command instanceof ConsoleCommand) {
+			$command->setPhanda($this->phanda);
+		}
 
-    /**
-     * @param $command
-     * @return null|SymfonyCommand
-     */
-    public function resolve($command)
-    {
-        return $this->add($this->phanda->create($command));
-    }
+		return $this->addToParent($command);
+	}
 
-    /**
-     * @param $commands
-     * @return $this
-     */
-    public function resolveCommands($commands)
-    {
-        $commands = is_array($commands) ? $commands : func_get_args();
-        foreach ($commands as $command) {
-            $this->resolve($command);
-        }
-        return $this;
-    }
+	/**
+	 * @param SymfonyCommand $command
+	 * @return null|SymfonyCommand
+	 */
+	protected function addToParent(SymfonyCommand $command)
+	{
+		return parent::add($command);
+	}
 
+	/**
+	 * @param $command
+	 * @return null|SymfonyCommand
+	 */
+	public function resolve($command)
+	{
+		return $this->add($this->phanda->create($command));
+	}
 
+	/**
+	 * @param $commands
+	 * @return $this
+	 */
+	public function resolveCommands($commands)
+	{
+		$commands = is_array($commands) ? $commands : func_get_args();
+		foreach ($commands as $command) {
+			$this->resolve($command);
+		}
+		return $this;
+	}
 
 	/**
 	 * @param array|string $paths
@@ -269,47 +277,50 @@ class Application extends SymfonyApplication implements ConsoleApplicationContra
 					PhandaStr::after($command->getPathname(), app_path() . DIRECTORY_SEPARATOR)
 				);
 
-			if (is_subclass_of($command, ConsoleCommand::class) &&
-				!(new ReflectionClass($command))->isAbstract()) {
-				self::starting(function ($kungfu) use ($command) {
-					/** @var Application $kungfu */
-					$kungfu->resolve($command);
-				});
+			if (is_subclass_of($command, ConsoleCommand::class) && !(new ReflectionClass($command))->isAbstract()) {
+				if(!$this->hasStarted) {
+					self::starting(function ($kungfu) use ($command) {
+						/** @var Application $kungfu */
+						$kungfu->resolve($command);
+					});
+				} else {
+					$this->resolve($command);
+				}
 			}
 		}
 	}
 
-    /**
-     * Get the default input definition for the application.
-     *
-     * This is used to add the --env option to every available command.
-     *
-     * @return \Symfony\Component\Console\Input\InputDefinition
-     */
-    protected function getDefaultInputDefinition()
-    {
-        return modify(parent::getDefaultInputDefinition(), function ($definition) {
-            /** @var InputDefinition $definition */
-            $definition->addOption($this->getEnvironmentOption());
-        });
-    }
+	/**
+	 * Get the default input definition for the application.
+	 *
+	 * This is used to add the --env option to every available command.
+	 *
+	 * @return \Symfony\Component\Console\Input\InputDefinition
+	 */
+	protected function getDefaultInputDefinition()
+	{
+		return modify(parent::getDefaultInputDefinition(), function ($definition) {
+			/** @var InputDefinition $definition */
+			$definition->addOption($this->getEnvironmentOption());
+		});
+	}
 
-    /**
-     * Get the global environment option for the definition.
-     *
-     * @return \Symfony\Component\Console\Input\InputOption
-     */
-    protected function getEnvironmentOption()
-    {
-        $message = 'The environment the command should run under';
-        return new InputOption('--env', null, InputOption::VALUE_OPTIONAL, $message);
-    }
+	/**
+	 * Get the global environment option for the definition.
+	 *
+	 * @return \Symfony\Component\Console\Input\InputOption
+	 */
+	protected function getEnvironmentOption()
+	{
+		$message = 'The environment the command should run under';
+		return new InputOption('--env', null, InputOption::VALUE_OPTIONAL, $message);
+	}
 
-    /**
-     * @return Container
-     */
-    public function getPhanda()
-    {
-        return $this->phanda;
-    }
+	/**
+	 * @return Container
+	 */
+	public function getPhanda()
+	{
+		return $this->phanda;
+	}
 }
