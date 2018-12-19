@@ -9,7 +9,10 @@ use Phanda\Console\Events\KungfuStartingEvent;
 use Phanda\Contracts\Container\Container;
 use Phanda\Contracts\Events\Dispatcher;
 use Phanda\Contracts\Foundation\Bootstrap\Bootstrap;
+use Phanda\Support\PhandArr;
+use Phanda\Support\PhandaStr;
 use Phanda\Support\ProcessUtils;
+use ReflectionClass;
 use Symfony\Component\Console\Application as SymfonyApplication;
 use Phanda\Contracts\Console\Application as ConsoleApplicationContract;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
@@ -21,13 +24,15 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
 
 class Application extends SymfonyApplication implements ConsoleApplicationContract
 {
     /**
-     * @var Container
+     * @var \Phanda\Contracts\Foundation\Application
      */
     protected $phanda;
 
@@ -234,6 +239,45 @@ class Application extends SymfonyApplication implements ConsoleApplicationContra
         }
         return $this;
     }
+
+
+
+	/**
+	 * @param array|string $paths
+	 *
+	 * @throws \ReflectionException
+	 */
+	public function loadCommandsInDir($paths)
+	{
+		$paths = array_unique(PhandArr::makeArray($paths));
+
+		$paths = array_filter($paths, function ($path) {
+			return is_dir($path);
+		});
+
+		if (empty($paths)) {
+			return;
+		}
+
+		$namespace = $this->phanda->getNamespace();
+
+		foreach ((new Finder)->in($paths)->files() as $command) {
+			/** @var SplFileInfo $command */
+			$command = $namespace . str_replace(
+					['/', '.php'],
+					['\\', ''],
+					PhandaStr::after($command->getPathname(), app_path() . DIRECTORY_SEPARATOR)
+				);
+
+			if (is_subclass_of($command, ConsoleCommand::class) &&
+				!(new ReflectionClass($command))->isAbstract()) {
+				self::starting(function ($kungfu) use ($command) {
+					/** @var Application $kungfu */
+					$kungfu->resolve($command);
+				});
+			}
+		}
+	}
 
     /**
      * Get the default input definition for the application.

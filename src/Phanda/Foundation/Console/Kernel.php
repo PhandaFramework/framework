@@ -125,34 +125,7 @@ class Kernel implements ConsoleKernel
      */
     protected function loadCommandsInDir($paths)
     {
-        $paths = array_unique(PhandArr::makeArray($paths));
-
-        $paths = array_filter($paths, function ($path) {
-            return is_dir($path);
-        });
-
-        if (empty($paths)) {
-            return;
-        }
-
-        $namespace = $this->phanda->getNamespace();
-
-        foreach ((new Finder)->in($paths)->files() as $command) {
-            /** @var SplFileInfo $command */
-            $command = $namespace . str_replace(
-                    ['/', '.php'],
-                    ['\\', ''],
-                    PhandaStr::after($command->getPathname(), app_path() . DIRECTORY_SEPARATOR)
-                );
-
-            if (is_subclass_of($command, ConsoleCommand::class) &&
-                !(new ReflectionClass($command))->isAbstract()) {
-                Kungfu::starting(function ($kungfu) use ($command) {
-                    /** @var Kungfu $kungfu */
-                    $kungfu->resolve($command);
-                });
-            }
-        }
+    	$this->kungfu->loadCommandsInDir($paths);
     }
 
     /**

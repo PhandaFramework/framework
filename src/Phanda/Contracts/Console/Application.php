@@ -20,4 +20,9 @@ interface Application
      * @return string
      */
     public function output();
+
+	/**
+	 * @param array|string $paths
+	 */
+	public function loadCommandsInDir($paths);
 }
