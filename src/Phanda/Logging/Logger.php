@@ -3,6 +3,7 @@
 namespace Phanda\Logging;
 
 use Phanda\Events\Dispatcher;
+use Phanda\Logging\Events\LogTriggeredEvent;
 use Psr\Log\LoggerInterface;
 
 class Logger implements LoggerInterface
@@ -39,7 +40,7 @@ class Logger implements LoggerInterface
 	 */
 	public function emergency($message, array $context = [])
 	{
-
+		$this->handleLog(__FUNCTION__, $message, $context);
 	}
 
 	/**
@@ -55,7 +56,7 @@ class Logger implements LoggerInterface
 	 */
 	public function alert($message, array $context = [])
 	{
-
+		$this->handleLog(__FUNCTION__, $message, $context);
 	}
 
 	/**
@@ -70,7 +71,7 @@ class Logger implements LoggerInterface
 	 */
 	public function critical($message, array $context = [])
 	{
-		// TODO: Implement critical() method.
+		$this->handleLog(__FUNCTION__, $message, $context);
 	}
 
 	/**
@@ -84,7 +85,7 @@ class Logger implements LoggerInterface
 	 */
 	public function error($message, array $context = [])
 	{
-
+		$this->handleLog(__FUNCTION__, $message, $context);
 	}
 
 	/**
@@ -100,7 +101,7 @@ class Logger implements LoggerInterface
 	 */
 	public function warning($message, array $context = [])
 	{
-
+		$this->handleLog(__FUNCTION__, $message, $context);
 	}
 
 	/**
@@ -113,7 +114,7 @@ class Logger implements LoggerInterface
 	 */
 	public function notice($message, array $context = [])
 	{
-
+		$this->handleLog(__FUNCTION__, $message, $context);
 	}
 
 	/**
@@ -128,7 +129,7 @@ class Logger implements LoggerInterface
 	 */
 	public function info($message, array $context = [])
 	{
-
+		$this->handleLog(__FUNCTION__, $message, $context);
 	}
 
 	/**
@@ -141,7 +142,7 @@ class Logger implements LoggerInterface
 	 */
 	public function debug($message, array $context = [])
 	{
-
+		$this->handleLog(__FUNCTION__, $message, $context);
 	}
 
 	/**
@@ -155,6 +156,77 @@ class Logger implements LoggerInterface
 	 */
 	public function log($level, $message, array $context = [])
 	{
+		$this->handleLog($level, $message, $context);
+	}
 
+	/**
+	 * Sets the internal logger of this logger.
+	 *
+	 * This will be the actual handler of the logger.
+	 *
+	 * @param LoggerInterface $logger
+	 * @return Logger
+	 */
+	public function setLogger(LoggerInterface $logger): Logger
+	{
+		$this->logger = $logger;
+		return $this;
+	}
+
+	/**
+	 * Gets the internal logger
+	 *
+	 * @return LoggerInterface
+	 */
+	public function getLogger(): LoggerInterface
+	{
+		return $this->logger;
+	}
+
+	/**
+	 * Sets the event dispatcher of this logger
+	 *
+	 * @param Dispatcher $dispatcher
+	 * @return Logger
+	 */
+	public function setDispatcher(Dispatcher $dispatcher): Logger
+	{
+		$this->dispatcher = $dispatcher;
+		return $this;
+	}
+
+	/**
+	 * Gets the event dispatcher of this logger
+	 *
+	 * @return Dispatcher
+	 */
+	public function getDispatcher(): Dispatcher
+	{
+		return $this->dispatcher;
+	}
+
+	/**
+	 * Handles the firing of the log, and sending to the internal logger.
+	 *
+	 * @param mixed  $level
+	 * @param string $message
+	 * @param array  $context
+	 */
+	protected function handleLog($level, $message, $context)
+	{
+		$this->fireLogEvent($level, $message, $context);
+		$this->logger{$level}($message, $context);
+	}
+
+	/**
+	 * Handles the firing of the log
+	 *
+	 * @param mixed  $level
+	 * @param string $message
+	 * @param array  $context
+	 */
+	protected function fireLogEvent($level, $message, $context)
+	{
+		$this->dispatcher->dispatch('log.fired', new LogTriggeredEvent($level, $message, $context));
 	}
 }
