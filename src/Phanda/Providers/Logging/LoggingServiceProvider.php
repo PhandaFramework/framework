@@ -36,10 +36,16 @@ class LoggingServiceProvider extends AbstractServiceProvider
 	 * Loads the configuration for the loggers and proceeds to create the respective loggers
 	 *
 	 * @param Manager $manager
+	 *
+	 * @throws \Exception
 	 */
 	protected function registerLoggersFromConfiguration(Manager $manager)
 	{
 		$loggers = config('debug.loggers', []);
+
+		foreach ($loggers as $name => $logger) {
+			$manager->makeLogger($name, $logger);
+		}
 	}
 
 }

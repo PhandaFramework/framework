@@ -2,6 +2,10 @@
 
 namespace Phanda\Logging;
 
+use Monolog\Handler\StreamHandler;
+use Phanda\Contracts\Events\Dispatcher;
+use Phanda\Support\PhandArr;
+
 class Manager
 {
 
@@ -51,9 +55,31 @@ class Manager
 	 * @param string $name
 	 * @param array  $configuration
 	 * @return Manager
+	 *
+	 * @throws \Exception
 	 */
 	public function makeLogger(string $name, array $configuration): Manager
 	{
+		$internalLogger = new \Monolog\Logger(PhandArr::get($configuration, 'channel', 'default'));
+
+		foreach(PhandArr::makeArray($configuration['drivers']) as $driver) {
+			switch(strtolower(trim($driver))) {
+				case 'file':
+				default:
+					$driver = new StreamHandler(
+						PhandArr::get($configuration, 'file_info', storage_path('logs/debug.log')),
+						PhandArr::get($configuration, 'log_level', 'debug')
+					);
+					break;
+			}
+
+			$internalLogger->pushHandler($driver);
+		}
+
+		$dispatcher = app()->create(Dispatcher::class);
+		$logger = new Logger($internalLogger, $dispatcher);
+		$this->loggers[$name] = $logger;
+
 		return $this;
 	}
 
