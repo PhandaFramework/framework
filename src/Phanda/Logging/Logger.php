@@ -215,7 +215,7 @@ class Logger implements LoggerInterface
 	protected function handleLog($level, $message, $context)
 	{
 		$this->fireLogEvent($level, $message, $context);
-		$this->logger{$level}($message, $context);
+		$this->logger->{$level}($message, $context);
 	}
 
 	/**
