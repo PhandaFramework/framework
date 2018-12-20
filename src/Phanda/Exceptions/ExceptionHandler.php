@@ -3,6 +3,7 @@
 namespace Phanda\Exceptions;
 
 use Exception;
+use Phanda\Logging\Manager;
 use Phanda\Support\Facades\Scene\Scene;
 use Symfony\Component\Debug\Exception\FlattenException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -64,13 +65,16 @@ class ExceptionHandler implements ExceptionHandlerContract
 	public function save(Exception $e)
 	{
 		if ($this->shouldntSave($e)) {
-			dd($this->ignoredExceptions);
 			return;
 		}
 
 		if (method_exists($e, 'save')) {
 			$e->save();
 		}
+
+		/** @var Manager $logManager */
+		$logManager = phanda()->create(Manager::class);
+		$logManager->getLogger()->error($e->getMessage(), $e->getTrace());
 
 		return null;
 	}
