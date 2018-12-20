@@ -39,6 +39,7 @@ class LoggingServiceProvider extends AbstractServiceProvider
 	 */
 	protected function registerLoggersFromConfiguration(Manager $manager)
 	{
+		$loggers = config('debug.loggers', []);
 	}
 
 }

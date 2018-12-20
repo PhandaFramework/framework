@@ -46,6 +46,18 @@ class Manager
 	}
 
 	/**
+	 * Makes a logger from configuration, and then sets the logger internally
+	 *
+	 * @param string $name
+	 * @param array  $configuration
+	 * @return Manager
+	 */
+	public function makeLogger(string $name, array $configuration): Manager
+	{
+		return $this;
+	}
+
+	/**
 	 * Sets the internal loggers array.
 	 *
 	 * @param array $loggers
