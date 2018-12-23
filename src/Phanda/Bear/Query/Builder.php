@@ -774,4 +774,14 @@ class Builder extends DatabaseQueryBuilder implements QueryBuilderContract, \Jso
         parent::insert($columns);
         return $this;
     }
+
+	/**
+	 * Gets the iterator for the ORM
+	 *
+	 * @return ResultSetContract|Statement|null
+	 */
+	public function getIterator()
+	{
+		return $this->all();
+	}
 }

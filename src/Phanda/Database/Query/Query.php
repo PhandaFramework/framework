@@ -1029,7 +1029,7 @@ class Query implements \IteratorAggregate, QueryContract
      *
      * @return Statement|null
      */
-    public function getIterator(): ?Statement
+    public function getIterator()
     {
         if ($this->resultStatement === null || $this->dirty) {
             $this->resultStatement = $this->execute();

@@ -3,6 +3,7 @@
 namespace Phanda\Contracts\Database\Query;
 
 use InvalidArgumentException;
+use Phanda\Contracts\Bear\Query\ResultSet;
 use Phanda\Contracts\Database\Connection\Connection;
 use Phanda\Contracts\Database\Query\Expression\Expression as ExpressionContract;
 use Phanda\Contracts\Database\Statement;
@@ -446,9 +447,9 @@ interface Query
     /**
      * Retrieve an external iterator
      *
-     * @return Statement|null
+     * @return Statement|ResultSet|null
      */
-    public function getIterator(): ?Statement;
+    public function getIterator();
 
 	/**
 	 * Enables/Disables buffered results.
