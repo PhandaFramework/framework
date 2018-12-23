@@ -4,6 +4,8 @@ namespace Phanda\Providers\Foundation;
 
 use Phanda\Foundation\Console\Commands\ApplicationDebugCommand;
 use Phanda\Foundation\Console\Commands\CreateControllerCommand;
+use Phanda\Foundation\Console\Commands\CreateEntityCommand;
+use Phanda\Foundation\Console\Commands\CreateTableCommand;
 use Phanda\Foundation\Console\Commands\EnvironmentCommand;
 use Phanda\Foundation\Console\Commands\ServeCommand;
 use Phanda\Providers\AbstractServiceProvider;
@@ -23,7 +25,9 @@ class KungfuServiceProvider extends AbstractServiceProvider
 		'command.debug' => ApplicationDebugCommand::class,
 		'command.environment' => EnvironmentCommand::class,
 		'command.serve' => ServeCommand::class,
-		'command.create.controller' => CreateControllerCommand::class
+		'command.create.controller' => CreateControllerCommand::class,
+		'command.create.entity' => CreateEntityCommand::class,
+		'command.create.table' => CreateTableCommand::class
 	];
 
 	public function register()

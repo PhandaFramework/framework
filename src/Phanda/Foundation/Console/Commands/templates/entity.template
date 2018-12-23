@@ -1,0 +1,10 @@
+<?php
+
+namespace %namespace%;
+
+use Phanda\Bear\Entity\Entity;
+
+class %class_name% extends Entity
+{
+    //
+}

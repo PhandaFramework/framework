@@ -1,0 +1,22 @@
+<?php
+
+namespace %namespace%;
+
+use Phanda\Bear\Table\Table;
+
+class %class_name% extends Table
+{
+    /**
+     * Initialize a table instance. Called after the constructor.
+     *
+     * You can use this method to define associations, attach behaviors
+     * define validation and do any other initialization logic you need.
+     *
+     * @param array $config
+     * @return void
+     */
+    public function initialize(array $config)
+    {
+        //
+    }
+}
