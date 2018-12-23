@@ -624,6 +624,12 @@ class Entity implements EntityContract
 	 */
 	public function clean()
 	{
+		foreach($this->dirtyProperties as $property => $value) {
+			if(isset($this->originalProperties[$property])) {
+				$this->properties[$property] = $this->originalProperties[$property];
+			}
+		}
+
 		$this->dirtyProperties = [];
 		$this->originalProperties = [];
 	}
