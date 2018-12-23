@@ -3,6 +3,7 @@
 namespace Phanda\Foundation\Console\Commands;
 
 use Phanda\Console\AbstractGenerationCommand;
+use Symfony\Component\Console\Input\InputOption;
 
 class CreateControllerCommand extends AbstractGenerationCommand
 {
@@ -50,6 +51,16 @@ class CreateControllerCommand extends AbstractGenerationCommand
 	 */
 	protected function getDefaultNamespace($rootNamespace)
 	{
-		return $rootNamespace . '\Controllers';
+		return $rootNamespace . '\\' . ($this->getOption('base') ?? 'Controllers');
+	}
+
+	public function getOptions()
+	{
+		return array_merge(
+			parent::getOptions(),
+			[
+				['base', null, InputOption::VALUE_OPTIONAL, 'The base folder in the namespace', null]
+			]
+		);
 	}
 }

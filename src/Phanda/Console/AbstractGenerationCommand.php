@@ -5,6 +5,7 @@ namespace Phanda\Console;
 use Phanda\Filesystem\Filesystem;
 use Phanda\Support\PhandaStr;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 
 abstract class AbstractGenerationCommand extends ConsoleCommand
 {
@@ -213,11 +214,7 @@ abstract class AbstractGenerationCommand extends ConsoleCommand
 	 */
 	protected function getBaseNamespace(): string
 	{
-		if ($this->hasOption('namespace')) {
-			return $this->getOption('namespace');
-		}
-
-		return $this->getGeneratorNamespace();
+		return $this->getOption('namespace') ?? $this->getGeneratorNamespace();
 	}
 
 	/**
@@ -237,6 +234,13 @@ abstract class AbstractGenerationCommand extends ConsoleCommand
 	{
 		return [
 			['name', InputArgument::REQUIRED, 'The name of the class']
+		];
+	}
+
+	public function getOptions()
+	{
+		return [
+			['namespace', null, InputOption::VALUE_OPTIONAL, 'The override of the base namespace', null]
 		];
 	}
 }
