@@ -26,7 +26,7 @@ interface Channel extends Arrayable
 	 *
 	 * @param ConnectionInterface $connection
 	 * @param                     $payload
-	 * @return mixed
+	 * @return void
 	 */
 	public function subscribe(ConnectionInterface $connection, $payload);
 
@@ -34,7 +34,7 @@ interface Channel extends Arrayable
 	 * Unsubscribes from this channel
 	 *
 	 * @param ConnectionInterface $connection
-	 * @return mixed
+	 * @return void
 	 */
 	public function unsubscribe(ConnectionInterface $connection);
 
@@ -42,7 +42,7 @@ interface Channel extends Arrayable
 	 * Broadcasts an event to everyone in this channel
 	 *
 	 * @param $payload
-	 * @return mixed
+	 * @return void
 	 */
 	public function broadcast($payload);
 
@@ -51,7 +51,7 @@ interface Channel extends Arrayable
 	 *
 	 * @param ConnectionInterface $connection
 	 * @param                     $payload
-	 * @return mixed
+	 * @return void
 	 */
 	public function broadcastToOthers(ConnectionInterface $connection, $payload);
 
@@ -60,8 +60,23 @@ interface Channel extends Arrayable
 	 *
 	 * @param               $payload
 	 * @param string[]|null $socketId
-	 * @return mixed
+	 * @return void
 	 */
 	public function broadcastToAllExcept($payload, ?array $socketId = null);
+
+	/**
+	 * Gets the channel name
+	 *
+	 * @return string
+	 */
+	public function getChannelName(): string;
+
+	/**
+	 * Sets the channel name
+	 *
+	 * @param string $channelName
+	 * @return $this
+	 */
+	public function setChannelName(string $channelName);
 
 }
