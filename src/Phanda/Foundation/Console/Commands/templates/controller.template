@@ -1,0 +1,10 @@
+<?php
+
+namespace %namespace%;
+
+use \Phanda\Routing\Controller\AbstractController;
+
+class %class_name% extends AbstractController
+{
+
+}

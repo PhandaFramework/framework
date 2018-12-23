@@ -87,15 +87,12 @@ abstract class AbstractGenerationCommand extends ConsoleCommand
 	}
 
 	/**
-	 * Get the default namespace for the class.
+	 * Get the default namespace for the class, this gets appended to baseNamespace
 	 *
 	 * @param  string $rootNamespace
 	 * @return string
 	 */
-	protected function getDefaultNamespace($rootNamespace)
-	{
-		return $rootNamespace;
-	}
+	protected abstract function getDefaultNamespace($rootNamespace);
 
 	/**
 	 * Determine if the class already exists.
@@ -121,6 +118,11 @@ abstract class AbstractGenerationCommand extends ConsoleCommand
 		return $this->getBasePath() . '/' . str_replace('\\', '/', $name) . '.php';
 	}
 
+	/**
+	 * Get the base path, either app_path() or core_path()
+	 *
+	 * @return string
+	 */
 	protected abstract function getBasePath(): string;
 
 	/**
@@ -219,7 +221,7 @@ abstract class AbstractGenerationCommand extends ConsoleCommand
 	}
 
 	/**
-	 * Get the generator namespace, i.e core or app. Can be overridden if an argument
+	 * Get the generator namespace, i.e 'Core' or 'App'. Can be overridden if an argument
 	 * is provided.
 	 *
 	 * @return string
