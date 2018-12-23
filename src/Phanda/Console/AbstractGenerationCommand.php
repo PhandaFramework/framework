@@ -31,14 +31,14 @@ abstract class AbstractGenerationCommand extends ConsoleCommand
 	}
 
 	/**
-	 * Gets the path to the stub to generate
+	 * Gets the path to the template to generate
 	 *
 	 * @return string
 	 */
-	abstract protected function getStubFile(): string;
+	abstract protected function getTemplateFile(): string;
 
 	/**
-	 * Handle the generation of the stub
+	 * Handle the generation of the template
 	 *
 	 * @return bool
 	 */
@@ -146,24 +146,24 @@ abstract class AbstractGenerationCommand extends ConsoleCommand
 	 */
 	protected function buildClass($name)
 	{
-		$stub = $this->filesystem->loadFile($this->getStubFile());
+		$template = $this->filesystem->loadFile($this->getTemplateFile());
 
-		return $this->replaceNamespace($stub, $name)->replaceClassName($stub, $name);
+		return $this->replaceNamespace($template, $name)->replaceClassName($template, $name);
 	}
 
 	/**
-	 * Replace the namespace for the given stub.
+	 * Replace the namespace for the given template.
 	 *
-	 * @param  string $stub
+	 * @param  string $template
 	 * @param  string $name
 	 * @return $this
 	 */
-	protected function replaceNamespace(&$stub, $name)
+	protected function replaceNamespace(&$template, $name)
 	{
-		$stub = str_replace(
+		$template = str_replace(
 			['%namespace%', '%base_namespace%'],
 			[$this->getNamespace($name), $this->getBaseNamespace()],
-			$stub
+			$template
 		);
 
 		return $this;
@@ -181,17 +181,17 @@ abstract class AbstractGenerationCommand extends ConsoleCommand
 	}
 
 	/**
-	 * Replace the class name for the given stub.
+	 * Replace the class name for the given template.
 	 *
-	 * @param  string $stub
+	 * @param  string $template
 	 * @param  string $name
 	 * @return string
 	 */
-	protected function replaceClassName($stub, $name)
+	protected function replaceClassName($template, $name)
 	{
 		$class = str_replace($this->getNamespace($name) . '\\', '', $name);
 
-		return str_replace('%class_name%', $class, $stub);
+		return str_replace('%class_name%', $class, $template);
 	}
 
 	/**
