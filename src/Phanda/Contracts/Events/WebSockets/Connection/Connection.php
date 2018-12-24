@@ -2,6 +2,8 @@
 
 namespace Phanda\Contracts\Events\WebSockets\Connection;
 
+use Phanda\Contracts\Events\WebSockets\Application\SocketApp;
+use Phanda\Events\WebSockets\Manager;
 use Ratchet\ConnectionInterface;
 
 interface Connection extends ConnectionInterface
@@ -20,5 +22,20 @@ interface Connection extends ConnectionInterface
 	 * @return Connection
 	 */
 	public function setSocketId(string $socketId): Connection;
+
+	/**
+	 * Gets the WebSocket manager instance attached to this connection
+	 *
+	 * @return SocketApp
+	 */
+	public function getApplication(): SocketApp;
+
+	/**
+	 * Sets the WebSocket manager instance attached to this connection
+	 *
+	 * @param SocketApp $app
+	 * @return Connection
+	 */
+	public function setApplication(SocketApp $app): Connection;
 
 }
