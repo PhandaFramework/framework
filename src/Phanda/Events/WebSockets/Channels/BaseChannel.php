@@ -57,16 +57,6 @@ class BaseChannel implements Channel
 	}
 
 	/**
-	 * Checks if there are any currently active connections on this channel
-	 *
-	 * @return bool
-	 */
-	public function hasConnections(): bool
-	{
-		return count($this->subscribers) > 0;
-	}
-
-	/**
 	 * Gets all the currently subscribed connections in this channel
 	 *
 	 * @return array
@@ -74,6 +64,16 @@ class BaseChannel implements Channel
 	public function getSubscribedConnections(): array
 	{
 		return $this->subscribers;
+	}
+
+	/**
+	 * Checks if there are any currently active connections on this channel
+	 *
+	 * @return bool
+	 */
+	public function hasConnections(): bool
+	{
+		return count($this->subscribers) > 0;
 	}
 
 	/**
@@ -95,8 +95,39 @@ class BaseChannel implements Channel
 		);
 	}
 
+	/**
+	 * Saves the connection to the internal array
+	 *
+	 * Can be overridden in children classes that wish to provide
+	 * additional functionality to saving a subscriber.
+	 *
+	 * @param ConnectionContract $connection
+	 */
 	protected function saveSubscriber(ConnectionContract $connection)
 	{
+		$this->subscribers[$connection->getSocketId()] = $connection;
+	}
+
+	/**
+	 * Gets the channel name
+	 *
+	 * @return string
+	 */
+	public function getChannelName(): string
+	{
+		return $this->channelName;
+	}
+
+	/**
+	 * Sets the channel name
+	 *
+	 * @param string $channelName
+	 * @return $this
+	 */
+	public function setChannelName(string $channelName)
+	{
+		$this->channelName = $channelName;
+		return $this;
 	}
 
 	/**
@@ -108,21 +139,6 @@ class BaseChannel implements Channel
 	public function unsubscribe(ConnectionContract $connection)
 	{
 		unset($this->subscribers[$connection->getSocketId()]);
-	}
-
-	/**
-	 * Broadcasts an event to everyone in this channel
-	 *
-	 * @param $payload
-	 * @return void
-	 */
-	public function broadcast($payload)
-	{
-		$payload = $this->formatPayload($payload);
-
-		foreach ($this->subscribers as $subscriber) {
-			$subscriber->send($payload);
-		}
 	}
 
 	/**
@@ -164,25 +180,18 @@ class BaseChannel implements Channel
 	}
 
 	/**
-	 * Sets the channel name
+	 * Broadcasts an event to everyone in this channel
 	 *
-	 * @param string $channelName
-	 * @return $this
+	 * @param $payload
+	 * @return void
 	 */
-	public function setChannelName(string $channelName)
+	public function broadcast($payload)
 	{
-		$this->channelName = $channelName;
-		return $this;
-	}
+		$payload = $this->formatPayload($payload);
 
-	/**
-	 * Gets the channel name
-	 *
-	 * @return string
-	 */
-	public function getChannelName(): string
-	{
-		return $this->channelName;
+		foreach ($this->subscribers as $subscriber) {
+			$subscriber->send($payload);
+		}
 	}
 
 	/**
