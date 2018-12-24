@@ -2,7 +2,9 @@
 
 namespace Phanda\Exceptions\Scene;
 
-class InvalidStageException extends \LogicException
+use Phanda\Exceptions\FatalPhandaException;
+
+class InvalidStageException extends FatalPhandaException
 {
     //
 }

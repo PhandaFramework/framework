@@ -3,10 +3,10 @@
 
 namespace Phanda\Exceptions\Foundation\Http;
 
-
+use Phanda\Exceptions\PhandaException;
 use Phanda\Foundation\Http\Response;
 
-class HttpResponseException extends \RuntimeException
+class HttpResponseException extends PhandaException
 {
     /** @var Response */
     protected $response;

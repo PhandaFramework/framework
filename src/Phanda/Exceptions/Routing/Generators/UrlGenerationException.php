@@ -3,8 +3,9 @@
 namespace Phanda\Exceptions\Routing\Generators;
 
 use Phanda\Contracts\Routing\Route;
+use Phanda\Exceptions\FatalPhandaException;
 
-class UrlGenerationException extends \Exception
+class UrlGenerationException extends FatalPhandaException
 {
 
     public static function missingRouteParameters(Route $route)

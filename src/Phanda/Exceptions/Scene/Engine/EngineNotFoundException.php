@@ -2,7 +2,9 @@
 
 namespace Phanda\Exceptions\Scene\Engine;
 
-class EngineNotFoundException extends \LogicException
+use Phanda\Exceptions\FatalPhandaException;
+
+class EngineNotFoundException extends FatalPhandaException
 {
 
 }

@@ -2,7 +2,9 @@
 
 namespace Phanda\Exceptions\Events\WebSockets;
 
-class WebSocketException extends \RuntimeException
+use Phanda\Exceptions\PhandaException;
+
+class WebSocketException extends PhandaException
 {
 	//
 }

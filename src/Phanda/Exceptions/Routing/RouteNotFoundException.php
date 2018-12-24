@@ -2,7 +2,9 @@
 
 namespace Phanda\Exceptions\Routing;
 
-class RouteNotFoundException extends \Exception
+use Phanda\Exceptions\FatalPhandaException;
+
+class RouteNotFoundException extends FatalPhandaException
 {
     //
 }

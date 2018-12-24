@@ -2,7 +2,9 @@
 
 namespace Phanda\Exceptions\Scene;
 
-class SceneException extends \RuntimeException
+use Phanda\Exceptions\PhandaException;
+
+class SceneException extends PhandaException
 {
 
 }

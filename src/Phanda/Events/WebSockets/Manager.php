@@ -118,8 +118,7 @@ class Manager
 	 * @param string $appKey
 	 * @return SocketAppContract|null
 	 */
-	public
-	function getApplicationByKey(string $appKey): ?SocketAppContract
+	public function getApplicationByKey(string $appKey): ?SocketAppContract
 	{
 		foreach ($this->socketApps as $app) {
 			if ($app->getAppKey() == $appKey) {
@@ -136,8 +135,7 @@ class Manager
 	 * @param int $appId
 	 * @return bool
 	 */
-	public
-	function isAppIdRegistered(int $appId): bool
+	public function isAppIdRegistered(int $appId): bool
 	{
 		return $this->getApplicationById($appId) !== null;
 	}
@@ -148,8 +146,7 @@ class Manager
 	 * @param string $appKey
 	 * @return bool
 	 */
-	public
-	function isAppKeyRegistered(string $appKey): bool
+	public function isAppKeyRegistered(string $appKey): bool
 	{
 		return $this->getApplicationByKey($appKey) !== null;
 	}

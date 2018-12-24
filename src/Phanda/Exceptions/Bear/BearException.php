@@ -2,7 +2,9 @@
 
 namespace Phanda\Exceptions\Bear;
 
-class BearException extends \RuntimeException
+use Phanda\Exceptions\PhandaException;
+
+class BearException extends PhandaException
 {
 
 }

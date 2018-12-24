@@ -2,7 +2,9 @@
 
 namespace Phanda\Exceptions\Scene;
 
-class UnrecognizedExtensionException extends \Exception
+use Phanda\Exceptions\FatalPhandaException;
+
+class UnrecognizedExtensionException extends FatalPhandaException
 {
     //
 }
