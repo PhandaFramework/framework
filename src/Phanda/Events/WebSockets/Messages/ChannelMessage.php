@@ -3,7 +3,7 @@
 namespace Phanda\Events\WebSockets\Messages;
 
 use Phanda\Contracts\Events\WebSockets\Messages\Message;
-use Ratchet\ConnectionInterface;
+use Phanda\Contracts\Events\WebSockets\Connection\Connection as ConnectionContract;
 use Ratchet\RFC6455\Messaging\MessageInterface;
 use Phanda\Contracts\Events\WebSockets\Channels\Manager as ChannelManager;
 
@@ -15,7 +15,7 @@ class ChannelMessage implements Message
 	protected $message;
 
 	/**
-	 * @var ConnectionInterface
+	 * @var ConnectionContract
 	 */
 	protected $connection;
 
@@ -28,10 +28,10 @@ class ChannelMessage implements Message
 	 * ClientMessage constructor.
 	 *
 	 * @param MessageInterface    $message
-	 * @param ConnectionInterface $connection
+	 * @param ConnectionContract $connection
 	 * @param ChannelManager      $channelManager
 	 */
-	public function __construct(MessageInterface $message, ConnectionInterface $connection, ChannelManager $channelManager)
+	public function __construct(MessageInterface $message, ConnectionContract $connection, ChannelManager $channelManager)
 	{
 		$this->message = $message;
 		$this->connection = $connection;

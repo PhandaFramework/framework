@@ -3,7 +3,7 @@
 namespace Phanda\Events\WebSockets\Messages;
 
 use Phanda\Support\PhandaStr;
-use Ratchet\ConnectionInterface;
+use Phanda\Contracts\Events\WebSockets\Connection\Connection as ConnectionContract;
 use Ratchet\RFC6455\Messaging\MessageInterface;
 use Phanda\Contracts\Events\WebSockets\Channels\Manager as ChannelManager;
 
@@ -12,13 +12,13 @@ class MessageFactory
 
 	/**
 	 * @param MessageInterface    $message
-	 * @param ConnectionInterface $connection
+	 * @param ConnectionContract $connection
 	 * @param ChannelManager      $channelManager
 	 * @return ChannelMessage|ClientMessage
 	 */
 	public function createMessage(
 		MessageInterface $message,
-		ConnectionInterface $connection,
+		ConnectionContract $connection,
 		ChannelManager $channelManager
 	)
 	{

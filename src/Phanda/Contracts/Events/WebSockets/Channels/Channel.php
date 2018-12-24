@@ -3,7 +3,7 @@
 namespace Phanda\Contracts\Events\WebSockets\Channels;
 
 use Phanda\Contracts\Support\Arrayable;
-use Ratchet\ConnectionInterface;
+use Phanda\Contracts\Events\WebSockets\Connection\Connection as ConnectionContract;
 
 interface Channel extends Arrayable
 {
@@ -24,19 +24,19 @@ interface Channel extends Arrayable
 	/**
 	 * Subscribes to this channel
 	 *
-	 * @param ConnectionInterface $connection
+	 * @param ConnectionContract $connection
 	 * @param                     $payload
 	 * @return void
 	 */
-	public function subscribe(ConnectionInterface $connection, $payload);
+	public function subscribe(ConnectionContract $connection, $payload);
 
 	/**
 	 * Unsubscribes from this channel
 	 *
-	 * @param ConnectionInterface $connection
+	 * @param ConnectionContract $connection
 	 * @return void
 	 */
-	public function unsubscribe(ConnectionInterface $connection);
+	public function unsubscribe(ConnectionContract $connection);
 
 	/**
 	 * Broadcasts an event to everyone in this channel
@@ -49,20 +49,20 @@ interface Channel extends Arrayable
 	/**
 	 * Broadcasts a message to everyone in this channel, except the sender
 	 *
-	 * @param ConnectionInterface $connection
+	 * @param ConnectionContract $connection
 	 * @param                     $payload
 	 * @return void
 	 */
-	public function broadcastToOthers(ConnectionInterface $connection, $payload);
+	public function broadcastToOthers(ConnectionContract $connection, $payload);
 
 	/**
 	 * Broadcasts to everyone in the channel except for the people with the associated socket id's
 	 *
 	 * @param               $payload
-	 * @param string[]|null $socketId
+	 * @param string[]|string|null $socketIds
 	 * @return void
 	 */
-	public function broadcastToAllExcept($payload, ?array $socketId = null);
+	public function broadcastToAllExcept($payload, $socketIds = null);
 
 	/**
 	 * Gets the channel name

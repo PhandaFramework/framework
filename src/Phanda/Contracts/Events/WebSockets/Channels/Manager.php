@@ -2,7 +2,7 @@
 
 namespace Phanda\Contracts\Events\WebSockets\Channels;
 
-use Ratchet\ConnectionInterface;
+use Phanda\Contracts\Events\WebSockets\Connection\Connection as ConnectionContract;
 
 interface Manager
 {
@@ -47,9 +47,9 @@ interface Manager
 	/**
 	 * Removes a given connection from all channels
 	 *
-	 * @param ConnectionInterface $connection
+	 * @param ConnectionContract $connection
 	 * @return void
 	 */
-	public function removeConnection(ConnectionInterface $connection);
+	public function removeConnection(ConnectionContract $connection);
 
 }

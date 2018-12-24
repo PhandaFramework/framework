@@ -9,7 +9,7 @@ use Phanda\Events\WebSockets\Channels\PrivateChannel;
 use Phanda\Events\WebSockets\Channels\UserAwareChannel;
 use Phanda\Support\PhandArr;
 use Phanda\Support\PhandaStr;
-use Ratchet\ConnectionInterface;
+use Phanda\Contracts\Events\WebSockets\Connection\Connection as ConnectionContract;
 
 class ArrayChannelManager implements Manager
 {
@@ -78,10 +78,10 @@ class ArrayChannelManager implements Manager
 	/**
 	 * Removes a given connection from all channels
 	 *
-	 * @param ConnectionInterface $connection
+	 * @param ConnectionContract $connection
 	 * @return void
 	 */
-	public function removeConnection(ConnectionInterface $connection)
+	public function removeConnection(ConnectionContract $connection)
 	{
 		if (!isset($connection->app)) {
 			return;
