@@ -4,6 +4,7 @@ namespace Phanda\Providers\Events;
 
 use Phanda\Contracts\Events\WebSockets\Connection\Connection as ConnectionContract;
 use Phanda\Contracts\Events\WebSockets\Data\PayloadFormatter;
+use Phanda\Events\WebSockets\Channels\Managers\ArrayChannelManager;
 use Phanda\Events\WebSockets\Data\BasePayloadFormatter;
 use Phanda\Events\WebSockets\Manager;
 use Phanda\Providers\AbstractServiceProvider;
@@ -17,6 +18,7 @@ class WebSocketServiceProvider extends AbstractServiceProvider
 		$this->registerPayloadFormatter();
 		$this->registerRatchetToPhandaAliases();
 		$this->registerWebSocketManager();
+		$this->registerWebSocketChannelManager();
 	}
 
 	/**
@@ -44,11 +46,23 @@ class WebSocketServiceProvider extends AbstractServiceProvider
 	 */
 	protected function registerWebSocketManager()
 	{
-		$this->phanda->singleton(Manager::class, function() {
+		$this->phanda->singleton(Manager::class, function () {
 			$configuration = config('websockets.apps');
 
 			return new Manager($configuration);
 		});
+	}
+
+	/**
+	 * Registers the web socket channel manager and its respective aliases
+	 */
+	protected function registerWebSocketChannelManager()
+	{
+		$this->phanda->singleton(\Phanda\Contracts\Events\WebSockets\Channels\Manager::class, function () {
+			return new ArrayChannelManager();
+		});
+
+		$this->phanda->alias(\Phanda\Contracts\Events\WebSockets\Channels\Manager::class, ArrayChannelManager::class);
 	}
 
 }
