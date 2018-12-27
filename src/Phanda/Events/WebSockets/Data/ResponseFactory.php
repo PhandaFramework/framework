@@ -50,6 +50,33 @@ class ResponseFactory
 	}
 
 	/**
+	 * Creates an event response that's not directly attached to a channel
+	 *
+	 * @param string     $eventName
+	 * @param array|null $data
+	 * @return string
+	 */
+	public function makeEventResponse(string $eventName, ?array $data = [])
+	{
+		$responseArray = ['event' => $eventName, 'data' => $this->formatDataArray($data)];
+
+		return $this->formatter->formatPayload($responseArray);
+	}
+
+	/**
+	 * Creates an event response that is prefixed with the system prefix
+	 * 'phanda', with no attached channel
+	 *
+	 * @param string     $eventName
+	 * @param array|null $data
+	 * @return string
+	 */
+	public function makeSystemEventResponse(string $eventName, ?array $data = [])
+	{
+		return $this->makeEventResponse('phanda:' . $eventName, $data);
+	}
+
+	/**
 	 * Formats an array of data to be in the format that the WebSocket can
 	 * accept
 	 *

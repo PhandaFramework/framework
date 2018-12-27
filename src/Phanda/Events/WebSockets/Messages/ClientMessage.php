@@ -4,15 +4,15 @@ namespace Phanda\Events\WebSockets\Messages;
 
 use Phanda\Contracts\Events\WebSockets\Messages\Message;
 use Phanda\Contracts\Events\WebSockets\Connection\Connection as ConnectionContract;
-use Ratchet\RFC6455\Messaging\MessageInterface;
 use Phanda\Contracts\Events\WebSockets\Channels\Manager as ChannelManager;
+use Phanda\Support\PhandaStr;
 
 class ClientMessage implements Message
 {
 	/**
-	 * @var MessageInterface
+	 * @var \stdClass
 	 */
-	protected $message;
+	protected $payload;
 
 	/**
 	 * @var ConnectionContract
@@ -27,13 +27,13 @@ class ClientMessage implements Message
 	/**
 	 * ClientMessage constructor.
 	 *
-	 * @param MessageInterface    $message
+	 * @param \stdClass          $payload
 	 * @param ConnectionContract $connection
-	 * @param ChannelManager      $channelManager
+	 * @param ChannelManager     $channelManager
 	 */
-	public function __construct(MessageInterface $message, ConnectionContract $connection, ChannelManager $channelManager)
+	public function __construct(\stdClass $payload, ConnectionContract $connection, ChannelManager $channelManager)
 	{
-		$this->message = $message;
+		$this->payload = $payload;
 		$this->connection = $connection;
 		$this->channelManager = $channelManager;
 	}
@@ -45,6 +45,11 @@ class ClientMessage implements Message
 	 */
 	public function respond()
 	{
-		// TODO: Implement respond() method.
+		if (!PhandaStr::startsIn('client-', $this->payload->event)) {
+			return;
+		}
+
+		$channel = $this->channelManager->find($this->connection->getApplication()->getAppId(), $this->payload->channel);
+		$channel->broadcastToOthers($this->connection, $this->payload);
 	}
 }

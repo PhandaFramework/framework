@@ -4,15 +4,16 @@ namespace Phanda\Events\WebSockets\Messages;
 
 use Phanda\Contracts\Events\WebSockets\Messages\Message;
 use Phanda\Contracts\Events\WebSockets\Connection\Connection as ConnectionContract;
-use Ratchet\RFC6455\Messaging\MessageInterface;
 use Phanda\Contracts\Events\WebSockets\Channels\Manager as ChannelManager;
+use Phanda\Events\WebSockets\Data\ResponseFactory;
+use Phanda\Support\PhandaStr;
 
 class ChannelMessage implements Message
 {
 	/**
-	 * @var MessageInterface
+	 * @var \stdClass
 	 */
-	protected $message;
+	protected $payload;
 
 	/**
 	 * @var ConnectionContract
@@ -25,17 +26,23 @@ class ChannelMessage implements Message
 	protected $channelManager;
 
 	/**
+	 * @var ResponseFactory
+	 */
+	protected $responseFactory;
+
+	/**
 	 * ClientMessage constructor.
 	 *
-	 * @param MessageInterface    $message
+	 * @param \stdClass          $payload
 	 * @param ConnectionContract $connection
-	 * @param ChannelManager      $channelManager
+	 * @param ChannelManager     $channelManager
 	 */
-	public function __construct(MessageInterface $message, ConnectionContract $connection, ChannelManager $channelManager)
+	public function __construct(\stdClass $payload, ConnectionContract $connection, ChannelManager $channelManager)
 	{
-		$this->message = $message;
+		$this->payload = $payload;
 		$this->connection = $connection;
 		$this->channelManager = $channelManager;
+		$this->responseFactory = phanda()->create(ResponseFactory::class);
 	}
 
 	/**
@@ -45,6 +52,46 @@ class ChannelMessage implements Message
 	 */
 	public function respond()
 	{
-		// TODO: Implement respond() method.
+		$eventName = PhandaStr::makeCamel(PhandaStr::after($this->payload->event, ':'));
+
+		if (method_exists($this, $eventName)) {
+			call_user_func([$this, $eventName], $this->connection, $this->payload->data ?? new \stdClass());
+		}
+	}
+
+	/**
+	 * Responds to a ping message
+	 *
+	 * @param ConnectionContract $connection
+	 */
+	protected function ping(ConnectionContract $connection)
+	{
+		$connection->send(
+			$this->responseFactory->makeSystemEventResponse('pong')
+		);
+	}
+
+	/**
+	 * Subscribes to a channel, or creates one if it does not exist
+	 *
+	 * @param ConnectionContract $connection
+	 * @param \stdClass          $payload
+	 */
+	protected function subscribe(ConnectionContract $connection, \stdClass $payload)
+	{
+		$channel = $this->channelManager->findOrCreate($connection->getApplication()->getAppId(), $payload->channel);
+		$channel->subscribe($connection, $payload);
+	}
+
+	/**
+	 * Unsubscribes from a channel
+	 *
+	 * @param ConnectionContract $connection
+	 * @param \stdClass          $payload
+	 */
+	public function unsubscribe(ConnectionContract $connection, \stdClass $payload)
+	{
+		$channel = $this->channelManager->findOrCreate($connection->getApplication()->getAppId(), $payload->channel);
+		$channel->unsubscribe($connection);
 	}
 }
