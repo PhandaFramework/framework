@@ -5,6 +5,7 @@ namespace Phanda\Providers\Events;
 use Phanda\Contracts\Events\WebSockets\Connection\Connection as ConnectionContract;
 use Phanda\Contracts\Events\WebSockets\Data\PayloadFormatter;
 use Phanda\Events\WebSockets\Data\BasePayloadFormatter;
+use Phanda\Events\WebSockets\Manager;
 use Phanda\Providers\AbstractServiceProvider;
 use Ratchet\ConnectionInterface;
 
@@ -15,6 +16,7 @@ class WebSocketServiceProvider extends AbstractServiceProvider
 	{
 		$this->registerPayloadFormatter();
 		$this->registerRatchetToPhandaAliases();
+		$this->registerWebSocketManager();
 	}
 
 	/**
@@ -35,6 +37,18 @@ class WebSocketServiceProvider extends AbstractServiceProvider
 	protected function registerRatchetToPhandaAliases()
 	{
 		$this->phanda->alias(ConnectionInterface::class, ConnectionContract::class);
+	}
+
+	/**
+	 * Registers the web socket manager to allow the booting of applications
+	 */
+	protected function registerWebSocketManager()
+	{
+		$this->phanda->singleton(Manager::class, function() {
+			$configuration = config('websockets.apps');
+
+			return new Manager($configuration);
+		});
 	}
 
 }

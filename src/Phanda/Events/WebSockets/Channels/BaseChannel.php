@@ -6,7 +6,9 @@ use Phanda\Contracts\Events\WebSockets\Channels\Channel;
 use Phanda\Contracts\Events\WebSockets\Connection\Connection as ConnectionContract;
 use Phanda\Contracts\Events\WebSockets\Data\PayloadFormatter;
 use Phanda\Events\WebSockets\Data\ResponseFactory;
+use Phanda\Exceptions\Events\WebSockets\InvalidSocketSignature;
 use Phanda\Support\PhandArr;
+use Phanda\Support\PhandaStr;
 
 class BaseChannel implements Channel
 {
@@ -93,6 +95,28 @@ class BaseChannel implements Channel
 				$this->getChannelName()
 			)
 		);
+	}
+
+	/**
+	 * Verifies that a given socket signature is valid for the given
+	 * connection
+	 *
+	 * @param ConnectionContract $connection
+	 * @param mixed              $payload
+	 *
+	 * @throws InvalidSocketSignature
+	 */
+	protected function verifyConnectionSignature(ConnectionContract $connection, $payload)
+	{
+		$signature = "{$connection->getSocketId()}:{$this->getChannelName()}";
+
+		if (isset($payload->channel_data)) {
+			$signature .= ":{$payload->channel_data}";
+		}
+
+		if (PhandaStr::after($payload->auth, ':') !== hash_hmac('sha256', $signature, $connection->getApplication()->getAppSecret())) {
+			throw new InvalidSocketSignature("Socket mismatch in connection to channel.");
+		}
 	}
 
 	/**

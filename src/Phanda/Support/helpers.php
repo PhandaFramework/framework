@@ -100,7 +100,7 @@ if (!function_exists('config')) {
     /**
      * @param null|string|array $key
      * @param mixed $default
-     * @return \Phanda\Configuration\Repository|null
+     * @return \Phanda\Configuration\Repository|null|array|mixed
      */
     function config($key = null, $default = null)
     {

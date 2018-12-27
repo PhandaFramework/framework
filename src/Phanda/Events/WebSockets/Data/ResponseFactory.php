@@ -31,7 +31,7 @@ class ResponseFactory
 	 */
 	public function makeChannelEventResponse(string $eventName, string $channelName, ?array $data = [])
 	{
-		$responseArray = ['event' => $eventName, 'channel' => $channelName] + $data;
+		$responseArray = ['event' => $eventName, 'channel' => $channelName, 'data' => $this->formatDataArray($data)];
 
 		return $this->formatter->formatPayload($responseArray);
 	}
@@ -46,7 +46,19 @@ class ResponseFactory
 	 */
 	public function makeSystemChannelEventResponse(string $eventName, string $channelName, ?array $data = [])
 	{
-		return $this->makeChannelEventResponse('phanda:'.$eventName, $channelName, $data);
+		return $this->makeChannelEventResponse('phanda:' . $eventName, $channelName, $data);
+	}
+
+	/**
+	 * Formats an array of data to be in the format that the WebSocket can
+	 * accept
+	 *
+	 * @param array $data
+	 * @return string
+	 */
+	protected function formatDataArray(array $data)
+	{
+		return $this->formatter->formatPayload($data);
 	}
 
 }

@@ -31,8 +31,9 @@ class Manager
 	 * Loads applications from a configuration array
 	 *
 	 * @param array $config
+	 * @return Manager
 	 */
-	protected function loadApplicationsFromConfig(array $config)
+	protected function loadApplicationsFromConfig(array $config): Manager
 	{
 		foreach ($config as $app) {
 			if (isset($app['id']) && isset($app['key']) && isset($app['secret'])) {
@@ -47,6 +48,8 @@ class Manager
 				logger()->warning('Invalid configuration provided for WebSocket app config.', $app);
 			}
 		}
+
+		return $this;
 	}
 
 	/**
@@ -57,11 +60,9 @@ class Manager
 	 * @param string      $appSecret
 	 * @param string|null $appName
 	 * @param string|null $appHost
-	 * @return $this
-	 *
-	 * @throws SocketApplicationException
+	 * @return SocketApp
 	 */
-	public function registerApplication(int $appId, string $appKey, string $appSecret, ?string $appName = null, ?string $appHost = null): Manager
+	public function registerApplication(int $appId, string $appKey, string $appSecret, ?string $appName = null, ?string $appHost = null): SocketApp
 	{
 		$this->verifyApplicationUnique($appId, $appKey);
 		$application = new SocketApp($appId, $appKey, $appSecret);
@@ -75,7 +76,7 @@ class Manager
 		}
 
 		$this->socketApps[] = $application;
-		return $this;
+		return $application;
 	}
 
 	/**
