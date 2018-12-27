@@ -246,3 +246,17 @@ if(!function_exists('createResponse')) {
         return $responseManager->createResponse($content, $status, $headers);
     }
 }
+
+if(!function_exists('logger')) {
+	/**
+	 * Gets the default logger
+	 *
+	 * @return \Phanda\Logging\Logger
+	 */
+	function logger() {
+		/** @var \Phanda\Logging\Manager $loggingManager */
+		$loggingManager = phanda()->create(\Phanda\Logging\Manager::class);
+
+		return $loggingManager->getLogger();
+	}
+}

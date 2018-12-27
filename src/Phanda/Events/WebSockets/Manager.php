@@ -43,6 +43,8 @@ class Manager
 					$app['name'] ?? null,
 					$app['host'] ?? null
 				);
+			} else {
+				logger()->warning('Invalid configuration provided for WebSocket app config.', $app);
 			}
 		}
 	}
