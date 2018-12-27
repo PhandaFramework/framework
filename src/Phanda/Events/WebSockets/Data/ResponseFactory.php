@@ -81,12 +81,12 @@ class ResponseFactory
 	 * Formats an array of data to be in the format that the WebSocket can
 	 * accept
 	 *
-	 * @param array $data
-	 * @return string
+	 * @param array|string $data
+	 * @return mixed
 	 */
-	protected function formatDataArray(array $data)
+	protected function formatDataArray($data)
 	{
-		return $this->formatter->formatPayload($data);
+		return $this->formatter->formatDataResponse($data);
 	}
 
 	/**

@@ -76,7 +76,7 @@ class Manager
 			$internalLogger->pushHandler($driver);
 		}
 
-		$dispatcher = app()->create(Dispatcher::class);
+		$dispatcher = phanda()->create(Dispatcher::class);
 		$logger = new Logger($internalLogger, $dispatcher);
 		$this->loggers[$name] = $logger;
 

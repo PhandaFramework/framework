@@ -230,6 +230,6 @@ class RouteBuilder
      */
     public function newRoute()
     {
-        return app()->create(self::class);
+        return phanda()->create(self::class);
     }
 }

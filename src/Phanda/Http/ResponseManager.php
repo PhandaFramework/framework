@@ -74,7 +74,7 @@ class ResponseManager implements ResponseManagerContract
             );
         } catch (\Throwable $e) {
             /** @var ExceptionHandler $exceptionHandler */
-            $exceptionHandler = app()->create(ExceptionHandler::class);
+            $exceptionHandler = phanda()->create(ExceptionHandler::class);
             $exceptionHandler->save($e);
             return $exceptionHandler->render(phanda()->create(Request::class), $e)->send();
         }

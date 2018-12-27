@@ -55,7 +55,7 @@ class ChannelMessage implements Message
 		$eventName = PhandaStr::makeCamel(PhandaStr::after($this->payload->event, ':'));
 
 		if (method_exists($this, $eventName)) {
-			call_user_func([$this, $eventName], $this->connection, $this->payload->data ?? new \stdClass());
+			call_user_func([$this, $eventName], $this->connection, $this->payload ?? new \stdClass());
 		}
 	}
 

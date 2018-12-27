@@ -2,7 +2,7 @@
 
 namespace Phanda\Exceptions\Events\WebSockets;
 
-class InvalidAppKey extends WebSocketException
+class InvalidAppKeyException extends WebSocketException
 {
 
 	public function __construct($appKey)

@@ -7,7 +7,7 @@ use Phanda\Contracts\Events\WebSockets\Connection\Connection as PhandaConnection
 use Phanda\Events\WebSockets\Connection\Connection;
 use Phanda\Events\WebSockets\Data\ResponseFactory;
 use Phanda\Events\WebSockets\Messages\MessageFactory;
-use Phanda\Exceptions\Events\WebSockets\InvalidAppKey;
+use Phanda\Exceptions\Events\WebSockets\InvalidAppKeyException;
 use Ratchet\ConnectionInterface;
 use Ratchet\RFC6455\Messaging\MessageInterface;
 use Ratchet\WebSocket\MessageComponentInterface;
@@ -56,7 +56,6 @@ class Handler implements MessageComponentInterface
 	 */
 	function onOpen(ConnectionInterface $conn)
 	{
-		dump ("handler received connection" );
 		$connection = $this->makePhandaConnection($conn);
 
 		$this->verifyApplicationKey($connection)
@@ -146,7 +145,7 @@ class Handler implements MessageComponentInterface
 		$appKey = $parameters['appKey'] ?? '';
 
 		if (!$app = $this->manager->getApplicationByKey($appKey)) {
-			throw new InvalidAppKey($appKey);
+			throw new InvalidAppKeyException($appKey);
 		}
 
 		$connection->setApplication($app);

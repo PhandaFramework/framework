@@ -4,6 +4,7 @@
 namespace Phanda\Foundation\Console;
 
 use Closure;
+use Exception;
 use Phanda\Console\Application as Kungfu;
 use Phanda\Console\ClosureCommand;
 use Phanda\Console\ConsoleCommand;
@@ -23,6 +24,7 @@ use Phanda\Support\PhandaStr;
 use ReflectionClass;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Debug\Exception\FatalThrowableError;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
@@ -92,6 +94,10 @@ class Kernel implements ConsoleKernel
             $this->outputException($output, $e);
             return 1;
         } catch (\Throwable $e) {
+			if (! $e instanceof Exception) {
+				$e = new FatalThrowableError($e);
+			}
+
             $this->saveException($e);
             $this->outputException($output, $e);
             return 1;

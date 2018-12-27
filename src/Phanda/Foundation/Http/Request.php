@@ -5,6 +5,8 @@ namespace Phanda\Foundation\Http;
 
 use Closure;
 use Phanda\Contracts\Support\Arrayable;
+use Phanda\Routing\Route;
+use Phanda\Support\PhandArr;
 use Phanda\Util\Foundation\Http\RequestContentTypes;
 use Phanda\Util\Foundation\Http\RequestInput;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
@@ -178,6 +180,33 @@ class Request extends SymfonyRequest implements Arrayable, \ArrayAccess
         return $this;
     }
 
+	/**
+	 * @return Closure
+	 */
+	public function getRouteResolver(): Closure
+	{
+		return $this->routeResolver;
+	}
+
+	/**
+	 * Get the route handling the request.
+	 *
+	 * @param  string|null  $param
+	 * @param  mixed   $default
+	 * @return Route|object|string
+	 */
+	public function route($param = null, $default = null)
+	{
+		/** @var Route $route */
+		$route = call_user_func($this->getRouteResolver());
+
+		if (is_null($route) || is_null($param)) {
+			return $route;
+		}
+
+		return $route->getParameter($param, $default);
+	}
+
     /**
      * Gets the current url
      *
@@ -207,5 +236,19 @@ class Request extends SymfonyRequest implements Arrayable, \ArrayAccess
     {
         return rtrim($this->getSchemeAndHttpHost().$this->getBaseUrl(), '/');
     }
+
+
+	/**
+	 * Get an input element from the request.
+	 *
+	 * @param  string  $key
+	 * @return mixed
+	 */
+	public function __get($key)
+	{
+		return PhandArr::get($this->all(), $key, function () use ($key) {
+			return $this->route($key);
+		});
+	}
 
 }

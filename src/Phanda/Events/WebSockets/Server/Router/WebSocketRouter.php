@@ -3,6 +3,8 @@
 namespace Phanda\Events\WebSockets\Server\Router;
 
 use Phanda\Events\WebSockets\Handler;
+use Phanda\Events\WebSockets\Server\Controllers\FetchChannelsController;
+use Phanda\Events\WebSockets\Server\Controllers\SocketEventController;
 use Ratchet\WebSocket\MessageComponentInterface;
 use Ratchet\WebSocket\WsServer;
 use Symfony\Component\Routing\Route;
@@ -29,6 +31,9 @@ class WebSocketRouter
 	public function registerBaseRoutes()
 	{
 		$this->get('/app/{appKey}', Handler::class);
+
+		$this->post('/app/{appId}/events', SocketEventController::class);
+		$this->get('/app/{appId}/channels', FetchChannelsController::class);
 	}
 
 	/**

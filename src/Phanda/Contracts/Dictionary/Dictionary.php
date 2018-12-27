@@ -30,7 +30,10 @@ interface Dictionary extends Iterator, \JsonSerializable
 	public function unwrap();
 
 	/**
-	 * @inheritdoc
+	 * Filters a given dictionary
+	 *
+	 * @param null|callable $c
+	 * @return $this
 	 */
 	public function filter(callable $c = null);
 

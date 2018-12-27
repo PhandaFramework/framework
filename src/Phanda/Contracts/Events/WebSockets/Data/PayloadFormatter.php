@@ -11,4 +11,6 @@ interface PayloadFormatter
 	 * @return string
 	 */
 	public function formatPayload($payload): string;
+
+	public function formatDataResponse($data);
 }

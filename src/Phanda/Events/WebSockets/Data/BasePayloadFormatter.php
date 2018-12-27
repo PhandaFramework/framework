@@ -17,4 +17,15 @@ class BasePayloadFormatter implements PayloadFormatter
 	{
 		return json_encode($payload);
 	}
+
+	/**
+	 * Formats the data
+	 *
+	 * @param $data
+	 * @return array
+	 */
+	public function formatDataResponse($data)
+	{
+		return createDictionary($data)->toArray();
+	}
 }

@@ -43,8 +43,8 @@ class BaseChannel implements Channel
 	public function __construct(string $channelName)
 	{
 		$this->channelName = $channelName;
-		$this->formatter = app()->make(PayloadFormatter::class);
-		$this->responseFactory = app()->make(ResponseFactory::class);
+		$this->formatter = phanda()->create(PayloadFormatter::class);
+		$this->responseFactory = phanda()->create(ResponseFactory::class);
 	}
 
 	/**

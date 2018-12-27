@@ -43,6 +43,10 @@ class Connection implements ConnectionContract
 	 */
 	public function getSocketId(): string
 	{
+		if(isset($this->internalConnection->socketId) && !isset($this->socketId)) {
+			$this->socketId = $this->internalConnection->socketId;
+		}
+
 		return $this->socketId;
 	}
 
@@ -55,6 +59,8 @@ class Connection implements ConnectionContract
 	public function setSocketId(string $socketId): ConnectionContract
 	{
 		$this->socketId = $socketId;
+		$this->internalConnection->socketId = $socketId;
+
 		return $this;
 	}
 
@@ -85,6 +91,10 @@ class Connection implements ConnectionContract
 	 */
 	public function getApplication(): SocketApp
 	{
+		if(isset($this->internalConnection->app) && !isset($this->app)) {
+			$this->app = $this->internalConnection->app;
+		}
+
 		return $this->app;
 	}
 
@@ -97,6 +107,8 @@ class Connection implements ConnectionContract
 	public function setApplication(SocketApp $app): ConnectionContract
 	{
 		$this->app = $app;
+		$this->internalConnection->app = $app;
+
 		return $this;
 	}
 
