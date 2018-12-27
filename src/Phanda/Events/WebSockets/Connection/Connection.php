@@ -5,6 +5,7 @@ namespace Phanda\Events\WebSockets\Connection;
 use Phanda\Contracts\Events\WebSockets\Application\SocketApp;
 use Phanda\Contracts\Events\WebSockets\Connection\Connection as ConnectionContract;
 use Phanda\Events\WebSockets\Manager;
+use Ratchet\ConnectionInterface;
 
 class Connection implements ConnectionContract
 {
@@ -22,6 +23,18 @@ class Connection implements ConnectionContract
 	 * @var SocketApp
 	 */
 	protected $app;
+
+	/**
+	 * The internal connection
+	 *
+	 * @var ConnectionInterface
+	 */
+	protected $internalConnection;
+
+	public function __construct(ConnectionInterface $connection)
+	{
+		$this->internalConnection = $connection;
+	}
 
 	/**
 	 * Gets the socket id of a given connection
@@ -50,21 +63,19 @@ class Connection implements ConnectionContract
 	 *
 	 * @param  string $data
 	 * @return Connection
-	 *
-	 * @todo this
 	 */
 	function send($data)
 	{
+		$this->internalConnection->send($data);
 		return $this;
 	}
 
 	/**
 	 * Close the connection
-	 *
-	 * @todo this
 	 */
 	function close()
 	{
+		$this->internalConnection->close();
 	}
 
 	/**

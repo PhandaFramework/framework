@@ -11,9 +11,9 @@ class MessageFactory
 {
 
 	/**
-	 * @param MessageInterface    $message
+	 * @param MessageInterface   $message
 	 * @param ConnectionContract $connection
-	 * @param ChannelManager      $channelManager
+	 * @param ChannelManager     $channelManager
 	 * @return ChannelMessage|ClientMessage
 	 */
 	public function createMessage(
@@ -24,7 +24,7 @@ class MessageFactory
 	{
 		$payload = json_decode($message->getPayload());
 
-		return PhandaStr::startsIn('channel:', $payload->event)
+		return PhandaStr::startsIn('phanda:', $payload->event)
 			? new ChannelMessage($payload, $connection, $channelManager)
 			: new ClientMessage($payload, $connection, $channelManager);
 	}

@@ -260,3 +260,15 @@ if(!function_exists('logger')) {
 		return $loggingManager->getLogger();
 	}
 }
+
+if(!function_exists('request')) {
+	/**
+	 * Gets the currently active request
+	 *
+	 * @return \Phanda\Foundation\Http\Request
+	 */
+	function request()
+	{
+		return phanda()->create(\Phanda\Foundation\Http\Request::class);
+	}
+}

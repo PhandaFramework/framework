@@ -2,6 +2,7 @@
 
 namespace Phanda\Events\WebSockets\Data;
 
+use Exception;
 use Phanda\Contracts\Events\WebSockets\Data\PayloadFormatter;
 
 class ResponseFactory
@@ -86,6 +87,23 @@ class ResponseFactory
 	protected function formatDataArray(array $data)
 	{
 		return $this->formatter->formatPayload($data);
+	}
+
+	/**
+	 * Makes a response for a given exception
+	 *
+	 * @param Exception $e
+	 * @return string
+	 */
+	public function makeExceptionResponse(Exception $e)
+	{
+		return $this->makeSystemEventResponse(
+			'error',
+			[
+				'message' => $e->getMessage(),
+				'code' => $e->getCode()
+			]
+		);
 	}
 
 }
