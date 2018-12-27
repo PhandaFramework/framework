@@ -4,6 +4,7 @@ namespace Phanda\Events\WebSockets\Commands;
 
 use Phanda\Console\ConsoleCommand;
 use Phanda\Events\WebSockets\Server\Router\WebSocketRouter;
+use Phanda\Events\WebSockets\Server\ServerFactory;
 use React\EventLoop\Factory as LoopFactory;
 
 class StartWebSocketServer extends ConsoleCommand
@@ -53,6 +54,18 @@ class StartWebSocketServer extends ConsoleCommand
 	protected function startSocketServer()
 	{
 		$this->info("Starting the WebSocket server on {$this->getOption('host')}:{$this->getOption('port')}...");
+
+		$routes = $this->webSocketRouter->getRoutes();
+
+		(new ServerFactory())
+			->setLoop($this->loop)
+			->setRoutes($routes)
+			->setHost($this->getOption('host'))
+			->setPort($this->getOption('port'))
+			->setConsoleOutput($this->getOutput())
+			->createServer()
+			->run();
+
 		return $this;
 	}
 }

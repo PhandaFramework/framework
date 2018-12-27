@@ -56,6 +56,7 @@ class Handler implements MessageComponentInterface
 	 */
 	function onOpen(ConnectionInterface $conn)
 	{
+		dump ("handler received connection" );
 		$connection = $this->makePhandaConnection($conn);
 
 		$this->verifyApplicationKey($connection)
@@ -140,7 +141,9 @@ class Handler implements MessageComponentInterface
 	 */
 	protected function verifyApplicationKey(PhandaConnection $connection)
 	{
-		$appKey = request()->query->get('appKey');
+		$parameters = [];
+		parse_str($connection->httpRequest->getUri()->getQuery(), $parameters);
+		$appKey = $parameters['appKey'] ?? '';
 
 		if (!$app = $this->manager->getApplicationByKey($appKey)) {
 			throw new InvalidAppKey($appKey);

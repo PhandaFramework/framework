@@ -2,10 +2,18 @@
 
 namespace Phanda\Contracts\Events\WebSockets\Connection;
 
+use GuzzleHttp\Psr7\Request;
 use Phanda\Contracts\Events\WebSockets\Application\SocketApp;
 use Phanda\Events\WebSockets\Manager;
 use Ratchet\ConnectionInterface;
 
+/**
+ * Interface Connection
+ *
+ * @package Phanda\Contracts\Events\WebSockets\Connection
+ *
+ * @property Request $httpRequest
+ */
 interface Connection extends ConnectionInterface
 {
 	/**

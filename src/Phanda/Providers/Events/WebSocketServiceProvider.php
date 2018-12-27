@@ -4,9 +4,11 @@ namespace Phanda\Providers\Events;
 
 use Phanda\Contracts\Events\WebSockets\Connection\Connection as ConnectionContract;
 use Phanda\Contracts\Events\WebSockets\Data\PayloadFormatter;
+use Phanda\Contracts\Foundation\Application;
 use Phanda\Events\WebSockets\Channels\Managers\ArrayChannelManager;
 use Phanda\Events\WebSockets\Commands\StartWebSocketServer;
 use Phanda\Events\WebSockets\Data\BasePayloadFormatter;
+use Phanda\Events\WebSockets\Handler;
 use Phanda\Events\WebSockets\Manager;
 use Phanda\Providers\AbstractServiceProvider;
 use Ratchet\ConnectionInterface;
@@ -21,6 +23,7 @@ class WebSocketServiceProvider extends AbstractServiceProvider
 		$this->registerRatchetToPhandaAliases();
 		$this->registerWebSocketManager();
 		$this->registerWebSocketChannelManager();
+		$this->registerWebSocketHandler();
 		$this->registerWebSocketCommands();
 	}
 
@@ -66,6 +69,22 @@ class WebSocketServiceProvider extends AbstractServiceProvider
 		});
 
 		$this->phanda->alias(\Phanda\Contracts\Events\WebSockets\Channels\Manager::class, ArrayChannelManager::class);
+	}
+
+	/**
+	 * Registers the web socket handler
+	 */
+	protected function registerWebSocketHandler()
+	{
+		$this->phanda->singleton(Handler::class, function($phanda) {
+			/** @var Application $phanda */
+			/** @var \Phanda\Contracts\Events\WebSockets\Channels\Manager $channelManager */
+			$channelManager = $phanda->create(\Phanda\Contracts\Events\WebSockets\Channels\Manager::class);
+			/** @var Manager $manager */
+			$manager = $phanda->create(Manager::class);
+
+			return new Handler($channelManager, $manager);
+		});
 	}
 
 	/**

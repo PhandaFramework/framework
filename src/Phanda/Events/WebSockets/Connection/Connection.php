@@ -99,4 +99,19 @@ class Connection implements ConnectionContract
 		$this->app = $app;
 		return $this;
 	}
+
+	public function __call($name, $arguments)
+	{
+		return $this->internalConnection->{$name}($arguments);
+	}
+
+	public function __get($name)
+	{
+		return $this->internalConnection->{$name};
+	}
+
+	public function __set($name, $value)
+	{
+		$this->internalConnection->{$name} = $value;
+	}
 }

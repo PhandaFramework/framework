@@ -37,7 +37,7 @@ class OriginCheck implements HttpServerInterface
 			$this->verifyOrigin($connection, $request);
 		}
 
-		return $this->_component->onOpen($connection);
+		return $this->_component->onOpen($connection, $request);
 	}
 
 	public function onMessage(ConnectionInterface $from, $msg)
