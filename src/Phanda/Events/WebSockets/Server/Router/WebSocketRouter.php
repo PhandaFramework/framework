@@ -2,6 +2,7 @@
 
 namespace Phanda\Events\WebSockets\Server\Router;
 
+use Phanda\Events\WebSockets\Handler;
 use Ratchet\WebSocket\MessageComponentInterface;
 use Ratchet\WebSocket\WsServer;
 use Symfony\Component\Routing\Route;
@@ -20,6 +21,14 @@ class WebSocketRouter
 	public function __construct()
 	{
 		$this->routes = new RouteCollection();
+	}
+
+	/**
+	 * Register the websocket routes
+	 */
+	public function registerBaseRoutes()
+	{
+		$this->get('/app/{appKey}', Handler::class);
 	}
 
 	/**

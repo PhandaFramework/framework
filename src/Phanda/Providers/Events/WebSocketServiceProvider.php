@@ -5,10 +5,12 @@ namespace Phanda\Providers\Events;
 use Phanda\Contracts\Events\WebSockets\Connection\Connection as ConnectionContract;
 use Phanda\Contracts\Events\WebSockets\Data\PayloadFormatter;
 use Phanda\Events\WebSockets\Channels\Managers\ArrayChannelManager;
+use Phanda\Events\WebSockets\Commands\StartWebSocketServer;
 use Phanda\Events\WebSockets\Data\BasePayloadFormatter;
 use Phanda\Events\WebSockets\Manager;
 use Phanda\Providers\AbstractServiceProvider;
 use Ratchet\ConnectionInterface;
+use Phanda\Console\Application as Kungfu;
 
 class WebSocketServiceProvider extends AbstractServiceProvider
 {
@@ -19,6 +21,7 @@ class WebSocketServiceProvider extends AbstractServiceProvider
 		$this->registerRatchetToPhandaAliases();
 		$this->registerWebSocketManager();
 		$this->registerWebSocketChannelManager();
+		$this->registerWebSocketCommands();
 	}
 
 	/**
@@ -63,6 +66,21 @@ class WebSocketServiceProvider extends AbstractServiceProvider
 		});
 
 		$this->phanda->alias(\Phanda\Contracts\Events\WebSockets\Channels\Manager::class, ArrayChannelManager::class);
+	}
+
+	/**
+	 *
+	 */
+	protected function registerWebSocketCommands()
+	{
+		$this->phanda->singleton('commands.websockets.serve', function() {
+			return new StartWebSocketServer();
+		});
+
+		Kungfu::starting(function ($kungfu) {
+			/** @var Kungfu $kungfu */
+			$kungfu->resolveCommands(['commands.websockets.serve' => StartWebSocketServer::class]);
+		});
 	}
 
 }
