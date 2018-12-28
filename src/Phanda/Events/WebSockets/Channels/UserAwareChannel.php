@@ -35,7 +35,7 @@ class UserAwareChannel extends BaseChannel
 		$this->verifyConnectionSignature($connection, $payload);
 		$this->saveSubscriber($connection);
 
-		$channelData = json_decode($payload->channel_data);
+		$channelData = $payload->data->channel_data;
 		$this->users[$connection->getSocketId()] = $channelData;
 
 		$connection->send(
@@ -51,7 +51,7 @@ class UserAwareChannel extends BaseChannel
 			$this->responseFactory->makeSystemChannelEventResponse(
 				'member_connected',
 				$this->getChannelName(),
-				$channelData
+				(array)$channelData
 			)
 		);
 	}
@@ -97,6 +97,7 @@ class UserAwareChannel extends BaseChannel
 				'hash' => $this->getHash(),
 				'count' => count($this->users),
 			],
+			'channel' => $this->getChannelName()
 		];
 	}
 

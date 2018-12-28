@@ -92,7 +92,10 @@ class BaseChannel implements Channel
 		$connection->send(
 			$this->responseFactory->makeSystemChannelEventResponse(
 				'subscribed',
-				$this->getChannelName()
+				$this->getChannelName(),
+				[
+					'channel' => $this->getChannelName()
+				]
 			)
 		);
 	}
@@ -110,11 +113,11 @@ class BaseChannel implements Channel
 	{
 		$signature = "{$connection->getSocketId()}:{$this->getChannelName()}";
 
-		if (isset($payload->channel_data)) {
+		/*if (isset($payload->data->channel_data)) {
 			$signature .= ":{$payload->channel_data}";
-		}
+		}*/
 
-		if (PhandaStr::after($payload->auth, ':') !== hash_hmac('sha256', $signature, $connection->getApplication()->getAppSecret())) {
+		if (hash_hmac('sha256', $payload->data->auth, $connection->getApplication()->getAppSecret()) !== hash_hmac('sha256', $signature, $connection->getApplication()->getAppSecret())) {
 			throw new InvalidSocketSignature("Socket mismatch in connection to channel.");
 		}
 	}
@@ -163,6 +166,16 @@ class BaseChannel implements Channel
 	public function unsubscribe(ConnectionContract $connection)
 	{
 		unset($this->subscribers[$connection->getSocketId()]);
+
+		$connection->send(
+			$this->responseFactory->makeSystemChannelEventResponse(
+				'unsubscribed',
+				$this->getChannelName(),
+				[
+					'channel' => $this->getChannelName()
+				]
+			)
+		);
 	}
 
 	/**

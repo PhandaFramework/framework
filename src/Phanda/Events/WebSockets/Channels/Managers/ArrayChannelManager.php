@@ -103,11 +103,11 @@ class ArrayChannelManager implements Manager
 	 */
 	protected function getChannelClass(string $channelName): string
 	{
-		if (PhandaStr::startsIn($channelName, 'private-')) {
+		if (PhandaStr::startsIn('private-', $channelName)) {
 			return PrivateChannel::class;
 		}
 
-		if (PhandaStr::startsIn($channelName, 'user-aware-')) {
+		if (PhandaStr::startsIn('user-aware-', $channelName)) {
 			return UserAwareChannel::class;
 		}
 
